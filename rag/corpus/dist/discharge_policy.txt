@@ -1,0 +1,45 @@
+DISCHARGE PLANNING AND TRANSITIONS OF CARE POLICY
+
+Document code: CF-POL-DC-07. Version 5. Owner: Patient Flow Office.
+
+SYNTHETIC DEMONSTRATION DOCUMENT. Written for the CareFlow AI portfolio project; fictional policy.
+
+1. Purpose
+
+This policy sets out how CareFlow General Hospital plans safe discharges and reduces avoidable readmissions. It applies to all clinical and administrative staff involved in inpatient care.
+
+2. Discharge Planning Starts at Admission
+
+An expected date of discharge (EDD) must be recorded within 24 hours of admission and reviewed daily at the ward board round. Discharge planning is multidisciplinary and includes the medical team, nursing, pharmacy, physiotherapy and social work where needed.
+
+3. Readmission Risk Screening
+
+Every adult inpatient is screened for readmission risk within 48 hours of admission and again on the day before discharge. A patient is considered high risk when any of the following apply: two or more inpatient admissions in the previous 12 months, an emergency department visit in the previous 6 months, discharge on insulin or an anticoagulant after a dose change, or a high readmission risk flag from the CareFlow predictive model. The model output is decision support only and never replaces clinical judgement.
+
+4. Transitional Care for High-Risk Patients
+
+High-risk patients must receive all of the following: a follow-up appointment booked before discharge and scheduled within 7 days, a telephone follow-up call by a nurse within 72 hours of discharge, a referral to home health services when the patient lives alone or has new care needs, and a pharmacist-led medication review. Other patients should have follow-up within 14 days.
+
+5. Medication Reconciliation
+
+A complete medication reconciliation must be performed before discharge, comparing pre-admission medicines, inpatient orders and the discharge prescription. Any medicine that was started, stopped or changed must be explained to the patient. High-alert medications (insulin, anticoagulants, opioids) require pharmacist review before discharge, as set out in the Medication Safety Policy MED-POL-004.
+
+6. Discharge Summary
+
+The discharge summary must be completed on the day of discharge and sent to the patient's primary care provider within 48 hours. It must include the reason for admission, key investigations, procedures, the final diagnosis, medication changes with reasons, pending results, and the follow-up plan.
+
+7. Patient Education
+
+Use the teach-back method to confirm that the patient or carer understands warning signs, medication changes and whom to contact. Provide written instructions in the patient's preferred language.
+
+8. Timing of Discharge
+
+The hospital target is for 40% of discharges to take place before 11:00. Patients should not be discharged between 22:00 and 07:00 unless they request it and it is clinically safe.
+
+9. Discharge Against Medical Advice
+
+When a patient with decision-making capacity chooses to leave against medical advice (AMA), the doctor must explain the risks, document the discussion, offer follow-up and medications, and ask the patient to sign the AMA form. Refusal to sign must also be documented.
+
+10. Administrative Responsibilities
+
+Reception and ward clerks book the follow-up appointment before the patient leaves, confirm contact details and the emergency contact, and arrange transport when required.

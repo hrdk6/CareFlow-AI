@@ -1,0 +1,37 @@
+# EMERGENCY ADMISSION PROCEDURE
+
+Document code: CF-PROC-EM-03. Version 3. Owner: Emergency Department.
+
+SYNTHETIC DEMONSTRATION DOCUMENT. Written for the CareFlow AI portfolio project; fictional procedure.
+
+## 1. Scope
+
+This procedure describes the pathway from arrival in the emergency department (ED) to admission to an inpatient ward.
+
+## 2. Registration and Identification
+
+Reception registers every arriving patient and confirms identity with two identifiers: full name and date of birth, or full name and medical record number (MRN). An identification wristband is applied before any clinical assessment. Unknown patients are registered with a temporary unique identifier.
+
+## 3. Triage
+
+A triage nurse assesses every patient within 15 minutes of arrival and assigns one of five categories: immediate (seen at once), very urgent (within 10 minutes), urgent (within 60 minutes), standard (within 120 minutes) and non-urgent (within 240 minutes).
+
+## 4. Early Warning Score
+
+Calculate the National Early Warning Score 2 (NEWS2) at triage and at every set of observations. A NEWS2 of 5 or more, or 3 in any single parameter, triggers an urgent review by the ED doctor within 30 minutes. A NEWS2 of 7 or more triggers an emergency response with senior review and consideration of critical care.
+
+## 5. Sepsis Screening
+
+Screen every patient with suspected infection for sepsis. If sepsis is suspected, start the sepsis bundle within one hour: blood cultures, lactate, broad-spectrum antibiotics (checking allergies first), intravenous fluids when hypotensive, and urine output monitoring.
+
+## 6. Decision to Admit
+
+The decision to admit or discharge should be made within 4 hours of arrival. The admitting team is contacted by phone and a bed request is placed in the patient flow system. Hypertensive emergencies, hyperglycemic emergencies (DKA or HHS) and suspected stroke follow their specific pathways.
+
+## 7. Handover
+
+Clinical handover from the ED to the ward uses the SBAR format (Situation, Background, Assessment, Recommendation) and includes allergies, medications given in the ED, pending results and the escalation plan.
+
+## 8. Documentation
+
+The admitting doctor documents the admission note within 4 hours of the decision to admit, including the working diagnosis, the management plan, the resuscitation status and the expected date of discharge.

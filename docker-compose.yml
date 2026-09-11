@@ -1,0 +1,57 @@
+# CareFlow AI - minimal three-service deployment: PostgreSQL+pgvector, FastAPI backend, Next.js frontend.
+#   cp .env.example .env   # then set CAREFLOW_JWT_SECRET and POSTGRES_PASSWORD
+#   docker compose up --build
+# Frontend: http://localhost:3000   API docs: http://localhost:8000/docs
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: careflow
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: careflow
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U careflow -d careflow"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    env_file: .env
+    environment:
+      CAREFLOW_DATABASE_URL: postgresql+psycopg://careflow:${POSTGRES_PASSWORD}@db:5432/careflow
+      CAREFLOW_ENVIRONMENT: production
+      CAREFLOW_CORS_ORIGINS: http://localhost:3000
+      # Ollama (or any OpenAI-compatible server) running on the Docker host:
+      CAREFLOW_LLM_BASE_URL: ${CAREFLOW_LLM_BASE_URL:-http://host.docker.internal:11434/v1}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - storage:/app/backend/storage
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: frontend
+      args:
+        CAREFLOW_API_URL: http://backend:8000
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  storage:

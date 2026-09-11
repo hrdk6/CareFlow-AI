@@ -1,0 +1,57 @@
+"use client";
+
+import { useState } from "react";
+
+import { Card, PageHeader } from "@/components/ui/card";
+import { ErrorState, Skeleton } from "@/components/ui/feedback";
+import { Input, Select } from "@/components/ui/form";
+import { useApi, useDebounced } from "@/lib/hooks";
+import { qs } from "@/lib/api";
+import type { Department, Doctor } from "@/lib/types";
+
+const DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
+
+export default function DoctorsPage() {
+  const [q, setQ] = useState("");
+  const [dept, setDept] = useState("");
+  const term = useDebounced(q, 250);
+  const { data, error, loading, reload } = useApi<Doctor[]>(`/doctors${qs({ q: term, department_id: dept })}`);
+  const { data: departments } = useApi<Department[]>("/departments");
+  return (
+    <>
+      <PageHeader title="Doctors" subtitle="Clinician directory and weekly availability templates (hospital time, UTC)." />
+      <div className="mb-4 flex flex-wrap gap-2">
+        <Input placeholder="Search name or specialty" value={q} onChange={(e) => setQ(e.target.value)} className="max-w-xs" aria-label="Search doctors" />
+        <Select value={dept} onChange={(e) => setDept(e.target.value)} placeholder="All departments" className="max-w-[220px]" aria-label="Department"
+          options={(departments ?? []).map((d) => ({ value: d.id, label: d.name }))} />
+      </div>
+      {error && <ErrorState error={error} onRetry={reload} />}
+      {loading && !data && <Skeleton lines={6} />}
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        {data?.map((d) => (
+          <Card key={d.id}>
+            <div className="flex items-start justify-between">
+              <div>
+                <div className="font-medium text-slate-900">{d.full_name}</div>
+                <div className="text-xs text-slate-500">{d.specialty} · {d.department}</div>
+              </div>
+              <span className="font-mono text-xs text-slate-400">{d.staff_code}</span>
+            </div>
+            <div className="mt-3 grid grid-cols-7 gap-1 text-center text-[10px]">
+              {DAYS.map((day) => {
+                const slots = d.availability[day] ?? [];
+                return (
+                  <div key={day} className={slots.length ? "rounded bg-brand-50 p-1 text-brand-800" : "rounded bg-slate-50 p-1 text-slate-400"}>
+                    <div className="font-semibold uppercase">{day}</div>
+                    {slots.length ? slots.map(([s, e]) => <div key={s}>{s}–{e}</div>) : <div>—</div>}
+                  </div>
+                );
+              })}
+            </div>
+            <div className="mt-3 text-xs text-slate-500">{d.email} · {d.phone}</div>
+          </Card>
+        ))}
+      </div>
+    </>
+  );
+}

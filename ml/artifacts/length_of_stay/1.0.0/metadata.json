@@ -1,0 +1,175 @@
+{
+  "task": "regression",
+  "algorithm": "xgboost",
+  "target": "length of stay in days (UCI 'time_in_hospital', range 1-14)",
+  "dataset": {
+    "name": "UCI Diabetes 130-US hospitals 1999-2008",
+    "license": "CC BY 4.0",
+    "doi": "10.24432/C5230J",
+    "sha256": "0689e7ec031237dc63031b938805c48377748761a3b26acab621567afa24df97",
+    "rows_raw": 101766,
+    "rows_used": 99340,
+    "rows_excluded": {
+      "invalid_gender": 3,
+      "expired_or_hospice": 2423
+    }
+  },
+  "features": {
+    "set": "los_admission_v1",
+    "numeric": [
+      "age_years",
+      "number_outpatient",
+      "number_emergency",
+      "number_inpatient"
+    ],
+    "categorical": [
+      "gender",
+      "admission_type",
+      "admission_source",
+      "admitting_specialty",
+      "primary_diagnosis_category"
+    ],
+    "labels": {
+      "age_years": "Age",
+      "number_outpatient": "Outpatient visits in the prior year",
+      "number_emergency": "Emergency visits in the prior year",
+      "number_inpatient": "Inpatient admissions in the prior year",
+      "gender": "Sex",
+      "admission_type": "Admission type",
+      "admission_source": "Admission source",
+      "admitting_specialty": "Admitting specialty",
+      "primary_diagnosis_category": "Primary diagnosis group"
+    }
+  },
+  "split": {
+    "method": "grouped by patient",
+    "train": 69465,
+    "validation": 14767,
+    "test": 15108,
+    "seed": 42
+  },
+  "selection_metric": "validation MAE",
+  "prediction_interval": {
+    "lower_residual": -2.971,
+    "upper_residual": 4.149,
+    "coverage_target": 0.8,
+    "test_coverage": 0.799
+  },
+  "metrics": {
+    "test": {
+      "n": 15108,
+      "mae": 2.2456,
+      "rmse": 2.8834,
+      "r2": 0.0778
+    },
+    "baseline_test": {
+      "n": 15108,
+      "mae": 2.2791,
+      "rmse": 3.0311,
+      "r2": -0.0192
+    },
+    "baseline_validation": {
+      "n": 14767,
+      "mae": 2.256,
+      "rmse": 3.0011,
+      "r2": -0.0185
+    }
+  },
+  "candidates": [
+    {
+      "candidate": "ridge",
+      "fit_seconds": 0.1,
+      "validation": {
+        "n": 14767,
+        "mae": 2.2731,
+        "rmse": 2.9062,
+        "r2": 0.0449
+      },
+      "test": {
+        "n": 15108,
+        "mae": 2.2913,
+        "rmse": 2.9366,
+        "r2": 0.0434
+      }
+    },
+    {
+      "candidate": "random_forest",
+      "fit_seconds": 1.9,
+      "validation": {
+        "n": 14767,
+        "mae": 2.2347,
+        "rmse": 2.8644,
+        "r2": 0.0721
+      },
+      "test": {
+        "n": 15108,
+        "mae": 2.2513,
+        "rmse": 2.8918,
+        "r2": 0.0723
+      }
+    },
+    {
+      "candidate": "xgboost",
+      "fit_seconds": 1.4,
+      "validation": {
+        "n": 14767,
+        "mae": 2.2285,
+        "rmse": 2.8553,
+        "r2": 0.0781
+      },
+      "test": {
+        "n": 15108,
+        "mae": 2.2456,
+        "rmse": 2.8834,
+        "r2": 0.0778
+      }
+    }
+  ],
+  "global_importance": {
+    "age_years": 0.24978,
+    "primary_diagnosis_category": 0.23106,
+    "number_inpatient": 0.22107,
+    "admission_source": 0.14758,
+    "admitting_specialty": 0.12926,
+    "admission_type": 0.07818,
+    "number_outpatient": 0.06188,
+    "gender": 0.06,
+    "number_emergency": 0.02817
+  },
+  "leakage_ablation": {
+    "admission_time_features_test": {
+      "n": 15108,
+      "mae": 2.2456,
+      "rmse": 2.8834,
+      "r2": 0.0778
+    },
+    "with_stay_time_features_test": {
+      "n": 15108,
+      "mae": 1.7329,
+      "rmse": 2.3007,
+      "r2": 0.4128
+    },
+    "extra_features": [
+      "num_lab_procedures",
+      "num_medications",
+      "number_diagnoses",
+      "num_procedures"
+    ],
+    "note": "Stay-time features are unavailable at admission; using them would be target leakage."
+  },
+  "intended_use": "Rough operational estimate of inpatient stay length at admission (bed planning). Not a clinical judgement.",
+  "limitations": [
+    "Training data only contains stays of 1-14 days; longer stays cannot be predicted.",
+    "Admission-time information explains only a small share of LOS variance (see R2).",
+    "Trained on diabetic inpatients 1999-2008 (US); other populations are out of distribution."
+  ],
+  "model_name": "length_of_stay",
+  "version": "1.0.0",
+  "trained_at": "2026-09-11T10:43:52+00:00",
+  "environment": {
+    "python": "3.12.12",
+    "sklearn": "1.9.1",
+    "xgboost": "3.4.1",
+    "numpy": "2.5.3"
+  }
+}

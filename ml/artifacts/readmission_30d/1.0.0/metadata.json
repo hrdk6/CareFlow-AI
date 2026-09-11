@@ -1,0 +1,920 @@
+{
+  "task": "classification",
+  "algorithm": "random_forest:none",
+  "target": "readmitted within 30 days of discharge (UCI 'readmitted' == '<30')",
+  "dataset": {
+    "name": "UCI Diabetes 130-US hospitals 1999-2008",
+    "license": "CC BY 4.0",
+    "doi": "10.24432/C5230J",
+    "sha256": "0689e7ec031237dc63031b938805c48377748761a3b26acab621567afa24df97",
+    "rows_raw": 101766,
+    "rows_used": 99340,
+    "rows_excluded": {
+      "invalid_gender": 3,
+      "expired_or_hospice": 2423
+    }
+  },
+  "features": {
+    "set": "readmission_v1",
+    "numeric": [
+      "age_years",
+      "time_in_hospital",
+      "num_lab_procedures",
+      "num_medications",
+      "number_outpatient",
+      "number_emergency",
+      "number_inpatient",
+      "number_diagnoses",
+      "medication_changed",
+      "on_diabetes_medication"
+    ],
+    "categorical": [
+      "gender",
+      "admission_type",
+      "admission_source",
+      "discharge_disposition",
+      "admitting_specialty",
+      "primary_diagnosis_category",
+      "a1c_result",
+      "max_glucose",
+      "insulin_regimen"
+    ],
+    "labels": {
+      "age_years": "Age",
+      "time_in_hospital": "Length of the index stay",
+      "num_lab_procedures": "Number of lab tests during the stay",
+      "num_medications": "Number of medications during the stay",
+      "number_outpatient": "Outpatient visits in the prior year",
+      "number_emergency": "Emergency visits in the prior year",
+      "number_inpatient": "Inpatient admissions in the prior year",
+      "number_diagnoses": "Number of recorded diagnoses",
+      "medication_changed": "Diabetes medication changed",
+      "on_diabetes_medication": "On diabetes medication",
+      "gender": "Sex",
+      "admission_type": "Admission type",
+      "admission_source": "Admission source",
+      "discharge_disposition": "Discharge destination",
+      "admitting_specialty": "Admitting specialty",
+      "primary_diagnosis_category": "Primary diagnosis group",
+      "a1c_result": "HbA1c result",
+      "max_glucose": "Maximum glucose result",
+      "insulin_regimen": "Insulin regimen"
+    }
+  },
+  "split": {
+    "method": "grouped by patient",
+    "train": 69465,
+    "validation": 14767,
+    "test": 15108,
+    "seed": 42
+  },
+  "selection_metric": "validation PR-AUC",
+  "threshold": {
+    "value": 0.1493,
+    "method": "F1-optimal on calibrated validation scores"
+  },
+  "risk_bands": {
+    "moderate": 0.1134,
+    "high": 0.2269,
+    "definition": "moderate >= training base rate, high >= 2x base rate"
+  },
+  "calibration": {
+    "method": "isotonic (validation)",
+    "test_brier_uncalibrated": 0.1,
+    "test_brier_calibrated": 0.0995
+  },
+  "metrics": {
+    "test": {
+      "n": 15108,
+      "prevalence": 0.1197,
+      "threshold": 0.1493,
+      "roc_auc": 0.6852,
+      "pr_auc": 0.2417,
+      "brier": 0.0995,
+      "precision": 0.2367,
+      "recall": 0.4275,
+      "f1": 0.3047,
+      "confusion_matrix": {
+        "tn": 10807,
+        "fp": 2493,
+        "fn": 1035,
+        "tp": 773
+      },
+      "roc_curve": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0007,
+          0.0044
+        ],
+        [
+          0.0007,
+          0.005
+        ],
+        [
+          0.0014,
+          0.0127
+        ],
+        [
+          0.0014,
+          0.0127
+        ],
+        [
+          0.0059,
+          0.0537
+        ],
+        [
+          0.0061,
+          0.0537
+        ],
+        [
+          0.0067,
+          0.0586
+        ],
+        [
+          0.0068,
+          0.0586
+        ],
+        [
+          0.0113,
+          0.0758
+        ],
+        [
+          0.0114,
+          0.0758
+        ],
+        [
+          0.0114,
+          0.0769
+        ],
+        [
+          0.0117,
+          0.078
+        ],
+        [
+          0.0265,
+          0.12
+        ],
+        [
+          0.0267,
+          0.12
+        ],
+        [
+          0.0331,
+          0.1388
+        ],
+        [
+          0.0398,
+          0.1565
+        ],
+        [
+          0.0398,
+          0.1576
+        ],
+        [
+          0.0398,
+          0.1576
+        ],
+        [
+          0.0476,
+          0.1775
+        ],
+        [
+          0.0553,
+          0.1947
+        ],
+        [
+          0.0555,
+          0.1947
+        ],
+        [
+          0.0555,
+          0.1952
+        ],
+        [
+          0.0556,
+          0.1952
+        ],
+        [
+          0.0556,
+          0.1958
+        ],
+        [
+          0.0557,
+          0.1958
+        ],
+        [
+          0.1015,
+          0.2976
+        ],
+        [
+          0.1287,
+          0.344
+        ],
+        [
+          0.175,
+          0.4121
+        ],
+        [
+          0.1751,
+          0.4121
+        ],
+        [
+          0.1751,
+          0.4126
+        ],
+        [
+          0.1752,
+          0.4126
+        ],
+        [
+          0.1874,
+          0.4275
+        ],
+        [
+          0.225,
+          0.4685
+        ],
+        [
+          0.244,
+          0.4934
+        ],
+        [
+          0.2516,
+          0.5028
+        ],
+        [
+          0.3383,
+          0.5957
+        ],
+        [
+          0.3383,
+          0.5957
+        ],
+        [
+          0.3547,
+          0.6084
+        ],
+        [
+          0.3549,
+          0.6084
+        ],
+        [
+          0.4682,
+          0.7329
+        ],
+        [
+          0.4684,
+          0.7329
+        ],
+        [
+          0.4696,
+          0.7334
+        ],
+        [
+          0.4949,
+          0.7528
+        ],
+        [
+          0.6311,
+          0.8435
+        ],
+        [
+          0.6312,
+          0.8435
+        ],
+        [
+          0.7125,
+          0.8877
+        ],
+        [
+          0.7127,
+          0.8877
+        ],
+        [
+          0.7834,
+          0.922
+        ],
+        [
+          0.9019,
+          0.9729
+        ],
+        [
+          0.9562,
+          0.9928
+        ],
+        [
+          0.9972,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ]
+      ],
+      "pr_curve": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          0.0044,
+          0.4706
+        ],
+        [
+          0.005,
+          0.5
+        ],
+        [
+          0.0127,
+          0.561
+        ],
+        [
+          0.0127,
+          0.5476
+        ],
+        [
+          0.0537,
+          0.5511
+        ],
+        [
+          0.0537,
+          0.548
+        ],
+        [
+          0.0537,
+          0.5449
+        ],
+        [
+          0.0586,
+          0.5436
+        ],
+        [
+          0.0586,
+          0.5408
+        ],
+        [
+          0.0758,
+          0.4774
+        ],
+        [
+          0.0758,
+          0.4757
+        ],
+        [
+          0.0769,
+          0.4793
+        ],
+        [
+          0.078,
+          0.4764
+        ],
+        [
+          0.12,
+          0.3807
+        ],
+        [
+          0.12,
+          0.38
+        ],
+        [
+          0.12,
+          0.3794
+        ],
+        [
+          0.1388,
+          0.3632
+        ],
+        [
+          0.1565,
+          0.3485
+        ],
+        [
+          0.1571,
+          0.3493
+        ],
+        [
+          0.1576,
+          0.3501
+        ],
+        [
+          0.1576,
+          0.3497
+        ],
+        [
+          0.1775,
+          0.3365
+        ],
+        [
+          0.1947,
+          0.3238
+        ],
+        [
+          0.1947,
+          0.3232
+        ],
+        [
+          0.1947,
+          0.3229
+        ],
+        [
+          0.1952,
+          0.3236
+        ],
+        [
+          0.1952,
+          0.3233
+        ],
+        [
+          0.1952,
+          0.323
+        ],
+        [
+          0.1958,
+          0.3236
+        ],
+        [
+          0.1958,
+          0.3233
+        ],
+        [
+          0.2976,
+          0.285
+        ],
+        [
+          0.344,
+          0.2665
+        ],
+        [
+          0.4121,
+          0.2424
+        ],
+        [
+          0.4121,
+          0.2424
+        ],
+        [
+          0.4126,
+          0.2426
+        ],
+        [
+          0.4275,
+          0.2367
+        ],
+        [
+          0.4685,
+          0.2206
+        ],
+        [
+          0.4934,
+          0.2156
+        ],
+        [
+          0.5028,
+          0.2136
+        ],
+        [
+          0.5957,
+          0.1931
+        ],
+        [
+          0.5957,
+          0.1931
+        ],
+        [
+          0.6084,
+          0.1891
+        ],
+        [
+          0.6084,
+          0.189
+        ],
+        [
+          0.6084,
+          0.189
+        ],
+        [
+          0.7329,
+          0.1755
+        ],
+        [
+          0.7329,
+          0.1754
+        ],
+        [
+          0.7329,
+          0.1754
+        ],
+        [
+          0.7334,
+          0.1751
+        ],
+        [
+          0.7528,
+          0.1713
+        ],
+        [
+          0.8435,
+          0.1537
+        ],
+        [
+          0.8435,
+          0.1537
+        ],
+        [
+          0.8877,
+          0.1448
+        ],
+        [
+          0.8877,
+          0.1448
+        ],
+        [
+          0.8877,
+          0.1448
+        ],
+        [
+          0.8877,
+          0.1448
+        ],
+        [
+          0.922,
+          0.1379
+        ],
+        [
+          0.9729,
+          0.1279
+        ],
+        [
+          0.9928,
+          0.1237
+        ],
+        [
+          1.0,
+          0.1197
+        ]
+      ],
+      "calibration": [
+        {
+          "mean_predicted": 0.0374,
+          "observed_rate": 0.0362,
+          "n": 1354
+        },
+        {
+          "mean_predicted": 0.0473,
+          "observed_rate": 0.0552,
+          "n": 1668
+        },
+        {
+          "mean_predicted": 0.0525,
+          "observed_rate": 0.0617,
+          "n": 1005
+        },
+        {
+          "mean_predicted": 0.063,
+          "observed_rate": 0.0688,
+          "n": 1162
+        },
+        {
+          "mean_predicted": 0.0837,
+          "observed_rate": 0.0846,
+          "n": 2365
+        },
+        {
+          "mean_predicted": 0.1063,
+          "observed_rate": 0.0,
+          "n": 2
+        },
+        {
+          "mean_predicted": 0.1089,
+          "observed_rate": 0.1255,
+          "n": 1976
+        },
+        {
+          "mean_predicted": 0.1278,
+          "observed_rate": 0.1326,
+          "n": 2503
+        },
+        {
+          "mean_predicted": 0.1659,
+          "observed_rate": 0.1747,
+          "n": 1185
+        },
+        {
+          "mean_predicted": 0.2768,
+          "observed_rate": 0.285,
+          "n": 1888
+        }
+      ]
+    },
+    "baseline_validation": {
+      "n": 14767,
+      "prevalence": 0.1101,
+      "threshold": 0.5,
+      "roc_auc": 0.5,
+      "pr_auc": 0.1101,
+      "brier": 0.098,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "confusion_matrix": {
+        "tn": 13141,
+        "fp": 0,
+        "fn": 1626,
+        "tp": 0
+      }
+    }
+  },
+  "candidates": [
+    {
+      "candidate": "logistic_regression:none",
+      "algorithm": "logistic_regression",
+      "imbalance": "none",
+      "fit_seconds": 0.3,
+      "validation": {
+        "n": 14767,
+        "prevalence": 0.1101,
+        "threshold": 0.1214,
+        "roc_auc": 0.6692,
+        "pr_auc": 0.2168,
+        "brier": 0.0937,
+        "precision": 0.1917,
+        "recall": 0.4982,
+        "f1": 0.2769,
+        "confusion_matrix": {
+          "tn": 9726,
+          "fp": 3415,
+          "fn": 816,
+          "tp": 810
+        }
+      },
+      "test": {
+        "n": 15108,
+        "prevalence": 0.1197,
+        "threshold": 0.1214,
+        "roc_auc": 0.6725,
+        "pr_auc": 0.2335,
+        "brier": 0.1005,
+        "precision": 0.2019,
+        "recall": 0.4978,
+        "f1": 0.2873,
+        "confusion_matrix": {
+          "tn": 9743,
+          "fp": 3557,
+          "fn": 908,
+          "tp": 900
+        }
+      }
+    },
+    {
+      "candidate": "logistic_regression:class_weight",
+      "algorithm": "logistic_regression",
+      "imbalance": "class_weight",
+      "fit_seconds": 0.4,
+      "validation": {
+        "n": 14767,
+        "prevalence": 0.1101,
+        "threshold": 0.5768,
+        "roc_auc": 0.6707,
+        "pr_auc": 0.2175,
+        "brier": 0.2282,
+        "precision": 0.2254,
+        "recall": 0.3585,
+        "f1": 0.2768,
+        "confusion_matrix": {
+          "tn": 11138,
+          "fp": 2003,
+          "fn": 1043,
+          "tp": 583
+        }
+      },
+      "test": {
+        "n": 15108,
+        "prevalence": 0.1197,
+        "threshold": 0.5768,
+        "roc_auc": 0.6738,
+        "pr_auc": 0.233,
+        "brier": 0.2295,
+        "precision": 0.2369,
+        "recall": 0.3695,
+        "f1": 0.2887,
+        "confusion_matrix": {
+          "tn": 11148,
+          "fp": 2152,
+          "fn": 1140,
+          "tp": 668
+        }
+      }
+    },
+    {
+      "candidate": "random_forest:none",
+      "algorithm": "random_forest",
+      "imbalance": "none",
+      "fit_seconds": 2.0,
+      "validation": {
+        "n": 14767,
+        "prevalence": 0.1101,
+        "threshold": 0.1484,
+        "roc_auc": 0.6792,
+        "pr_auc": 0.2305,
+        "brier": 0.0935,
+        "precision": 0.2213,
+        "recall": 0.4059,
+        "f1": 0.2865,
+        "confusion_matrix": {
+          "tn": 10819,
+          "fp": 2322,
+          "fn": 966,
+          "tp": 660
+        }
+      },
+      "test": {
+        "n": 15108,
+        "prevalence": 0.1197,
+        "threshold": 0.1484,
+        "roc_auc": 0.6865,
+        "pr_auc": 0.2527,
+        "brier": 0.1,
+        "precision": 0.2367,
+        "recall": 0.4275,
+        "f1": 0.3047,
+        "confusion_matrix": {
+          "tn": 10807,
+          "fp": 2493,
+          "fn": 1035,
+          "tp": 773
+        }
+      }
+    },
+    {
+      "candidate": "random_forest:class_weight",
+      "algorithm": "random_forest",
+      "imbalance": "class_weight",
+      "fit_seconds": 2.4,
+      "validation": {
+        "n": 14767,
+        "prevalence": 0.1101,
+        "threshold": 0.527,
+        "roc_auc": 0.6788,
+        "pr_auc": 0.2276,
+        "brier": 0.1956,
+        "precision": 0.2206,
+        "recall": 0.3991,
+        "f1": 0.2842,
+        "confusion_matrix": {
+          "tn": 10848,
+          "fp": 2293,
+          "fn": 977,
+          "tp": 649
+        }
+      },
+      "test": {
+        "n": 15108,
+        "prevalence": 0.1197,
+        "threshold": 0.527,
+        "roc_auc": 0.6822,
+        "pr_auc": 0.2429,
+        "brier": 0.1966,
+        "precision": 0.232,
+        "recall": 0.411,
+        "f1": 0.2966,
+        "confusion_matrix": {
+          "tn": 10841,
+          "fp": 2459,
+          "fn": 1065,
+          "tp": 743
+        }
+      }
+    },
+    {
+      "candidate": "xgboost:none",
+      "algorithm": "xgboost",
+      "imbalance": "none",
+      "fit_seconds": 1.6,
+      "validation": {
+        "n": 14767,
+        "prevalence": 0.1101,
+        "threshold": 0.1375,
+        "roc_auc": 0.6762,
+        "pr_auc": 0.2284,
+        "brier": 0.093,
+        "precision": 0.2028,
+        "recall": 0.4588,
+        "f1": 0.2812,
+        "confusion_matrix": {
+          "tn": 10208,
+          "fp": 2933,
+          "fn": 880,
+          "tp": 746
+        }
+      },
+      "test": {
+        "n": 15108,
+        "prevalence": 0.1197,
+        "threshold": 0.1375,
+        "roc_auc": 0.6835,
+        "pr_auc": 0.2526,
+        "brier": 0.0992,
+        "precision": 0.2185,
+        "recall": 0.4751,
+        "f1": 0.2994,
+        "confusion_matrix": {
+          "tn": 10228,
+          "fp": 3072,
+          "fn": 949,
+          "tp": 859
+        }
+      }
+    },
+    {
+      "candidate": "xgboost:class_weight",
+      "algorithm": "xgboost",
+      "imbalance": "class_weight",
+      "fit_seconds": 1.4,
+      "validation": {
+        "n": 14767,
+        "prevalence": 0.1101,
+        "threshold": 0.5804,
+        "roc_auc": 0.6745,
+        "pr_auc": 0.227,
+        "brier": 0.2203,
+        "precision": 0.2234,
+        "recall": 0.3758,
+        "f1": 0.2802,
+        "confusion_matrix": {
+          "tn": 11017,
+          "fp": 2124,
+          "fn": 1015,
+          "tp": 611
+        }
+      },
+      "test": {
+        "n": 15108,
+        "prevalence": 0.1197,
+        "threshold": 0.5804,
+        "roc_auc": 0.6814,
+        "pr_auc": 0.2486,
+        "brier": 0.2209,
+        "precision": 0.2414,
+        "recall": 0.396,
+        "f1": 0.3,
+        "confusion_matrix": {
+          "tn": 11050,
+          "fp": 2250,
+          "fn": 1092,
+          "tp": 716
+        }
+      }
+    }
+  ],
+  "global_importance": {
+    "number_inpatient": 0.02326,
+    "discharge_disposition": 0.01762,
+    "insulin_regimen": 0.00493,
+    "number_diagnoses": 0.00447,
+    "number_emergency": 0.00421,
+    "num_medications": 0.00421,
+    "time_in_hospital": 0.00399,
+    "primary_diagnosis_category": 0.00378,
+    "a1c_result": 0.00263,
+    "age_years": 0.00251,
+    "num_lab_procedures": 0.00248,
+    "admitting_specialty": 0.0023,
+    "admission_type": 0.00188,
+    "admission_source": 0.00187,
+    "on_diabetes_medication": 0.00168,
+    "number_outpatient": 0.00152,
+    "gender": 0.00135,
+    "medication_changed": 0.00068,
+    "max_glucose": 0.00037
+  },
+  "leakage_ablation": {
+    "grouped_split_test": {
+      "roc_auc": 0.6852,
+      "pr_auc": 0.2417
+    },
+    "row_split_test": {
+      "roc_auc": 0.668,
+      "pr_auc": 0.2326
+    },
+    "note": "Row-level splitting lets encounters from the same patient appear in train and test."
+  },
+  "explanation_space": "probability",
+  "intended_use": "Decision support for discharge planning in adult inpatients with diabetes. Not a diagnosis. Not validated for clinical use.",
+  "limitations": [
+    "Trained on 1999-2008 US encounters of diabetic inpatients; performance on other populations is unknown.",
+    "Moderate discrimination (see ROC-AUC/PR-AUC); many readmissions are not predictable from these features.",
+    "Attributions describe the model's behaviour, not causes of readmission."
+  ],
+  "model_name": "readmission_30d",
+  "version": "1.0.0",
+  "trained_at": "2026-09-11T10:43:43+00:00",
+  "environment": {
+    "python": "3.12.12",
+    "sklearn": "1.9.1",
+    "xgboost": "3.4.1",
+    "numpy": "2.5.3"
+  }
+}

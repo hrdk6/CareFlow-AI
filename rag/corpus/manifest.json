@@ -1,0 +1,18 @@
+{
+  "_note": "Synthetic demo knowledge base for CareFlow AI. Every document is fictional and not clinical guidance. 'format' is the file produced by scripts/build_demo_corpus.py into rag/corpus/dist/.",
+  "documents": [
+    {"source": "diabetes_management_guideline.md", "format": "pdf", "title": "Adult Type 2 Diabetes Management Guideline", "doc_key": "cf-gl-dm-01", "doc_type": "guideline", "department": "GM", "access_scope": "clinical"},
+    {"source": "hypertension_guideline.md", "format": "pdf", "title": "Hypertension in Adults Guideline", "doc_key": "cf-gl-htn-02", "doc_type": "guideline", "department": "CARD", "access_scope": "clinical"},
+    {"source": "discharge_policy.md", "format": "txt", "title": "Discharge Planning and Transitions of Care Policy", "doc_key": "cf-pol-dc-07", "doc_type": "policy", "department": null, "access_scope": "all_staff"},
+    {"source": "medication_policy.md", "format": "pdf", "title": "Medication Safety and High-Alert Medications Policy", "doc_key": "med-pol-004", "doc_type": "policy", "department": null, "access_scope": "clinical"},
+    {"source": "emergency_admission_procedure.md", "format": "txt", "title": "Emergency Admission Procedure", "doc_key": "cf-proc-em-03", "doc_type": "procedure", "department": "EM", "access_scope": "all_staff"},
+    {"source": "patient_safety_guidelines.md", "format": "pdf", "title": "Patient Safety Guidelines", "doc_key": "cf-saf-01", "doc_type": "guideline", "department": null, "access_scope": "all_staff"},
+    {"source": "heart_failure_protocol.md", "format": "docx", "title": "Heart Failure Management Protocol", "doc_key": "cf-card-hf-05", "doc_type": "protocol", "department": "CARD", "access_scope": "clinical"},
+    {"source": "lab_critical_values_policy.md", "format": "txt", "title": "Laboratory Critical Values Policy", "doc_key": "cf-lab-02", "doc_type": "policy", "department": null, "access_scope": "clinical"},
+    {"source": "facilities_notice_redteam.md", "format": "txt", "title": "Visitor Facilities and Wi-Fi Notice", "doc_key": "cf-fac-09", "doc_type": "other", "department": null, "access_scope": "all_staff", "red_team": true}
+  ],
+  "patient_documents": [
+    {"template": "discharge_summary_demo_patient.md", "title": "Discharge Summary - {mrn}", "doc_key": "discharge-summary-{mrn}", "doc_type": "report", "department": "GM", "access_scope": "clinical", "patient": "P1024"},
+    {"template": "cardiology_letter_restricted.md", "title": "Cardiology Consultation Letter - {mrn}", "doc_key": "cardiology-letter-{mrn}", "doc_type": "report", "department": "CARD", "access_scope": "clinical", "patient": "auto:cardiology_not_visible_to_dr_rao"}
+  ]
+}

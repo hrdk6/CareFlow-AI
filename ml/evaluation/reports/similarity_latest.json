@@ -1,0 +1,35 @@
+{
+  "generated_at": "2026-09-11T11:32:07+00:00",
+  "patients": 240,
+  "k": 5,
+  "representation_version": "sim-v1",
+  "dimensions": 32,
+  "overall_readmission_rate": 0.1625,
+  "variants": {
+    "weighted_cosine (deployed)": {
+      "department_agreement": 0.87,
+      "diagnosis_jaccard": 0.913,
+      "neighbour_readmission_rate_if_readmitted": 0.3077,
+      "neighbour_readmission_rate_if_not": 0.1085
+    },
+    "unweighted_cosine": {
+      "department_agreement": 0.78,
+      "diagnosis_jaccard": 0.7816,
+      "neighbour_readmission_rate_if_readmitted": 0.4256,
+      "neighbour_readmission_rate_if_not": 0.1005
+    },
+    "weighted_euclidean": {
+      "department_agreement": 0.8767,
+      "diagnosis_jaccard": 0.9176,
+      "neighbour_readmission_rate_if_readmitted": 0.2513,
+      "neighbour_readmission_rate_if_not": 0.0915
+    },
+    "random_baseline": {
+      "department_agreement": 0.305,
+      "diagnosis_jaccard": 0.35,
+      "neighbour_readmission_rate_if_readmitted": 0.1385,
+      "neighbour_readmission_rate_if_not": 0.1522
+    }
+  },
+  "note": "Synthetic demo data; proxies for similarity quality, not clinical validation."
+}

@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Local runtime state
+backend/.pgdata*/
+backend/.models/
+backend/storage/
+*.log
+
+# Secrets
+.env
+backend/.env
+frontend/.env.local
+
+# Raw datasets are downloaded by ml/data/download.py (not redistributed here)
+ml/data/raw/
+
+# Node
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/next-env.d.ts
+frontend/tsconfig.tsbuildinfo
