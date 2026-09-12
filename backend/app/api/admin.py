@@ -20,7 +20,6 @@ from app.models import (
     Appointment,
     AuditLog,
     CareAssignment,
-    Department,
     Doctor,
     Document,
     ModelVersion,
@@ -54,6 +53,12 @@ def list_users(db: DB, user: User = UsersManage) -> list[UserAdminOut]:
     return [user_admin_out(u) for u in db.scalars(select(User).order_by(User.id))]
 
 
+def _department_of(db, doctor_id: int | None) -> int | None:
+    """A user's department only decides which patients a DOCTOR may see, and the clinician's real
+    department is on the doctor profile - so it is derived, never entered separately."""
+    return db.get(Doctor, doctor_id).department_id if doctor_id else None
+
+
 @router.post("/admin/users", response_model=UserAdminOut, status_code=201)
 def create_user(body: UserCreate, db: DB, user: User = UsersManage) -> UserAdminOut:
     if db.scalar(select(User.id).where(func.lower(User.email) == body.email.lower())):
@@ -66,10 +71,8 @@ def create_user(body: UserCreate, db: DB, user: User = UsersManage) -> UserAdmin
             raise ValidationFailedError("Unknown doctor profile")
         if db.scalar(select(User.id).where(User.doctor_id == body.doctor_id)):
             raise ConflictError("That doctor profile is already linked to another account")
-    if body.department_id is not None and db.get(Department, body.department_id) is None:
-        raise ValidationFailedError("Unknown department")
     new = User(email=body.email.lower(), full_name=body.full_name, password_hash=hash_password(body.password),
-               role=role, doctor_id=body.doctor_id, department_id=body.department_id)
+               role=role, doctor_id=body.doctor_id, department_id=_department_of(db, body.doctor_id))
     db.add(new)
     db.flush()
     audit("user.create", user=user, resource_type="user", resource_id=new.id, details={"role": body.role})
@@ -101,6 +104,7 @@ def update_user(user_id: int, body: UserUpdate, db: DB, user: User = UsersManage
         audit("user.doctor_link", user=user, resource_type="user", resource_id=target.id,
               details={"from": target.doctor_id, "to": doctor_id})
         target.doctor_id = doctor_id
+        target.department_id = _department_of(db, doctor_id)
     if body.role and body.role != target.role.name:
         old = target.role.name
         target.role = db.scalar(select(Role).where(Role.name == body.role))
@@ -110,10 +114,6 @@ def update_user(user_id: int, body: UserUpdate, db: DB, user: User = UsersManage
         target.is_active = body.is_active
         audit("user.activation_change", user=user, resource_type="user", resource_id=target.id,
               details={"is_active": body.is_active})
-    if body.department_id is not None:
-        if db.get(Department, body.department_id) is None:
-            raise ValidationFailedError("Unknown department")
-        target.department_id = body.department_id
     db.flush()
     return user_admin_out(target)
 

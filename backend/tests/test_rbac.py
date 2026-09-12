@@ -174,10 +174,10 @@ def test_role_change_keeps_the_doctor_profile_invariant(client, auth, db, users)
     promoted = client.patch(f"/admin/users/{nurse_id}", json={"role": "DOCTOR", "doctor_id": free_doctor["id"]},
                             headers=auth("admin"))
     assert promoted.status_code == 200 and promoted.json()["doctor_id"] == free_doctor["id"]
+    assert promoted.json()["department_id"] == 2  # derived from the profile, not entered separately
     demoted = client.patch(f"/admin/users/{nurse_id}", json={"role": "NURSE"}, headers=auth("admin"))
     assert demoted.status_code == 200 and demoted.json()["doctor_id"] is None  # link cleared, not left stale
-    assert client.patch(f"/admin/users/{nurse_id}", json={"department_id": 9999},
-                        headers=auth("admin")).status_code == 422
+    assert demoted.json()["department_id"] is None
 
 
 def test_care_team_membership_is_limited_to_clinical_roles(client, auth, users, demo_patient):
@@ -202,3 +202,20 @@ def test_care_team_membership_is_limited_to_clinical_roles(client, auth, users, 
     remaining = {row["user_id"] for row in client.get(f"/admin/care-assignments?patient_id={demo_patient.id}",
                                                       headers=auth("admin")).json()}
     assert users["nurse"].id not in remaining
+
+
+def test_a_doctors_department_follows_the_profile(client, auth, db):
+    """The department decides which patients a doctor sees, so it has exactly one source: the profile."""
+    profile = client.post("/doctors", json={"full_name": "Dr. Ishan Verma", "specialty": "Dermatology",
+                                            "department_id": 6}, headers=auth("admin")).json()
+    account = client.post("/admin/users", headers=auth("admin"),
+                          json={"email": "ishan@careflow.demo", "full_name": "Ishan Verma",
+                                "password": "CareFlow-Demo-2026", "role": "DOCTOR", "doctor_id": profile["id"]})
+    assert account.status_code == 201 and account.json()["department_id"] == 6
+
+    transferred = client.patch(f"/doctors/{profile['id']}", json={"department_id": 3}, headers=auth("admin"))
+    assert transferred.status_code == 200 and transferred.json()["department"] == "Neurology"
+    db.expire_all()
+    moved = next(u for u in client.get("/admin/users", headers=auth("admin")).json()
+                 if u["id"] == account.json()["id"])
+    assert moved["department_id"] == 3  # access moved with the clinician

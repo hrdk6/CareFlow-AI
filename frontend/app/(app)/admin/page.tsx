@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { Badge, RouteBadge, StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { CreateDoctor } from "@/components/staff/create-doctor";
 import { Card, PageHeader, StatCard } from "@/components/ui/card";
 import { ErrorState, Skeleton } from "@/components/ui/feedback";
 import { Field, Input, Select } from "@/components/ui/form";
@@ -64,7 +65,8 @@ function Users() {
         columns={[
           { key: "name", header: "User", render: (u) => <div><div className="font-medium text-slate-800">{u.full_name}</div><div className="text-xs text-slate-500">{u.email}</div></div> },
           { key: "role", header: "Role", render: (u) => (
-            <select value={u.role} disabled={u.id === me?.id} onChange={(e) => update(u, { role: e.target.value as AdminUser["role"] })} className="rounded border border-slate-300 px-1.5 py-1 text-xs" aria-label={`Role for ${u.email}`}>
+            <select value={u.role} disabled={u.id === me?.id || u.role === "DOCTOR"}
+              title={u.role === "DOCTOR" ? "Change the linked doctor profile first" : undefined} onChange={(e) => update(u, { role: e.target.value as AdminUser["role"] })} className="rounded border border-slate-300 px-1.5 py-1 text-xs" aria-label={`Role for ${u.email}`}>
               {ROLES.map((r) => <option key={r}>{r}</option>)}
             </select>) },
           { key: "active", header: "Status", render: (u) => <StatusBadge status={u.is_active ? "active" : "inactive"} /> },
@@ -78,22 +80,22 @@ function Users() {
 }
 
 function CreateUser({ onClose, onDone }: { onClose: () => void; onDone: () => void }) {
-  const [form, setForm] = useState({ email: "", full_name: "", password: "", role: "NURSE", doctor_id: "", department_id: "" });
+  const [form, setForm] = useState({ email: "", full_name: "", password: "", role: "NURSE", doctor_id: "" });
   const [error, setError] = useState<unknown>(null);
+  const [registering, setRegistering] = useState(false);
   const { data: departments } = useApi<Department[]>("/departments");
-  const { data: doctors } = useApi<Doctor[]>("/doctors");
+  const { data: doctors, reload: reloadDoctors } = useApi<Doctor[]>("/doctors");
   const { data: existing } = useApi<AdminUser[]>("/admin/users");
   // A doctor profile belongs to exactly one login, so profiles already linked are not offered.
   const linked = new Set((existing ?? []).map((u) => u.doctor_id).filter(Boolean));
   const freeDoctors = (doctors ?? []).filter((d) => !linked.has(d.id));
-  function pickDoctor(id: string) {
-    const doctor = freeDoctors.find((d) => String(d.id) === id);
-    setForm({ ...form, doctor_id: id, department_id: doctor ? String(doctor.department_id) : form.department_id });
-  }
+  const profile = freeDoctors.find((d) => String(d.id) === form.doctor_id);
   async function submit() {
     setError(null);
     try {
-      await api("/admin/users", { method: "POST", json: { ...form, doctor_id: form.doctor_id ? Number(form.doctor_id) : null, department_id: form.department_id ? Number(form.department_id) : null } });
+      await api("/admin/users", { method: "POST", json: {
+        email: form.email, full_name: form.full_name, password: form.password, role: form.role,
+        doctor_id: form.doctor_id ? Number(form.doctor_id) : null } });
       onDone();
     } catch (e) {
       setError(e);
@@ -107,17 +109,28 @@ function CreateUser({ onClose, onDone }: { onClose: () => void; onDone: () => vo
         <Field label="Initial password" hint="≥ 12 characters"><Input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} /></Field>
         <Field label="Role"><Select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} options={ROLES.map((r) => ({ value: r, label: r }))} /></Field>
         {form.role === "DOCTOR" && (
-          <Field label="Doctor profile" hint={freeDoctors.length ? "Clinician this login acts as" : "No unlinked profiles — register one on the Doctors page"}>
-            <Select value={form.doctor_id} onChange={(e) => pickDoctor(e.target.value)} placeholder="Select doctor"
-              options={freeDoctors.map((d) => ({ value: d.id, label: `${d.full_name} · ${d.department}` }))} />
-          </Field>
+          <>
+            <Field label="Doctor profile" hint="The clinician this login signs in as — appointments and records are recorded under it">
+              <div className="flex gap-2">
+                <Select className="min-w-0 flex-1" value={form.doctor_id} onChange={(e) => setForm({ ...form, doctor_id: e.target.value })}
+                  placeholder={freeDoctors.length ? "Select clinician" : "No unlinked profiles"}
+                  options={freeDoctors.map((d) => ({ value: d.id, label: `${d.full_name} · ${d.department}` }))} />
+                <Button size="sm" variant="secondary" onClick={() => setRegistering(true)}>New</Button>
+              </div>
+            </Field>
+            <Field label="Department" hint="Taken from the doctor profile — it decides which patients this login can see">
+              <div className="flex h-9 items-center rounded border border-slate-200 bg-slate-50 px-2 text-sm text-slate-600">
+                {profile ? profile.department : "Select a clinician first"}
+              </div>
+            </Field>
+          </>
         )}
-        <Field label="Department" hint="Decides which patients a doctor can see">
-          <Select value={form.department_id} onChange={(e) => setForm({ ...form, department_id: e.target.value })}
-            placeholder="None" options={(departments ?? []).map((d) => ({ value: d.id, label: d.name }))} />
-        </Field>
       </div>
       {error ? <div className="mt-3"><ErrorState error={error} compact /></div> : null}
+      {registering && (
+        <CreateDoctor departments={departments ?? []} onClose={() => setRegistering(false)}
+          onDone={(doctor) => { setRegistering(false); reloadDoctors(); setForm({ ...form, doctor_id: String(doctor.id) }); }} />
+      )}
     </Modal>
   );
 }

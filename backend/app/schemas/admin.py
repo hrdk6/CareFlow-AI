@@ -24,14 +24,12 @@ class UserCreate(BaseModel):
     full_name: str = Field(min_length=2, max_length=128)
     password: str = Field(min_length=12, max_length=256)
     role: RoleLiteral
-    doctor_id: int | None = None
-    department_id: int | None = None
+    doctor_id: int | None = None  # required for DOCTOR; the department follows the linked profile
 
 
 class UserUpdate(BaseModel):
     role: RoleLiteral | None = None
     is_active: bool | None = None
-    department_id: int | None = None
     doctor_id: int | None = None  # set when promoting to DOCTOR; cleared automatically for other roles
 
 

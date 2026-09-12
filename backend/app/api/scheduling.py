@@ -111,6 +111,11 @@ def update_doctor(doctor_id: int, body: DoctorUpdate, db: DB, user: User = Docto
                                 f"reassign them before deactivating the profile")
     for field, value in changes.items():
         setattr(doctor, field, value)
+    if "department_id" in changes:
+        # The linked account sees patients of its department, so a transfer has to move that too.
+        linked = db.scalar(select(User).where(User.doctor_id == doctor.id))
+        if linked is not None:
+            linked.department_id = doctor.department_id
     db.flush()
     db.refresh(doctor)  # department is a joined relationship; reload it so a transfer is reflected
     audit("doctor.update", user=user, resource_type="doctor", resource_id=doctor.id,
