@@ -2,7 +2,7 @@ import re
 from datetime import date, datetime
 from typing import Literal
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 from app.schemas.common import ORMModel
 
@@ -51,7 +51,7 @@ class DoctorCreate(BaseModel):
     full_name: str = Field(min_length=2, max_length=128)
     specialty: str = Field(min_length=2, max_length=64)
     department_id: int
-    email: str = Field("", max_length=255)
+    email: EmailStr | None = None  # generated from the staff code when omitted
     phone: str = Field("", max_length=32)
     availability: dict[str, list[tuple[str, str]]] | None = None  # weekday -> [["09:00", "13:00"], ...]
 
@@ -67,7 +67,7 @@ class DoctorUpdate(BaseModel):
     full_name: str | None = Field(default=None, min_length=2, max_length=128)
     specialty: str | None = Field(default=None, min_length=2, max_length=64)
     department_id: int | None = None
-    email: str | None = Field(default=None, max_length=255)
+    email: EmailStr | None = None
     phone: str | None = Field(default=None, max_length=32)
     availability: dict[str, list[tuple[str, str]]] | None = None
     is_active: bool | None = None

@@ -117,6 +117,8 @@ def test_registering_a_doctor_is_admin_only(client, auth, neurology_id, role):
 
 @pytest.mark.parametrize(("overrides", "status"), [
     ({"department_id": 9999}, 422),                            # unknown department
+    ({"email": "not-an-email"}, 422),                          # contact address must be valid
+    ({"email": "meera.joshi@hospital.example"}, 201),          # any real address is fine
     ({"full_name": "X"}, 422),                                 # too short
     ({"availability": {"mon": [["09:00", "08:00"]]}}, 422),    # window ends before it starts
     ({"availability": {"funday": [["09:00", "17:00"]]}}, 422),  # not a weekday

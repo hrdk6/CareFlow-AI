@@ -21,7 +21,7 @@ export function CreateDoctor({ departments, onClose, onDone }: {
     setError(null);
     setSaving(true);
     try {
-      const created = await api<Doctor>("/doctors", { method: "POST", json: { ...form, department_id: Number(form.department_id) } });
+      const created = await api<Doctor>("/doctors", { method: "POST", json: { ...form, department_id: Number(form.department_id), email: form.email || null } });
       onDone(created);
     } catch (e) {
       setError(e);
