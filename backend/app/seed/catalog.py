@@ -240,21 +240,23 @@ ARCHETYPES = {
                              (("J44.9", 1.0), ("I10", 0.5), ("E11.9", 0.3)), ("copd", "pneumonia"), 0.6, 0.5),
 }
 
-FIRST_F = ["Amara", "Beatriz", "Chloe", "Dana", "Esther", "Fatima", "Grace", "Hannah", "Isla", "Julia", "Keiko",
-           "Lina", "Maya", "Nadia", "Olivia", "Priya", "Rosa", "Sara", "Tessa", "Uma", "Vera", "Wen", "Yara", "Zoe",
-           "Ingrid", "Leila", "Marta", "Noor", "Ana", "Clara"]
-FIRST_M = ["Aaron", "Bilal", "Carlos", "David", "Emeka", "Felix", "Gabriel", "Hugo", "Ivan", "Jonah", "Kenji",
-           "Liam", "Mateo", "Nikhil", "Omar", "Pavel", "Rafael", "Samir", "Tomas", "Victor", "Wei", "Yusuf",
-           "Andre", "Bruno", "Diego", "Elias", "Farid", "Hamza", "Joel", "Luca"]
-LAST = ["Abara", "Bennett", "Castillo", "Dubois", "Ekwueme", "Fischer", "Garcia", "Haddad", "Ito", "Jensen",
-        "Kowalski", "Lindqvist", "Morales", "Nakamura", "Osei", "Park", "Quinn", "Rahman", "Silva", "Tanaka",
-        "Uddin", "Varga", "Walsh", "Xu", "Yilmaz", "Zimmer", "Afolabi", "Brennan", "Costa", "Desai", "Eriksen",
-        "Farouk", "Gomez", "Horvat", "Ibrahim", "Joshi", "Keller", "Lopez", "Mensah", "Novak", "Okafor",
-        "Petrov", "Reyes", "Sato", "Thomsen", "Vasquez", "Wright", "Young"]
-STREETS = ["Maple Ave", "Harbor Rd", "Cedar Lane", "Riverside Dr", "Orchard St", "Hilltop Way", "Elm Court",
-           "Station Rd", "Juniper Blvd", "Willow Crescent"]
-CITY = "Riverton (fictional)"
+# Fictional Indian patient identities. List lengths are kept stable: the seeded random stream (and therefore
+# every generated history, admission and prediction) depends on them.
+FIRST_F = ["Aarti", "Anjali", "Asha", "Bhavna", "Deepa", "Divya", "Gauri", "Geeta", "Kavita", "Lakshmi",
+           "Madhuri", "Meena", "Neha", "Nirmala", "Pooja", "Priyanka", "Radha", "Rekha", "Revathi", "Sangeeta",
+           "Shalini", "Shobha", "Smita", "Sneha", "Swati", "Uma", "Usha", "Vandana", "Vidya", "Yamini"]
+FIRST_M = ["Aakash", "Abhishek", "Ajay", "Amit", "Anil", "Arvind", "Ashok", "Deepak", "Ganesh", "Harish",
+           "Imran", "Karthik", "Mahesh", "Manoj", "Mohan", "Nitin", "Pradeep", "Rahul", "Rajesh", "Ramesh",
+           "Ravi", "Sachin", "Sandeep", "Sanjay", "Suresh", "Tushar", "Varun", "Vijay", "Vikram", "Yusuf"]
+LAST = ["Agarwal", "Bhat", "Banerjee", "Chatterjee", "Chavan", "Das", "Desai", "Deshmukh", "Dubey", "Fernandes",
+        "Gupta", "Hegde", "Iyer", "Jadhav", "Jain", "Joshi", "Kamath", "Kapoor", "Khan", "Kulkarni",
+        "Kumar", "Menon", "Mehta", "Mishra", "Mukherjee", "Naidu", "Nair", "Pandey", "Patel", "Patil",
+        "Pillai", "Rao", "Reddy", "Saxena", "Shah", "Sharma", "Shetty", "Singh", "Sinha", "Srivastava",
+        "Thakur", "Trivedi", "Verma", "Yadav", "Bose", "Gaikwad", "Kaur", "Qureshi"]
+STREETS = ["MG Road, Pune 411001", "Baner Road, Pune 411045", "Shivaji Nagar, Pune 411005", "Kothrud, Pune 411038",
+           "Andheri East, Mumbai 400069", "Dadar West, Mumbai 400028", "Indiranagar, Bengaluru 560038",
+           "Jayanagar, Bengaluru 560041", "Banjara Hills, Hyderabad 500034", "Anna Nagar, Chennai 600040"]
 ALLERGIES = [("Penicillin", "Rash", "moderate"), ("Sulfonamides", "Hives", "mild"), ("Latex", "Contact dermatitis", "mild"),
              ("Iodinated contrast", "Anaphylaxis", "severe"), ("Codeine", "Nausea", "mild"), ("Peanuts", "Anaphylaxis", "severe")]
 BLOOD_TYPES = ["O+", "O+", "A+", "A+", "B+", "AB+", "O-", "A-"]
-LANGUAGES = ["English"] * 8 + ["Spanish", "Hindi", "Mandarin", "French"]
+LANGUAGES = ["English"] * 5 + ["Hindi"] * 3 + ["Marathi", "Tamil", "Kannada", "Telugu"]

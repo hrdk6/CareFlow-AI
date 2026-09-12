@@ -95,7 +95,7 @@ function RegisterPatient({ open, onClose, departments, onCreated }: {
         <Field label="Last name"><Input value={form.last_name} onChange={set("last_name")} /></Field>
         <Field label="Date of birth"><Input type="date" value={form.date_of_birth} onChange={set("date_of_birth")} /></Field>
         <Field label="Sex"><Select value={form.sex} onChange={set("sex")} options={[{ value: "F", label: "Female" }, { value: "M", label: "Male" }, { value: "X", label: "Other / unspecified" }]} /></Field>
-        <Field label="Phone"><Input value={form.phone} onChange={set("phone")} placeholder="+1 555 0100" /></Field>
+        <Field label="Phone"><Input value={form.phone} onChange={set("phone")} placeholder="+91 98765 43210" /></Field>
         <Field label="Email"><Input type="email" value={form.email} onChange={set("email")} /></Field>
         <Field label="Emergency contact"><Input value={form.emergency_contact_name} onChange={set("emergency_contact_name")} /></Field>
         <Field label="Emergency contact phone"><Input value={form.emergency_contact_phone} onChange={set("emergency_contact_phone")} /></Field>

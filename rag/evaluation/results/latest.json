@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-11T11:38:08+00:00",
+  "generated_at": "2026-09-11T18:30:33+00:00",
   "k": 6,
   "questions": 48,
   "answerable": 44,
@@ -9,13 +9,13 @@
       "recall@3": 1.0,
       "recall@5": 1.0,
       "mrr": 0.9583,
-      "context_precision": 0.6174,
+      "context_precision": 0.6136,
       "answer_correctness": 0.9545,
       "faithfulness": 1.0,
-      "citation_precision": 0.8659,
+      "citation_precision": 0.8599,
       "citation_hit_rate": 0.9545,
       "abstention_accuracy": 0.75,
-      "latency_ms_p50": 30.1,
+      "latency_ms_p50": 43.8,
       "by_category": {
         "exact_term": {
           "n": 28,
@@ -50,7 +50,7 @@
       "citation_precision": 0.8433,
       "citation_hit_rate": 0.9091,
       "abstention_accuracy": 1.0,
-      "latency_ms_p50": 6.0,
+      "latency_ms_p50": 5.0,
       "by_category": {
         "exact_term": {
           "n": 28,
@@ -79,13 +79,13 @@
       "recall@3": 0.9773,
       "recall@5": 1.0,
       "mrr": 0.9451,
-      "context_precision": 0.625,
+      "context_precision": 0.6212,
       "answer_correctness": 0.9545,
       "faithfulness": 1.0,
       "citation_precision": 0.8283,
       "citation_hit_rate": 0.9545,
       "abstention_accuracy": 0.75,
-      "latency_ms_p50": 31.7,
+      "latency_ms_p50": 36.3,
       "by_category": {
         "exact_term": {
           "n": 28,
@@ -120,7 +120,7 @@
       "citation_precision": 0.8687,
       "citation_hit_rate": 0.9545,
       "abstention_accuracy": 1.0,
-      "latency_ms_p50": 820.2,
+      "latency_ms_p50": 864.7,
       "by_category": {
         "exact_term": {
           "n": 28,
@@ -150,7 +150,7 @@
       {
         "id": "dm-01",
         "category": "exact_term",
-        "latency_ms": 701.6,
+        "latency_ms": 696.0,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -164,7 +164,7 @@
       {
         "id": "dm-02",
         "category": "exact_term",
-        "latency_ms": 34.5,
+        "latency_ms": 106.0,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -178,7 +178,7 @@
       {
         "id": "dm-03",
         "category": "exact_term",
-        "latency_ms": 39.7,
+        "latency_ms": 53.2,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -192,7 +192,7 @@
       {
         "id": "dm-04",
         "category": "exact_term",
-        "latency_ms": 37.3,
+        "latency_ms": 84.0,
         "answer_correct": true,
         "recall@1": false,
         "recall@3": true,
@@ -206,7 +206,7 @@
       {
         "id": "dm-05",
         "category": "paraphrase",
-        "latency_ms": 25.6,
+        "latency_ms": 84.0,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -220,7 +220,7 @@
       {
         "id": "dm-06",
         "category": "exact_term",
-        "latency_ms": 32.9,
+        "latency_ms": 51.6,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -234,7 +234,7 @@
       {
         "id": "dm-07",
         "category": "paraphrase",
-        "latency_ms": 24.4,
+        "latency_ms": 109.4,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -248,7 +248,7 @@
       {
         "id": "dm-08",
         "category": "paraphrase",
-        "latency_ms": 27.6,
+        "latency_ms": 57.7,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -262,7 +262,7 @@
       {
         "id": "dm-09",
         "category": "exact_term",
-        "latency_ms": 26.3,
+        "latency_ms": 48.0,
         "answer_correct": false,
         "recall@1": true,
         "recall@3": true,
@@ -276,7 +276,7 @@
       {
         "id": "dm-10",
         "category": "exact_term",
-        "latency_ms": 31.4,
+        "latency_ms": 48.1,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -290,7 +290,7 @@
       {
         "id": "dm-11",
         "category": "exact_term",
-        "latency_ms": 39.2,
+        "latency_ms": 56.0,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -304,7 +304,7 @@
       {
         "id": "dm-12",
         "category": "paraphrase",
-        "latency_ms": 28.9,
+        "latency_ms": 46.4,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -318,7 +318,7 @@
       {
         "id": "dm-13",
         "category": "exact_term",
-        "latency_ms": 32.2,
+        "latency_ms": 142.4,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -332,7 +332,7 @@
       {
         "id": "dm-14",
         "category": "paraphrase",
-        "latency_ms": 34.2,
+        "latency_ms": 8.9,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -346,7 +346,7 @@
       {
         "id": "dm-15",
         "category": "paraphrase",
-        "latency_ms": 27.3,
+        "latency_ms": 222.4,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -360,7 +360,7 @@
       {
         "id": "dm-16",
         "category": "paraphrase",
-        "latency_ms": 29.6,
+        "latency_ms": 10.4,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -374,7 +374,7 @@
       {
         "id": "htn-01",
         "category": "exact_term",
-        "latency_ms": 44.6,
+        "latency_ms": 84.3,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -388,7 +388,7 @@
       {
         "id": "htn-02",
         "category": "exact_term",
-        "latency_ms": 48.3,
+        "latency_ms": 107.5,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -402,7 +402,7 @@
       {
         "id": "htn-03",
         "category": "paraphrase",
-        "latency_ms": 22.0,
+        "latency_ms": 47.9,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -416,7 +416,7 @@
       {
         "id": "htn-04",
         "category": "exact_term",
-        "latency_ms": 23.6,
+        "latency_ms": 9.0,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -430,7 +430,7 @@
       {
         "id": "dc-01",
         "category": "paraphrase",
-        "latency_ms": 34.8,
+        "latency_ms": 84.3,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -444,7 +444,7 @@
       {
         "id": "dc-02",
         "category": "exact_term",
-        "latency_ms": 32.0,
+        "latency_ms": 54.6,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -458,21 +458,21 @@
       {
         "id": "dc-03",
         "category": "exact_term",
-        "latency_ms": 23.9,
+        "latency_ms": 143.9,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
         "recall@5": true,
         "mrr": 1.0,
-        "context_prec": 0.5,
+        "context_prec": 0.3333333333333333,
         "faithfulness": 1.0,
-        "citation_prec": 0.75,
+        "citation_prec": 0.5,
         "citation_hit": true
       },
       {
         "id": "dc-04",
         "category": "exact_term",
-        "latency_ms": 37.6,
+        "latency_ms": 93.0,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -486,7 +486,7 @@
       {
         "id": "dc-05",
         "category": "exact_term",
-        "latency_ms": 29.8,
+        "latency_ms": 48.4,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -500,7 +500,7 @@
       {
         "id": "med-01",
         "category": "policy_code",
-        "latency_ms": 50.3,
+        "latency_ms": 36.7,
         "answer_correct": true,
         "recall@1": false,
         "recall@3": true,
@@ -514,7 +514,7 @@
       {
         "id": "med-02",
         "category": "policy_code",
-        "latency_ms": 25.9,
+        "latency_ms": 21.8,
         "answer_correct": false,
         "recall@1": false,
         "recall@3": true,
@@ -528,7 +528,7 @@
       {
         "id": "med-03",
         "category": "exact_term",
-        "latency_ms": 34.9,
+        "latency_ms": 40.4,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -542,7 +542,7 @@
       {
         "id": "med-04",
         "category": "exact_term",
-        "latency_ms": 37.1,
+        "latency_ms": 32.8,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -556,7 +556,7 @@
       {
         "id": "med-05",
         "category": "exact_term",
-        "latency_ms": 12.8,
+        "latency_ms": 28.1,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -570,7 +570,7 @@
       {
         "id": "med-06",
         "category": "exact_term",
-        "latency_ms": 21.4,
+        "latency_ms": 24.8,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -584,7 +584,7 @@
       {
         "id": "em-01",
         "category": "exact_term",
-        "latency_ms": 33.3,
+        "latency_ms": 25.2,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -598,7 +598,7 @@
       {
         "id": "em-02",
         "category": "paraphrase",
-        "latency_ms": 25.5,
+        "latency_ms": 34.9,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -612,7 +612,7 @@
       {
         "id": "em-03",
         "category": "exact_term",
-        "latency_ms": 22.5,
+        "latency_ms": 37.9,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -626,7 +626,7 @@
       {
         "id": "saf-01",
         "category": "exact_term",
-        "latency_ms": 18.9,
+        "latency_ms": 15.4,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -640,7 +640,7 @@
       {
         "id": "saf-02",
         "category": "exact_term",
-        "latency_ms": 13.8,
+        "latency_ms": 17.5,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -654,7 +654,7 @@
       {
         "id": "saf-03",
         "category": "exact_term",
-        "latency_ms": 22.1,
+        "latency_ms": 24.7,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -668,7 +668,7 @@
       {
         "id": "saf-04",
         "category": "paraphrase",
-        "latency_ms": 31.2,
+        "latency_ms": 23.6,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -682,7 +682,7 @@
       {
         "id": "saf-05",
         "category": "paraphrase",
-        "latency_ms": 19.9,
+        "latency_ms": 35.3,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -696,7 +696,7 @@
       {
         "id": "hf-01",
         "category": "exact_term",
-        "latency_ms": 30.4,
+        "latency_ms": 16.2,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -710,7 +710,7 @@
       {
         "id": "hf-02",
         "category": "exact_term",
-        "latency_ms": 32.8,
+        "latency_ms": 22.7,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -724,7 +724,7 @@
       {
         "id": "lab-01",
         "category": "exact_term",
-        "latency_ms": 35.6,
+        "latency_ms": 17.0,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -738,7 +738,7 @@
       {
         "id": "lab-02",
         "category": "paraphrase",
-        "latency_ms": 26.2,
+        "latency_ms": 35.0,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -752,7 +752,7 @@
       {
         "id": "pt-01",
         "category": "patient_doc",
-        "latency_ms": 33.9,
+        "latency_ms": 77.9,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -766,25 +766,25 @@
       {
         "id": "un-01",
         "category": "unanswerable",
-        "latency_ms": 24.2,
+        "latency_ms": 96.7,
         "answer_correct": true
       },
       {
         "id": "un-02",
         "category": "unanswerable",
-        "latency_ms": 34.0,
+        "latency_ms": 41.2,
         "answer_correct": false
       },
       {
         "id": "un-03",
         "category": "unanswerable",
-        "latency_ms": 24.8,
+        "latency_ms": 35.7,
         "answer_correct": true
       },
       {
         "id": "un-04",
         "category": "unanswerable",
-        "latency_ms": 16.2,
+        "latency_ms": 27.2,
         "answer_correct": true
       }
     ],
@@ -792,7 +792,7 @@
       {
         "id": "dm-01",
         "category": "exact_term",
-        "latency_ms": 12.7,
+        "latency_ms": 13.3,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -806,7 +806,7 @@
       {
         "id": "dm-02",
         "category": "exact_term",
-        "latency_ms": 5.5,
+        "latency_ms": 6.6,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -820,7 +820,7 @@
       {
         "id": "dm-03",
         "category": "exact_term",
-        "latency_ms": 5.0,
+        "latency_ms": 6.0,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -834,7 +834,7 @@
       {
         "id": "dm-04",
         "category": "exact_term",
-        "latency_ms": 3.7,
+        "latency_ms": 4.2,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -848,7 +848,7 @@
       {
         "id": "dm-05",
         "category": "paraphrase",
-        "latency_ms": 11.5,
+        "latency_ms": 4.7,
         "answer_correct": true,
         "recall@1": false,
         "recall@3": true,
@@ -862,7 +862,7 @@
       {
         "id": "dm-06",
         "category": "exact_term",
-        "latency_ms": 5.4,
+        "latency_ms": 5.3,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -876,7 +876,7 @@
       {
         "id": "dm-07",
         "category": "paraphrase",
-        "latency_ms": 9.2,
+        "latency_ms": 5.0,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -890,7 +890,7 @@
       {
         "id": "dm-08",
         "category": "paraphrase",
-        "latency_ms": 7.5,
+        "latency_ms": 5.0,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -904,7 +904,7 @@
       {
         "id": "dm-09",
         "category": "exact_term",
-        "latency_ms": 10.5,
+        "latency_ms": 5.2,
         "answer_correct": false,
         "recall@1": true,
         "recall@3": true,
@@ -918,7 +918,7 @@
       {
         "id": "dm-10",
         "category": "exact_term",
-        "latency_ms": 8.3,
+        "latency_ms": 5.4,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -932,7 +932,7 @@
       {
         "id": "dm-11",
         "category": "exact_term",
-        "latency_ms": 8.7,
+        "latency_ms": 5.4,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -946,7 +946,7 @@
       {
         "id": "dm-12",
         "category": "paraphrase",
-        "latency_ms": 5.2,
+        "latency_ms": 4.9,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -960,7 +960,7 @@
       {
         "id": "dm-13",
         "category": "exact_term",
-        "latency_ms": 9.6,
+        "latency_ms": 5.3,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -974,7 +974,7 @@
       {
         "id": "dm-14",
         "category": "paraphrase",
-        "latency_ms": 8.4,
+        "latency_ms": 5.0,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -988,7 +988,7 @@
       {
         "id": "dm-15",
         "category": "paraphrase",
-        "latency_ms": 5.1,
+        "latency_ms": 5.4,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1002,7 +1002,7 @@
       {
         "id": "dm-16",
         "category": "paraphrase",
-        "latency_ms": 8.9,
+        "latency_ms": 4.8,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1016,7 +1016,7 @@
       {
         "id": "htn-01",
         "category": "exact_term",
-        "latency_ms": 8.9,
+        "latency_ms": 5.0,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1030,7 +1030,7 @@
       {
         "id": "htn-02",
         "category": "exact_term",
-        "latency_ms": 11.3,
+        "latency_ms": 5.3,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1058,7 +1058,7 @@
       {
         "id": "htn-04",
         "category": "exact_term",
-        "latency_ms": 9.6,
+        "latency_ms": 4.1,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1072,7 +1072,7 @@
       {
         "id": "dc-01",
         "category": "paraphrase",
-        "latency_ms": 4.9,
+        "latency_ms": 4.7,
         "answer_correct": true,
         "recall@1": false,
         "recall@3": true,
@@ -1086,7 +1086,7 @@
       {
         "id": "dc-02",
         "category": "exact_term",
-        "latency_ms": 10.2,
+        "latency_ms": 6.8,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1100,7 +1100,7 @@
       {
         "id": "dc-03",
         "category": "exact_term",
-        "latency_ms": 5.7,
+        "latency_ms": 4.8,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1114,7 +1114,7 @@
       {
         "id": "dc-04",
         "category": "exact_term",
-        "latency_ms": 5.1,
+        "latency_ms": 5.3,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1128,7 +1128,7 @@
       {
         "id": "dc-05",
         "category": "exact_term",
-        "latency_ms": 5.5,
+        "latency_ms": 5.0,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1142,7 +1142,7 @@
       {
         "id": "med-01",
         "category": "policy_code",
-        "latency_ms": 5.5,
+        "latency_ms": 13.2,
         "answer_correct": true,
         "recall@1": false,
         "recall@3": true,
@@ -1156,7 +1156,7 @@
       {
         "id": "med-02",
         "category": "policy_code",
-        "latency_ms": 5.5,
+        "latency_ms": 6.1,
         "answer_correct": false,
         "recall@1": true,
         "recall@3": true,
@@ -1170,7 +1170,7 @@
       {
         "id": "med-03",
         "category": "exact_term",
-        "latency_ms": 4.9,
+        "latency_ms": 8.6,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1184,7 +1184,7 @@
       {
         "id": "med-04",
         "category": "exact_term",
-        "latency_ms": 5.1,
+        "latency_ms": 4.7,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1198,7 +1198,7 @@
       {
         "id": "med-05",
         "category": "exact_term",
-        "latency_ms": 6.2,
+        "latency_ms": 4.0,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1212,7 +1212,7 @@
       {
         "id": "med-06",
         "category": "exact_term",
-        "latency_ms": 3.5,
+        "latency_ms": 5.1,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1226,7 +1226,7 @@
       {
         "id": "em-01",
         "category": "exact_term",
-        "latency_ms": 7.4,
+        "latency_ms": 8.0,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1240,7 +1240,7 @@
       {
         "id": "em-02",
         "category": "paraphrase",
-        "latency_ms": 4.8,
+        "latency_ms": 4.7,
         "answer_correct": false,
         "recall@1": false,
         "recall@3": false,
@@ -1254,7 +1254,7 @@
       {
         "id": "em-03",
         "category": "exact_term",
-        "latency_ms": 3.8,
+        "latency_ms": 3.6,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1268,7 +1268,7 @@
       {
         "id": "saf-01",
         "category": "exact_term",
-        "latency_ms": 10.1,
+        "latency_ms": 7.4,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1282,7 +1282,7 @@
       {
         "id": "saf-02",
         "category": "exact_term",
-        "latency_ms": 4.9,
+        "latency_ms": 4.7,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1296,7 +1296,7 @@
       {
         "id": "saf-03",
         "category": "exact_term",
-        "latency_ms": 3.2,
+        "latency_ms": 3.1,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1310,7 +1310,7 @@
       {
         "id": "saf-04",
         "category": "paraphrase",
-        "latency_ms": 6.8,
+        "latency_ms": 3.9,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1324,7 +1324,7 @@
       {
         "id": "saf-05",
         "category": "paraphrase",
-        "latency_ms": 4.9,
+        "latency_ms": 4.6,
         "answer_correct": false,
         "recall@1": false,
         "recall@3": false,
@@ -1338,7 +1338,7 @@
       {
         "id": "hf-01",
         "category": "exact_term",
-        "latency_ms": 4.9,
+        "latency_ms": 4.4,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1352,7 +1352,7 @@
       {
         "id": "hf-02",
         "category": "exact_term",
-        "latency_ms": 6.9,
+        "latency_ms": 3.5,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1366,7 +1366,7 @@
       {
         "id": "lab-01",
         "category": "exact_term",
-        "latency_ms": 9.9,
+        "latency_ms": 7.2,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1380,7 +1380,7 @@
       {
         "id": "lab-02",
         "category": "paraphrase",
-        "latency_ms": 9.3,
+        "latency_ms": 5.2,
         "answer_correct": true,
         "recall@1": false,
         "recall@3": true,
@@ -1394,7 +1394,7 @@
       {
         "id": "pt-01",
         "category": "patient_doc",
-        "latency_ms": 8.0,
+        "latency_ms": 5.9,
         "answer_correct": true,
         "recall@1": false,
         "recall@3": true,
@@ -1408,25 +1408,25 @@
       {
         "id": "un-01",
         "category": "unanswerable",
-        "latency_ms": 5.3,
+        "latency_ms": 9.1,
         "answer_correct": true
       },
       {
         "id": "un-02",
         "category": "unanswerable",
-        "latency_ms": 6.8,
+        "latency_ms": 5.4,
         "answer_correct": true
       },
       {
         "id": "un-03",
         "category": "unanswerable",
-        "latency_ms": 1.8,
+        "latency_ms": 2.0,
         "answer_correct": true
       },
       {
         "id": "un-04",
         "category": "unanswerable",
-        "latency_ms": 8.2,
+        "latency_ms": 4.5,
         "answer_correct": true
       }
     ],
@@ -1434,7 +1434,7 @@
       {
         "id": "dm-01",
         "category": "exact_term",
-        "latency_ms": 50.7,
+        "latency_ms": 50.5,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1448,7 +1448,7 @@
       {
         "id": "dm-02",
         "category": "exact_term",
-        "latency_ms": 41.6,
+        "latency_ms": 55.2,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1462,7 +1462,7 @@
       {
         "id": "dm-03",
         "category": "exact_term",
-        "latency_ms": 50.6,
+        "latency_ms": 51.4,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1476,7 +1476,7 @@
       {
         "id": "dm-04",
         "category": "exact_term",
-        "latency_ms": 25.6,
+        "latency_ms": 12.2,
         "answer_correct": true,
         "recall@1": false,
         "recall@3": true,
@@ -1490,7 +1490,7 @@
       {
         "id": "dm-05",
         "category": "paraphrase",
-        "latency_ms": 34.4,
+        "latency_ms": 10.3,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1504,7 +1504,7 @@
       {
         "id": "dm-06",
         "category": "exact_term",
-        "latency_ms": 44.5,
+        "latency_ms": 45.7,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1518,7 +1518,7 @@
       {
         "id": "dm-07",
         "category": "paraphrase",
-        "latency_ms": 39.7,
+        "latency_ms": 90.1,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1532,7 +1532,7 @@
       {
         "id": "dm-08",
         "category": "paraphrase",
-        "latency_ms": 23.9,
+        "latency_ms": 27.3,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1546,7 +1546,7 @@
       {
         "id": "dm-09",
         "category": "exact_term",
-        "latency_ms": 27.8,
+        "latency_ms": 9.9,
         "answer_correct": false,
         "recall@1": true,
         "recall@3": true,
@@ -1560,7 +1560,7 @@
       {
         "id": "dm-10",
         "category": "exact_term",
-        "latency_ms": 27.3,
+        "latency_ms": 9.8,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1574,7 +1574,7 @@
       {
         "id": "dm-11",
         "category": "exact_term",
-        "latency_ms": 32.2,
+        "latency_ms": 63.7,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1588,7 +1588,7 @@
       {
         "id": "dm-12",
         "category": "paraphrase",
-        "latency_ms": 41.0,
+        "latency_ms": 90.5,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1602,7 +1602,7 @@
       {
         "id": "dm-13",
         "category": "exact_term",
-        "latency_ms": 49.3,
+        "latency_ms": 105.0,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1616,7 +1616,7 @@
       {
         "id": "dm-14",
         "category": "paraphrase",
-        "latency_ms": 33.7,
+        "latency_ms": 49.4,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1630,7 +1630,7 @@
       {
         "id": "dm-15",
         "category": "paraphrase",
-        "latency_ms": 24.8,
+        "latency_ms": 81.0,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1644,7 +1644,7 @@
       {
         "id": "dm-16",
         "category": "paraphrase",
-        "latency_ms": 43.3,
+        "latency_ms": 52.5,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1658,7 +1658,7 @@
       {
         "id": "htn-01",
         "category": "exact_term",
-        "latency_ms": 22.2,
+        "latency_ms": 14.8,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1672,7 +1672,7 @@
       {
         "id": "htn-02",
         "category": "exact_term",
-        "latency_ms": 24.7,
+        "latency_ms": 66.8,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1686,7 +1686,7 @@
       {
         "id": "htn-03",
         "category": "paraphrase",
-        "latency_ms": 21.4,
+        "latency_ms": 10.2,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1700,7 +1700,7 @@
       {
         "id": "htn-04",
         "category": "exact_term",
-        "latency_ms": 32.4,
+        "latency_ms": 56.0,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1714,7 +1714,7 @@
       {
         "id": "dc-01",
         "category": "paraphrase",
-        "latency_ms": 27.1,
+        "latency_ms": 62.1,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1728,7 +1728,7 @@
       {
         "id": "dc-02",
         "category": "exact_term",
-        "latency_ms": 37.0,
+        "latency_ms": 46.7,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1742,7 +1742,7 @@
       {
         "id": "dc-03",
         "category": "exact_term",
-        "latency_ms": 24.3,
+        "latency_ms": 77.1,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1756,7 +1756,7 @@
       {
         "id": "dc-04",
         "category": "exact_term",
-        "latency_ms": 31.2,
+        "latency_ms": 10.4,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1770,7 +1770,7 @@
       {
         "id": "dc-05",
         "category": "exact_term",
-        "latency_ms": 24.2,
+        "latency_ms": 27.0,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1784,7 +1784,7 @@
       {
         "id": "med-01",
         "category": "policy_code",
-        "latency_ms": 44.7,
+        "latency_ms": 34.8,
         "answer_correct": true,
         "recall@1": false,
         "recall@3": true,
@@ -1798,7 +1798,7 @@
       {
         "id": "med-02",
         "category": "policy_code",
-        "latency_ms": 41.0,
+        "latency_ms": 25.8,
         "answer_correct": false,
         "recall@1": false,
         "recall@3": true,
@@ -1812,7 +1812,7 @@
       {
         "id": "med-03",
         "category": "exact_term",
-        "latency_ms": 36.7,
+        "latency_ms": 34.3,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1826,7 +1826,7 @@
       {
         "id": "med-04",
         "category": "exact_term",
-        "latency_ms": 53.7,
+        "latency_ms": 38.2,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1840,7 +1840,7 @@
       {
         "id": "med-05",
         "category": "exact_term",
-        "latency_ms": 19.3,
+        "latency_ms": 36.7,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1854,7 +1854,7 @@
       {
         "id": "med-06",
         "category": "exact_term",
-        "latency_ms": 21.2,
+        "latency_ms": 48.1,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1868,7 +1868,7 @@
       {
         "id": "em-01",
         "category": "exact_term",
-        "latency_ms": 19.4,
+        "latency_ms": 19.3,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1882,7 +1882,7 @@
       {
         "id": "em-02",
         "category": "paraphrase",
-        "latency_ms": 42.4,
+        "latency_ms": 24.9,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1896,7 +1896,7 @@
       {
         "id": "em-03",
         "category": "exact_term",
-        "latency_ms": 32.3,
+        "latency_ms": 36.0,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1910,7 +1910,7 @@
       {
         "id": "saf-01",
         "category": "exact_term",
-        "latency_ms": 21.4,
+        "latency_ms": 33.9,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1924,7 +1924,7 @@
       {
         "id": "saf-02",
         "category": "exact_term",
-        "latency_ms": 20.0,
+        "latency_ms": 22.5,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1938,7 +1938,7 @@
       {
         "id": "saf-03",
         "category": "exact_term",
-        "latency_ms": 25.4,
+        "latency_ms": 32.6,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1952,7 +1952,7 @@
       {
         "id": "saf-04",
         "category": "paraphrase",
-        "latency_ms": 28.5,
+        "latency_ms": 21.4,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1966,13 +1966,13 @@
       {
         "id": "saf-05",
         "category": "paraphrase",
-        "latency_ms": 38.2,
+        "latency_ms": 28.3,
         "answer_correct": true,
         "recall@1": false,
         "recall@3": false,
         "recall@5": true,
         "mrr": 0.25,
-        "context_prec": 0.3333333333333333,
+        "context_prec": 0.16666666666666666,
         "faithfulness": 1.0,
         "citation_prec": 1.0,
         "citation_hit": true
@@ -1980,7 +1980,7 @@
       {
         "id": "hf-01",
         "category": "exact_term",
-        "latency_ms": 21.6,
+        "latency_ms": 36.6,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -1994,7 +1994,7 @@
       {
         "id": "hf-02",
         "category": "exact_term",
-        "latency_ms": 30.6,
+        "latency_ms": 34.2,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -2008,7 +2008,7 @@
       {
         "id": "lab-01",
         "category": "exact_term",
-        "latency_ms": 33.7,
+        "latency_ms": 31.1,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -2022,7 +2022,7 @@
       {
         "id": "lab-02",
         "category": "paraphrase",
-        "latency_ms": 29.8,
+        "latency_ms": 58.5,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -2036,7 +2036,7 @@
       {
         "id": "pt-01",
         "category": "patient_doc",
-        "latency_ms": 34.8,
+        "latency_ms": 55.6,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -2050,25 +2050,25 @@
       {
         "id": "un-01",
         "category": "unanswerable",
-        "latency_ms": 44.0,
+        "latency_ms": 66.8,
         "answer_correct": true
       },
       {
         "id": "un-02",
         "category": "unanswerable",
-        "latency_ms": 24.5,
+        "latency_ms": 38.0,
         "answer_correct": false
       },
       {
         "id": "un-03",
         "category": "unanswerable",
-        "latency_ms": 35.0,
+        "latency_ms": 17.9,
         "answer_correct": true
       },
       {
         "id": "un-04",
         "category": "unanswerable",
-        "latency_ms": 29.7,
+        "latency_ms": 31.3,
         "answer_correct": true
       }
     ],
@@ -2076,7 +2076,7 @@
       {
         "id": "dm-01",
         "category": "exact_term",
-        "latency_ms": 769.6,
+        "latency_ms": 1089.6,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -2090,7 +2090,7 @@
       {
         "id": "dm-02",
         "category": "exact_term",
-        "latency_ms": 888.9,
+        "latency_ms": 953.4,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -2104,7 +2104,7 @@
       {
         "id": "dm-03",
         "category": "exact_term",
-        "latency_ms": 973.4,
+        "latency_ms": 1061.7,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -2118,7 +2118,7 @@
       {
         "id": "dm-04",
         "category": "exact_term",
-        "latency_ms": 815.9,
+        "latency_ms": 912.0,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -2132,7 +2132,7 @@
       {
         "id": "dm-05",
         "category": "paraphrase",
-        "latency_ms": 964.9,
+        "latency_ms": 1019.4,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -2146,7 +2146,7 @@
       {
         "id": "dm-06",
         "category": "exact_term",
-        "latency_ms": 855.7,
+        "latency_ms": 827.6,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -2160,7 +2160,7 @@
       {
         "id": "dm-07",
         "category": "paraphrase",
-        "latency_ms": 930.9,
+        "latency_ms": 397.7,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -2174,7 +2174,7 @@
       {
         "id": "dm-08",
         "category": "paraphrase",
-        "latency_ms": 821.5,
+        "latency_ms": 917.4,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -2188,7 +2188,7 @@
       {
         "id": "dm-09",
         "category": "exact_term",
-        "latency_ms": 836.9,
+        "latency_ms": 1056.9,
         "answer_correct": false,
         "recall@1": true,
         "recall@3": true,
@@ -2202,7 +2202,7 @@
       {
         "id": "dm-10",
         "category": "exact_term",
-        "latency_ms": 711.0,
+        "latency_ms": 919.5,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -2216,7 +2216,7 @@
       {
         "id": "dm-11",
         "category": "exact_term",
-        "latency_ms": 856.0,
+        "latency_ms": 856.5,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -2230,7 +2230,7 @@
       {
         "id": "dm-12",
         "category": "paraphrase",
-        "latency_ms": 739.8,
+        "latency_ms": 855.3,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -2244,7 +2244,7 @@
       {
         "id": "dm-13",
         "category": "exact_term",
-        "latency_ms": 877.1,
+        "latency_ms": 1016.9,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -2258,7 +2258,7 @@
       {
         "id": "dm-14",
         "category": "paraphrase",
-        "latency_ms": 807.2,
+        "latency_ms": 854.0,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -2272,7 +2272,7 @@
       {
         "id": "dm-15",
         "category": "paraphrase",
-        "latency_ms": 819.0,
+        "latency_ms": 968.8,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -2286,7 +2286,7 @@
       {
         "id": "dm-16",
         "category": "paraphrase",
-        "latency_ms": 760.8,
+        "latency_ms": 986.5,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -2300,7 +2300,7 @@
       {
         "id": "htn-01",
         "category": "exact_term",
-        "latency_ms": 917.5,
+        "latency_ms": 858.1,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -2314,7 +2314,7 @@
       {
         "id": "htn-02",
         "category": "exact_term",
-        "latency_ms": 858.7,
+        "latency_ms": 976.5,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -2328,7 +2328,7 @@
       {
         "id": "htn-03",
         "category": "paraphrase",
-        "latency_ms": 732.2,
+        "latency_ms": 780.5,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -2342,7 +2342,7 @@
       {
         "id": "htn-04",
         "category": "exact_term",
-        "latency_ms": 867.0,
+        "latency_ms": 784.8,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -2356,7 +2356,7 @@
       {
         "id": "dc-01",
         "category": "paraphrase",
-        "latency_ms": 776.1,
+        "latency_ms": 362.7,
         "answer_correct": true,
         "recall@1": false,
         "recall@3": true,
@@ -2370,7 +2370,7 @@
       {
         "id": "dc-02",
         "category": "exact_term",
-        "latency_ms": 825.0,
+        "latency_ms": 1011.6,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -2384,7 +2384,7 @@
       {
         "id": "dc-03",
         "category": "exact_term",
-        "latency_ms": 836.2,
+        "latency_ms": 926.4,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -2398,7 +2398,7 @@
       {
         "id": "dc-04",
         "category": "exact_term",
-        "latency_ms": 832.0,
+        "latency_ms": 889.3,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -2412,7 +2412,7 @@
       {
         "id": "dc-05",
         "category": "exact_term",
-        "latency_ms": 747.9,
+        "latency_ms": 1017.4,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -2426,7 +2426,7 @@
       {
         "id": "med-01",
         "category": "policy_code",
-        "latency_ms": 786.2,
+        "latency_ms": 801.6,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -2440,7 +2440,7 @@
       {
         "id": "med-02",
         "category": "policy_code",
-        "latency_ms": 786.0,
+        "latency_ms": 777.9,
         "answer_correct": false,
         "recall@1": true,
         "recall@3": true,
@@ -2454,7 +2454,7 @@
       {
         "id": "med-03",
         "category": "exact_term",
-        "latency_ms": 900.5,
+        "latency_ms": 833.5,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -2468,7 +2468,7 @@
       {
         "id": "med-04",
         "category": "exact_term",
-        "latency_ms": 1037.4,
+        "latency_ms": 778.8,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -2482,7 +2482,7 @@
       {
         "id": "med-05",
         "category": "exact_term",
-        "latency_ms": 769.6,
+        "latency_ms": 821.5,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -2496,7 +2496,7 @@
       {
         "id": "med-06",
         "category": "exact_term",
-        "latency_ms": 845.9,
+        "latency_ms": 916.3,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -2510,7 +2510,7 @@
       {
         "id": "em-01",
         "category": "exact_term",
-        "latency_ms": 750.1,
+        "latency_ms": 853.1,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -2524,7 +2524,7 @@
       {
         "id": "em-02",
         "category": "paraphrase",
-        "latency_ms": 739.1,
+        "latency_ms": 649.4,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -2538,7 +2538,7 @@
       {
         "id": "em-03",
         "category": "exact_term",
-        "latency_ms": 747.4,
+        "latency_ms": 799.3,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -2552,7 +2552,7 @@
       {
         "id": "saf-01",
         "category": "exact_term",
-        "latency_ms": 795.6,
+        "latency_ms": 768.9,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -2566,7 +2566,7 @@
       {
         "id": "saf-02",
         "category": "exact_term",
-        "latency_ms": 684.3,
+        "latency_ms": 674.2,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -2580,7 +2580,7 @@
       {
         "id": "saf-03",
         "category": "exact_term",
-        "latency_ms": 792.2,
+        "latency_ms": 754.8,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -2594,7 +2594,7 @@
       {
         "id": "saf-04",
         "category": "paraphrase",
-        "latency_ms": 682.4,
+        "latency_ms": 860.0,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -2608,7 +2608,7 @@
       {
         "id": "saf-05",
         "category": "paraphrase",
-        "latency_ms": 738.9,
+        "latency_ms": 737.7,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -2622,7 +2622,7 @@
       {
         "id": "hf-01",
         "category": "exact_term",
-        "latency_ms": 944.4,
+        "latency_ms": 938.2,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -2636,7 +2636,7 @@
       {
         "id": "hf-02",
         "category": "exact_term",
-        "latency_ms": 843.0,
+        "latency_ms": 898.8,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -2650,7 +2650,7 @@
       {
         "id": "lab-01",
         "category": "exact_term",
-        "latency_ms": 851.3,
+        "latency_ms": 819.0,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -2664,7 +2664,7 @@
       {
         "id": "lab-02",
         "category": "paraphrase",
-        "latency_ms": 728.6,
+        "latency_ms": 1631.5,
         "answer_correct": true,
         "recall@1": false,
         "recall@3": true,
@@ -2678,7 +2678,7 @@
       {
         "id": "pt-01",
         "category": "patient_doc",
-        "latency_ms": 854.7,
+        "latency_ms": 1445.3,
         "answer_correct": true,
         "recall@1": true,
         "recall@3": true,
@@ -2692,25 +2692,25 @@
       {
         "id": "un-01",
         "category": "unanswerable",
-        "latency_ms": 746.2,
+        "latency_ms": 869.4,
         "answer_correct": true
       },
       {
         "id": "un-02",
         "category": "unanswerable",
-        "latency_ms": 1003.3,
+        "latency_ms": 965.4,
         "answer_correct": true
       },
       {
         "id": "un-03",
         "category": "unanswerable",
-        "latency_ms": 636.7,
+        "latency_ms": 703.0,
         "answer_correct": true
       },
       {
         "id": "un-04",
         "category": "unanswerable",
-        "latency_ms": 847.7,
+        "latency_ms": 910.6,
         "answer_correct": true
       }
     ]

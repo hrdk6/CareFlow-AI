@@ -28,6 +28,18 @@ def test_routes(query, ctx, intents, caps):
     assert plan.confidence == "high"
 
 
+@pytest.mark.parametrize("query", ["whats up with the patient", "What's going on with her?", "How is this patient doing?",
+                                   "Any update on the patient?"])
+def test_conversational_patient_questions_route_to_summary(query):
+    plan = route(query, has_patient_context=True)
+    assert plan.intents == [Intent.PATIENT_SUMMARY] and plan.confidence == "high"
+
+
+def test_unrecognised_question_about_patient_defaults_to_summary():
+    plan = route("Anything notable to tell the bed manager?", has_patient_context=True)
+    assert plan.intents == [Intent.PATIENT_SUMMARY] and plan.confidence == "low"
+
+
 def test_combined_sql_ml_rag_route():
     plan = route("Why is this patient's readmission risk high, and what does the discharge policy say for "
                  "high-risk patients?", has_patient_context=True)

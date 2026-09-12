@@ -10,7 +10,8 @@ import { Select } from "@/components/ui/form";
 import { useApi } from "@/lib/hooks";
 import type { Page, PatientListItem } from "@/lib/types";
 
-interface AIStatus { provider: string; model: string | null; reachable: boolean | null; tool_calling: boolean; embedding_model: string; reranker: string; injection_policy: string }
+interface LLMBackup { provider: string; model: string | null; reachable: boolean | null }
+interface AIStatus { provider: string; model: string | null; reachable: boolean | null; fallbacks: LLMBackup[]; tool_calling: boolean; embedding_model: string; reranker: string; injection_policy: string }
 
 export default function AssistantPage() {
   const [patientId, setPatientId] = useState<string>("");
@@ -44,7 +45,10 @@ export default function AssistantPage() {
             <dl className="space-y-1.5 text-xs">
               <div className="flex justify-between"><dt className="text-slate-500">LLM provider</dt><dd className="font-mono">{status.provider}</dd></div>
               <div className="flex justify-between"><dt className="text-slate-500">Model</dt><dd className="font-mono">{status.model ?? "none (extractive)"}</dd></div>
-              {status.reachable !== null && <div className="flex justify-between"><dt className="text-slate-500">Reachable</dt><dd>{status.reachable ? "yes" : "no — falls back to extractive"}</dd></div>}
+              {status.reachable !== null && <div className="flex justify-between"><dt className="text-slate-500">Reachable</dt><dd>{status.reachable ? "yes" : status.fallbacks.length ? "no — uses backup" : "no — falls back to extractive"}</dd></div>}
+              {status.fallbacks.map((f, i) => (
+                <div key={`${f.provider}-${f.model}`} className="flex justify-between gap-2"><dt className="text-slate-500">{i === 0 ? "Backups" : ""}</dt><dd className="truncate font-mono">{f.provider} · {f.model}{f.reachable === false ? " (unreachable)" : ""}</dd></div>
+              ))}
               <div className="flex justify-between"><dt className="text-slate-500">Embeddings</dt><dd className="truncate pl-2 font-mono">{status.embedding_model}</dd></div>
               <div className="flex justify-between"><dt className="text-slate-500">Reranker</dt><dd className="truncate pl-2 font-mono">{status.reranker}</dd></div>
               <div className="flex justify-between"><dt className="text-slate-500">Injection policy</dt><dd>{status.injection_policy}</dd></div>

@@ -24,7 +24,7 @@ export function OverviewTab({ patient, clinical, onOpen }: { patient: PatientCli
   const adm = patient.current_admission;
   return (
     <div className="grid gap-4 xl:grid-cols-3">
-      <div className="space-y-4 xl:col-span-2">
+      <div className="min-w-0 space-y-4 xl:col-span-2">
         {adm && (
           <div className="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
             <BedDouble className="mt-0.5 h-4 w-4" />
@@ -68,7 +68,7 @@ export function OverviewTab({ patient, clinical, onOpen }: { patient: PatientCli
         </Card>
       </div>
       {can(PERMS.ml) && (
-        <div className="space-y-4">
+        <div className="min-w-0 space-y-4">
           <RiskCard patientId={patient.id} compact />
           <LosCard patientId={patient.id} compact />
         </div>

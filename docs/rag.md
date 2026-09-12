@@ -124,10 +124,10 @@ unanswerable questions, and latency.
 
 | Mode | R@1 | R@3 | R@5 | MRR | Context precision | Answer | Faithful | Citation precision | Abstention | p50 latency |
 |---|---|---|---|---|---|---|---|---|---|---|
-| Vector only | 0.932 | 1.000 | 1.000 | 0.958 | 0.617 | 0.955 | 1.000 | 0.866 | 0.750 | 30 ms |
-| BM25 only | 0.841 | 0.955 | 0.955 | 0.890 | 0.553 | 0.909 | 1.000 | 0.843 | 1.000 | 6 ms |
-| Hybrid (RRF) | 0.909 | 0.977 | 1.000 | 0.945 | 0.625 | 0.955 | 1.000 | 0.828 | 0.750 | 32 ms |
-| **Hybrid + rerank** | **0.955** | **1.000** | **1.000** | **0.977** | **0.835** | 0.955 | 1.000 | **0.869** | **1.000** | 820 ms |
+| Vector only | 0.932 | 1.000 | 1.000 | 0.958 | 0.614 | 0.955 | 1.000 | 0.860 | 0.750 | 44 ms |
+| BM25 only | 0.841 | 0.955 | 0.955 | 0.890 | 0.553 | 0.909 | 1.000 | 0.843 | 1.000 | 5 ms |
+| Hybrid (RRF) | 0.909 | 0.977 | 1.000 | 0.945 | 0.621 | 0.955 | 1.000 | 0.828 | 0.750 | 36 ms |
+| **Hybrid + rerank** | **0.955** | **1.000** | **1.000** | **0.977** | **0.835** | 0.955 | 1.000 | **0.869** | **1.000** | 865 ms |
 
 Before the document-code header was added, hybrid + rerank scored R@1 0.909 / R@5 0.977 / MRR 0.939 and
 missed one of two policy-code questions (`results/before_doc_key_enrichment.md`). The change was

@@ -62,7 +62,7 @@ def test_similarity_route(client, auth, demo_patient):
 
 def test_patient_summary_and_timeline_changes(client, auth, demo_patient):
     r = ask(client, auth, "Summarize this patient's medical history.", demo_patient.id)
-    assert "Evelyn Hart" in r["answer"] and "HbA1c" in r["answer"] and len(r["record_refs"]) > 5
+    assert "Sunita Deshpande" in r["answer"] and "HbA1c" in r["answer"] and len(r["record_refs"]) > 5
     changes = ask(client, auth, "What were the major treatment changes?", demo_patient.id)
     assert "metformin" in changes["answer"].lower() and "insulin glargine" in changes["answer"].lower()
 
@@ -135,6 +135,16 @@ def test_llm_tool_calling_for_unrouted_questions(db, users, demo_patient):
     assert tool_msgs and "<tool_output>" in tool_msgs[0].content
 
 
+def test_tool_calling_off_uses_single_synthesis_call(db, users, demo_patient):
+    """For slow local models: unrecognised questions use the router's plan and ONE LLM call without tools."""
+    llm = ScriptedLLM(text("Summary [R1]."))
+    orch = AIOrchestrator(db, users["doctor"], provider=llm)
+    orch.settings = orch.settings.model_copy(update={"llm_tool_calling": "off"})
+    r = orch.run(AIQueryIn(query="Anything notable to tell the bed manager?", patient_id=demo_patient.id))
+    assert r.routing_method == "deterministic" and len(llm.requests) == 1 and llm.requests[0]["tools"] is None
+    assert "get_patient_timeline" in [t.name for t in r.tool_calls]
+
+
 def test_tools_offered_depend_on_role(db, users):
     llm = ScriptedLLM(text("ok"))
     AIOrchestrator(db, users["reception"], provider=llm).run(AIQueryIn(query="Tell me something interesting"))
@@ -153,7 +163,20 @@ def test_llm_failure_and_timeout_fall_back_to_extractive(db, users, demo_patient
     for failure in (FAILURE, TIMEOUT):
         r = AIOrchestrator(db, users["doctor"], provider=ScriptedLLM(failure)).run(
             AIQueryIn(query="Summarize this patient's medical history.", patient_id=demo_patient.id))
-        assert any("unavailable" in w for w in r.warnings) and "Evelyn Hart" in r.answer
+        assert any("unavailable" in w for w in r.warnings) and "Sunita Deshpande" in r.answer
+
+
+def test_backup_llm_answers_silently_when_primary_fails(db, users, demo_patient):
+    from app.llm.fallback import FallbackProvider
+
+    primary, backup = ScriptedLLM(FAILURE), ScriptedLLM(text("Backup summary [R1]."))
+    primary.name, backup.name = "groq", "gemini"
+    r = AIOrchestrator(db, users["doctor"], provider=FallbackProvider(primary, backup)).run(
+        AIQueryIn(query="Summarize this patient's medical history.", patient_id=demo_patient.id))
+    assert r.answer.startswith("Backup summary") and r.provider == "gemini"
+    assert not any("unavailable" in w or "backup" in w for w in r.warnings)  # no error shown to the user
+    trace = db.scalar(select(AIQueryTrace).order_by(AIQueryTrace.id.desc()).limit(1))
+    assert trace.provider == "gemini"
 
 
 def test_observability_endpoints(client, auth):

@@ -79,6 +79,13 @@ def test_fabricated_citations_are_removed():
     assert used == ["S1", "R2"] and removed == 2
 
 
+def test_citation_ranges_and_lenticular_brackets_are_normalised():
+    answer, used, removed = validate_citations(
+        "History [R1-R3]. Allergy [R2–R9]. Guideline 【S1】.", {"R1", "R2", "R3", "S1"})
+    assert answer == "History [R1][R2][R3]. Allergy [R2][R3]. Guideline [S1]."
+    assert used == ["R1", "R2", "R3", "S1"] and removed == 6
+
+
 def test_unauthorized_identifiers_are_redacted(db, users, restricted_patient, demo_patient):
     from app.auth.access import AccessPolicy
 

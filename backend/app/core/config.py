@@ -3,7 +3,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
-from pydantic import Field, field_validator
+from pydantic import AliasChoices, Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BACKEND_DIR = Path(__file__).resolve().parents[2]
@@ -12,7 +12,8 @@ REPO_DIR = BACKEND_DIR.parent
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=(REPO_DIR / ".env", BACKEND_DIR / ".env"), env_prefix="CAREFLOW_", extra="ignore"
+        env_file=(REPO_DIR / ".env", BACKEND_DIR / ".env"), env_prefix="CAREFLOW_", extra="ignore",
+        populate_by_name=True, env_ignore_empty=True,
     )
 
     environment: Literal["development", "test", "production"] = "development"
@@ -54,7 +55,27 @@ class Settings(BaseSettings):
     chunk_overlap_words: int = 40
 
     # --- LLM ---
-    llm_provider: Literal["anthropic", "openai_compatible", "extractive"] = "extractive"
+    llm_provider: Literal["anthropic", "openai_compatible", "groq", "gemini", "extractive"] = "extractive"
+    # Backup provider used automatically when the primary fails (rate limit, outage, bad key, timeout).
+    llm_fallback_provider: Literal["none", "groq", "gemini", "anthropic", "openai_compatible", "extractive"] = "none"
+    # Groq cloud. Keys may be given as CAREFLOW_GROQ_API_KEY or the provider's standard GROQ_API_KEY.
+    groq_api_key: str = Field(default="", validation_alias=AliasChoices("CAREFLOW_GROQ_API_KEY", "GROQ_API_KEY"))
+    groq_model: str = "openai/gpt-oss-120b"
+    # Further Groq models tried in order before the cross-provider backup. Each Groq model has its own free-tier
+    # tokens-per-minute allowance, so chaining them multiplies capacity. Comma-separated; empty disables.
+    groq_fallback_models: str = "qwen/qwen3.8-27b,openai/gpt-oss-20b"
+    groq_reasoning_effort: str | None = "low"  # for gpt-oss models (low | medium | high); Qwen runs with none
+    groq_max_tokens: int = 2048  # includes the model's reasoning tokens
+    # Groq normally answers in 1-3 s; a stalled request is abandoned quickly so the backup can answer.
+    groq_timeout_seconds: float = 20.0
+    # Google Gemini via its OpenAI-compatible endpoint (free-tier model by default).
+    gemini_api_key: str = Field(default="", validation_alias=AliasChoices(
+        "CAREFLOW_GEMINI_API_KEY", "GEMINI_API_KEY", "GOOGLE_API_KEY"))
+    gemini_model: str = "gemini-2.5-flash"
+    gemini_reasoning_effort: str | None = "none"  # 2.5 models: none disables thinking (faster, fewer tokens)
+    gemini_max_tokens: int = 2048
+    # After a primary failure, send requests straight to the backup for this long (avoids re-hitting a rate limit).
+    llm_fallback_cooldown_seconds: float = 30.0
     llm_model: str = ""
     llm_base_url: str = "http://localhost:11434/v1"
     llm_api_key: str = ""
@@ -62,6 +83,9 @@ class Settings(BaseSettings):
     llm_timeout_seconds: float = 120.0
     llm_max_tokens: int = 1200
     llm_max_tool_rounds: int = 4
+    # "auto": the LLM chooses tools for questions the router cannot classify (needs a fast model, e.g. Claude).
+    # "off": always use the router's plan and a single synthesis call (recommended for local CPU models).
+    llm_tool_calling: Literal["auto", "off"] = "auto"
     # Evidence is trimmed to fit this many characters (~4 chars/token). Local models often run with a 4k-token
     # window and silently truncate longer prompts, which could drop the system rules.
     llm_context_budget_chars: int = 12000

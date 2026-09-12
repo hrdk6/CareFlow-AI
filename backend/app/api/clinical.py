@@ -141,7 +141,10 @@ def discontinue_prescription(prescription_id: int, body: PrescriptionDiscontinue
     p = policy_for(db, user).get_patient(rx.patient_id, clinical=True)
     if rx.status != "active":
         raise ValidationFailedError("Only active prescriptions can be discontinued")
-    rx.status, rx.end_date, rx.change_reason = "discontinued", datetime.now(UTC).date(), f"Stopped - {body.reason}"
+    # Never end before the start date: a prescription dated "today" in the prescriber's timezone (e.g. India,
+    # UTC+5:30) can start after the server's UTC date, and a future-dated one stopped early ends on its start date.
+    end = max(datetime.now(UTC).date(), rx.start_date)
+    rx.status, rx.end_date, rx.change_reason = "discontinued", end, f"Stopped - {body.reason}"
     db.flush()
     audit("prescription.discontinue", user=user, resource_type="prescription", resource_id=rx.id, patient_id=p.id)
     return prescription_out(rx, p.mrn)

@@ -8,7 +8,7 @@ All patients and documents are synthetic.
 `admin@careflow.demo`, `dr.rao@careflow.demo` (General Medicine), `dr.mensah@careflow.demo` (Cardiology),
 `nurse.kim@careflow.demo`, `reception@careflow.demo`.
 
-**Demo patient:** **Evelyn Hart, P1024** — 67-year-old woman with type 2 diabetes, hypertension,
+**Demo patient:** **Sunita Deshpande, P1024** — 67-year-old woman with type 2 diabetes, hypertension,
 hyperlipidaemia and CKD stage 3; HbA1c rising 7.2% → 9.4% over 2½ years; eGFR falling 64 → 44 (metformin
 reduced to the renal dose); three admissions in the past year; discharged 6 days ago to home health after
 a hyperglycaemia admission, with insulin glargine increased from 10 to 16 units.

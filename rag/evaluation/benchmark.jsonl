@@ -41,7 +41,7 @@
 {"id": "hf-02", "category": "exact_term", "question": "When should spironolactone be held?", "expected": [{"doc_key": "cf-card-hf-05", "section": "5."}], "criteria": {"any": ["5.5 mmol/L"]}}
 {"id": "lab-01", "category": "exact_term", "question": "What potassium level is a critical value?", "expected": [{"doc_key": "cf-lab-02", "section": "2."}], "criteria": {"any": ["6.0 mmol/L"]}}
 {"id": "lab-02", "category": "paraphrase", "question": "How quickly must the lab tell a clinician about a dangerous result?", "expected": [{"doc_key": "cf-lab-02", "section": "3."}], "criteria": {"any": ["30 minutes"]}}
-{"id": "pt-01", "category": "patient_doc", "question": "Why was Evelyn Hart's insulin glargine increased at discharge?", "expected": [{"doc_key": "discharge-summary-p1024", "section": "4."}], "criteria": {"any": ["persistent hyperglycemia"]}}
+{"id": "pt-01", "category": "patient_doc", "question": "Why was Sunita Deshpande's insulin glargine increased at discharge?", "expected": [{"doc_key": "discharge-summary-p1024", "section": "4."}], "criteria": {"any": ["persistent hyperglycemia"]}}
 {"id": "un-01", "category": "unanswerable", "question": "What is the hospital's policy on organ donation after death?", "expected": [], "criteria": {"abstain": true}}
 {"id": "un-02", "category": "unanswerable", "question": "What is the recommended amoxicillin dose for acute otitis media in children?", "expected": [], "criteria": {"abstain": true}}
 {"id": "un-03", "category": "unanswerable", "question": "Who won the 2022 football world cup?", "expected": [], "criteria": {"abstain": true}}

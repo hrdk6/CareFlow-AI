@@ -48,6 +48,8 @@ class LLMResult:
     completion_tokens: int | None = None
     stop_reason: str | None = None
     raw_content: Any = None
+    provider: str | None = None  # which provider actually answered (differs from primary after a fallback)
+    fallback_reason: str | None = None  # set when the backup provider answered
 
 
 class LLMProvider(Protocol):

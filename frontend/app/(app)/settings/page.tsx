@@ -11,6 +11,13 @@ import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { useApi } from "@/lib/hooks";
 
+function formatValue(v: unknown): string {
+  // Nested objects (e.g. backup LLMs) are shown as their string fields: "gemini · gemini-2.5-flash".
+  if (Array.isArray(v)) return v.map(formatValue).join(", ") || "—";
+  if (v && typeof v === "object") return Object.values(v).filter((x) => typeof x === "string").join(" · ") || "—";
+  return String(v ?? "—");
+}
+
 export default function SettingsPage() {
   const { user } = useAuth();
   const { data: status } = useApi<Record<string, unknown>>("/ai/status");
@@ -60,8 +67,8 @@ export default function SettingsPage() {
         </Card>
         {status && (
           <Card title="AI configuration" className="lg:col-span-2">
-            <KeyValue columns={3} items={Object.entries(status).map(([k, v]) => [k.replace(/_/g, " "), String(v ?? "—")])} />
-            <p className="mt-3 text-xs text-slate-500">Providers are configured server-side via environment variables (CAREFLOW_LLM_PROVIDER, CAREFLOW_LLM_MODEL, …). See the README.</p>
+            <KeyValue columns={3} items={Object.entries(status).map(([k, v]) => [k.replace(/_/g, " "), formatValue(v)])} />
+            <p className="mt-3 text-xs text-slate-500">Providers are configured server-side via environment variables (CAREFLOW_LLM_PROVIDER, CAREFLOW_LLM_FALLBACK_PROVIDER, GROQ_API_KEY, GEMINI_API_KEY, …). See the README.</p>
           </Card>
         )}
       </div>

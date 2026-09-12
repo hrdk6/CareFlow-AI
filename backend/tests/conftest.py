@@ -16,6 +16,10 @@ os.environ.update({
     "CAREFLOW_EMBEDDING_PROVIDER": "hashing",
     "CAREFLOW_RERANKER_PROVIDER": "none",
     "CAREFLOW_LLM_PROVIDER": "extractive",
+    # backend/.env is also read by Settings, so pin every behaviour-affecting option explicitly.
+    "CAREFLOW_LLM_TOOL_CALLING": "auto",
+    "CAREFLOW_INJECTION_POLICY": "quarantine",
+    "CAREFLOW_LLM_CONTEXT_BUDGET_CHARS": "12000",
     "CAREFLOW_STORAGE_DIR": tempfile.mkdtemp(prefix="careflow-test-"),
     "CAREFLOW_LOG_LEVEL": "WARNING",
 })

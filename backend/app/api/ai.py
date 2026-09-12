@@ -1,5 +1,4 @@
 """AI assistant endpoints."""
-import httpx
 from fastapi import APIRouter, Depends
 from sqlalchemy import select
 
@@ -41,19 +40,27 @@ def get_source(chunk_id: int, db: DB, user: User = Depends(require(Perm.DOCUMENT
                      is_synthetic=doc.is_synthetic)
 
 
+def _probe(provider) -> bool | None:
+    """Lists models (no tokens spent) to check the endpoint and key. None = not probed (Anthropic, extractive)."""
+    probe = getattr(provider, "probe", None)
+    return probe() if probe else None
+
+
 @router.get("/status")
 def ai_status(user: User = Depends(get_current_user)) -> dict:
     s = get_settings()
     provider = get_llm_provider()
-    reachable = None
-    if provider.name == "openai_compatible":
-        try:
-            reachable = httpx.get(f"{s.llm_base_url.rstrip('/')}/models", timeout=2.0).status_code < 500
-        except httpx.HTTPError:
-            reachable = False
-    elif provider.name == "anthropic":
-        reachable = None  # not probed (would spend a request); errors surface per query
-    return {"provider": provider.name, "model": getattr(provider, "model", None), "reachable": reachable,
-            "tool_calling": provider.supports_tools, "embedding_model": s.embedding_model if
+    chain = getattr(provider, "providers", [provider])
+    probes: dict = {}  # Groq models share one endpoint and key: probe it once
+
+    def reachable(p) -> bool | None:
+        key = (getattr(p, "base_url", p.name), getattr(p, "api_key", ""))
+        if key not in probes:
+            probes[key] = _probe(p)
+        return probes[key]
+
+    fallbacks = [{"provider": p.name, "model": p.model, "reachable": reachable(p)} for p in chain[1:]]
+    return {"provider": provider.name, "model": getattr(provider, "model", None), "reachable": reachable(chain[0]),
+            "fallbacks": fallbacks, "tool_calling": provider.supports_tools, "embedding_model": s.embedding_model if
             s.embedding_provider == "fastembed" else "hashing", "reranker": s.reranker_model if
             s.reranker_provider == "cross_encoder" else "none", "injection_policy": s.injection_policy}

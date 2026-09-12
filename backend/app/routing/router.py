@@ -61,7 +61,12 @@ _RULES: list[tuple[Intent, re.Pattern]] = [
                                           r"\bwhat changed\b|\bchanges? (in|to) (her|his|their|the) (treatment|medications?)\b|"
                                           r"\b(major|recent) changes\b", re.I)),
     (Intent.PATIENT_SUMMARY, re.compile(r"\bsummar\w*\b|\b(medical |clinical )?history\b|\boverview\b|\btimeline\b|"
-                                        r"\bwhat happened\b|\bbrief me\b|\bcatch me up\b", re.I)),
+                                        r"\bwhat happened\b|\bbrief me\b|\bcatch me up\b|"
+                                        # conversational ways of asking for the big picture about a patient
+                                        r"\bwhat'?s\s*(up|going on|new)\b.*\b(patient|her|him|them)\b|"
+                                        r"\bhow('?s| is)\s+(she|he|they|the patient|this patient)\b|"
+                                        r"\b(any )?updates?\s+(on|about)\s+(her|him|them|the patient|this patient)\b|"
+                                        r"\bstatus of (the|this) patient\b", re.I)),
     (Intent.APPOINTMENTS, re.compile(r"\bappointments?\b|\bschedul\w*\b|\bclinic list\b|\bbooked\b|\bvisits? (today|tomorrow)\b",
                                      re.I)),
     (Intent.DOCUMENT_QA, re.compile(r"\b(guidelines?|polic(y|ies)|protocols?|procedures?|sop|according to|"
@@ -139,8 +144,9 @@ def route(query: str, *, has_patient_context: bool = False) -> RoutePlan:
 
     confidence = "high" if intents else "low"
     if not intents:
-        # Unrecognised: a patient-scoped question defaults to the record, anything else to the knowledge base.
-        intents = [Intent.PATIENT_FACT] if refers or has_patient_context else [Intent.DOCUMENT_QA]
+        # Unrecognised: an open question about the patient in context is best served by a record summary;
+        # anything else goes to the knowledge base. Confidence stays "low" so a fast LLM may still pick tools.
+        intents = [Intent.PATIENT_SUMMARY] if refers or has_patient_context else [Intent.DOCUMENT_QA]
     capabilities: list[str] = []
     for intent in intents:
         for cap in CAPABILITIES[intent]:

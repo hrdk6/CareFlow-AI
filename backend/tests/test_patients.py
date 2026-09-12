@@ -3,10 +3,30 @@ from sqlalchemy import select
 from app.models import AuditLog
 
 
+def test_synthetic_indian_mobile_numbers():
+    import re
+
+    from app.seed.generator import in_mobile
+
+    for a, b in [(200, 1000), (999, 9999), (345, 6789)]:
+        number = in_mobile(a, b)
+        assert re.fullmatch(r"\+91 [6-9]\d{4} \d{5}", number), number
+    assert in_mobile(345, 6789) == in_mobile(345, 6789)  # deterministic: no extra random draws
+
+
+def test_seeded_patients_use_indian_phone_format(db):
+    import re
+
+    from app.models import Patient
+
+    phones = db.scalars(select(Patient.phone).limit(50)).all()
+    assert phones and all(re.fullmatch(r"\+91 [6-9]\d{4} \d{5}", p) for p in phones)
+
+
 def test_search_by_mrn_and_name(client, auth):
     r = client.get("/patients?q=P1024", headers=auth("doctor"))
-    assert r.status_code == 200 and r.json()["items"][0]["full_name"] == "Evelyn Hart"
-    r = client.get("/patients?q=evelyn%20hart", headers=auth("doctor"))
+    assert r.status_code == 200 and r.json()["items"][0]["full_name"] == "Sunita Deshpande"
+    r = client.get("/patients?q=sunita%20deshpande", headers=auth("doctor"))
     assert any(p["mrn"] == "P1024" for p in r.json()["items"])
 
 
@@ -28,7 +48,7 @@ def test_clinical_view_for_doctor(client, auth, demo_patient):
 def test_receptionist_registers_patient_with_new_mrn(client, auth, db):
     r = client.post("/patients", headers=auth("reception"), json={
         "first_name": "Test", "last_name": "Registration", "date_of_birth": "1985-04-02", "sex": "M",
-        "phone": "+1 555 0100", "allergies": [{"substance": "Latex", "reaction": "Rash", "severity": "mild"}]})
+        "phone": "+91 98765 43210", "allergies": [{"substance": "Latex", "reaction": "Rash", "severity": "mild"}]})
     assert r.status_code == 201, r.text
     body = r.json()
     assert body["mrn"].startswith("P") and body["is_synthetic"]
@@ -55,8 +75,8 @@ def test_validation_errors_do_not_echo_input(client, auth):
 
 def test_update_patient_contact_details(client, auth, demo_patient):
     r = client.patch(f"/patients/{demo_patient.id}", headers=auth("reception"),
-                     json={"emergency_contact_phone": "+1 555 0199"})
-    assert r.status_code == 200 and r.json()["emergency_contact_phone"] == "+1 555 0199"
+                     json={"emergency_contact_phone": "+91 98765 43211"})
+    assert r.status_code == 200 and r.json()["emergency_contact_phone"] == "+91 98765 43211"
 
 
 def test_timeline_is_chronological_and_linked(client, auth, demo_patient):

@@ -41,6 +41,12 @@ def at(d: date, hour: int = 9, minute: int = 0) -> datetime:
     return datetime.combine(d, time(hour, minute), tzinfo=UTC)
 
 
+def in_mobile(a: int, b: int) -> str:
+    """Fictional Indian mobile number (+91, 10 digits starting 6-9) built from two random draws."""
+    digits = f"{6 + a % 4}{a:03d}{b:04d}{(a * b) % 100:02d}"  # 1 + 3 + 4 + 2 = 10 digits
+    return f"+91 {digits[:5]} {digits[5:]}"
+
+
 @dataclass
 class ClinicalState:
     a1c: float | None
@@ -118,7 +124,7 @@ class HospitalGenerator:
             handle = name.split()[-1].lower()
             doc = Doctor(staff_code=code, full_name=name, specialty=specialty,
                          department_id=self.departments[dept].id, email=f"{handle}.{code.lower()}@careflow.demo",
-                         phone=f"+1-555-01{code[1:]}", availability=availability)
+                         phone=f"+91 20 4000 0{code[1:]}", availability=availability)
             self.db.add(doc)
             self.doctors[code] = doc
         self.db.flush()
@@ -525,12 +531,12 @@ class HospitalGenerator:
         contact_first = r.choice(C.FIRST_F + C.FIRST_M)
         p = Patient(
             mrn=mrn, first_name=first, last_name=last, date_of_birth=dob, sex=sex,
-            phone=f"+1-555-{r.randint(200, 999)}-{r.randint(1000, 9999)}",
+            phone=in_mobile(r.randint(200, 999), r.randint(1000, 9999)),
             email=f"{first.lower()}.{last.lower()}{r.randint(1, 99)}@example.com",
-            address=f"{r.randint(1, 999)} {r.choice(C.STREETS)}, {C.CITY}",
+            address=f"{r.randint(1, 999)}, {r.choice(C.STREETS)}",
             preferred_language=r.choice(C.LANGUAGES), blood_type=r.choice(C.BLOOD_TYPES),
             emergency_contact_name=f"{contact_first} {last}",
-            emergency_contact_phone=f"+1-555-{r.randint(200, 999)}-{r.randint(1000, 9999)}",
+            emergency_contact_phone=in_mobile(r.randint(200, 999), r.randint(1000, 9999)),
             emergency_contact_relation=r.choice(["Spouse", "Daughter", "Son", "Sibling", "Parent", "Friend"]),
             allergies=allergies, status="active",
             primary_department_id=self.departments[C.ARCHETYPES[archetype].department].id)
@@ -614,10 +620,10 @@ class HospitalGenerator:
     def _demo_patient(self) -> None:
         """P1024 - hand-authored history used by the end-to-end demo (see docs/demo.md)."""
         A = self.anchor
-        patient = self._new_patient(DEMO_MRN, "diabetes", "Evelyn", "Hart", "F", date(A.year - 67, 3, 14))
+        patient = self._new_patient(DEMO_MRN, "diabetes", "Sunita", "Deshpande", "F", date(A.year - 67, 3, 14))
         patient.allergies = [{"substance": "Penicillin", "reaction": "Rash", "severity": "moderate"},
                              {"substance": "Sulfonamides", "reaction": "Hives", "severity": "mild"}]
-        patient.blood_type, patient.preferred_language = "A+", "English"
+        patient.blood_type, patient.preferred_language = "A+", "Marathi"
         rao, okoro, chen = self.doctors["D101"], self.doctors["D102"], self.doctors["D103"]
         state = ClinicalState(a1c=7.2, egfr=64, ldl=112, bnp=60, a1c_drift=0, egfr_drift=0)
         ctx = PatientCtx(patient, "diabetes", rao, {"E11.9", "I10", "E78.5"}, state, frailty=0.6)
