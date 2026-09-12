@@ -15,7 +15,7 @@ import { api, errorMessage, qs } from "@/lib/api";
 import { PERMS, useAuth } from "@/lib/auth";
 import { fmtDateTime, titleCase } from "@/lib/format";
 import { useApi } from "@/lib/hooks";
-import type { AdminUser, AITrace, AuditLog, Page } from "@/lib/types";
+import type { AdminUser, AITrace, AuditLog, Department, Doctor, Page } from "@/lib/types";
 
 type Tab = "users" | "roles" | "audit" | "traces" | "metrics";
 
@@ -80,6 +80,16 @@ function Users() {
 function CreateUser({ onClose, onDone }: { onClose: () => void; onDone: () => void }) {
   const [form, setForm] = useState({ email: "", full_name: "", password: "", role: "NURSE", doctor_id: "", department_id: "" });
   const [error, setError] = useState<unknown>(null);
+  const { data: departments } = useApi<Department[]>("/departments");
+  const { data: doctors } = useApi<Doctor[]>("/doctors");
+  const { data: existing } = useApi<AdminUser[]>("/admin/users");
+  // A doctor profile belongs to exactly one login, so profiles already linked are not offered.
+  const linked = new Set((existing ?? []).map((u) => u.doctor_id).filter(Boolean));
+  const freeDoctors = (doctors ?? []).filter((d) => !linked.has(d.id));
+  function pickDoctor(id: string) {
+    const doctor = freeDoctors.find((d) => String(d.id) === id);
+    setForm({ ...form, doctor_id: id, department_id: doctor ? String(doctor.department_id) : form.department_id });
+  }
   async function submit() {
     setError(null);
     try {
@@ -96,8 +106,16 @@ function CreateUser({ onClose, onDone }: { onClose: () => void; onDone: () => vo
         <Field label="Email"><Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></Field>
         <Field label="Initial password" hint="≥ 12 characters"><Input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} /></Field>
         <Field label="Role"><Select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} options={ROLES.map((r) => ({ value: r, label: r }))} /></Field>
-        <Field label="Doctor profile id" hint="Required for DOCTOR"><Input value={form.doctor_id} onChange={(e) => setForm({ ...form, doctor_id: e.target.value })} /></Field>
-        <Field label="Department id"><Input value={form.department_id} onChange={(e) => setForm({ ...form, department_id: e.target.value })} /></Field>
+        {form.role === "DOCTOR" && (
+          <Field label="Doctor profile" hint={freeDoctors.length ? "Clinician this login acts as" : "No unlinked profiles — register one on the Doctors page"}>
+            <Select value={form.doctor_id} onChange={(e) => pickDoctor(e.target.value)} placeholder="Select doctor"
+              options={freeDoctors.map((d) => ({ value: d.id, label: `${d.full_name} · ${d.department}` }))} />
+          </Field>
+        )}
+        <Field label="Department" hint="Decides which patients a doctor can see">
+          <Select value={form.department_id} onChange={(e) => setForm({ ...form, department_id: e.target.value })}
+            placeholder="None" options={(departments ?? []).map((d) => ({ value: d.id, label: d.name }))} />
+        </Field>
       </div>
       {error ? <div className="mt-3"><ErrorState error={error} compact /></div> : null}
     </Modal>

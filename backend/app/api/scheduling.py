@@ -1,4 +1,5 @@
 """Doctors, departments and appointments."""
+import re
 from datetime import UTC, date, datetime
 
 from fastapi import APIRouter, Depends, Query
@@ -16,6 +17,7 @@ from app.schemas.clinical import (
     AppointmentOut,
     AppointmentUpdate,
     DepartmentOut,
+    DoctorCreate,
     DoctorOut,
     SlotOut,
 )
@@ -24,6 +26,10 @@ from app.services.appointments import ALLOWED_TRANSITIONS, free_slots, validate_
 
 router = APIRouter(tags=["scheduling"])
 DoctorsRead = Depends(require(Perm.DOCTORS_READ))
+DoctorsManage = Depends(require(Perm.USERS_MANAGE))  # staff records are administration, not clinical work
+
+# Seeded convention: a weekday template of two clinics per day.
+DEFAULT_AVAILABILITY = {d: [["09:00", "13:00"], ["14:00", "17:00"]] for d in ("mon", "tue", "wed", "thu", "fri")}
 
 
 def doctor_out(d: Doctor) -> DoctorOut:
@@ -46,6 +52,35 @@ def list_doctors(db: DB, user: User = DoctorsRead, department_id: int | None = N
     if q:
         stmt = stmt.where(or_(Doctor.full_name.ilike(f"%{q}%"), Doctor.specialty.ilike(f"%{q}%")))
     return [doctor_out(d) for d in db.scalars(stmt.order_by(Doctor.full_name))]
+
+
+def _staff_code(db: DB, department_id: int) -> str:
+    """Staff codes follow the seeded convention D<department><sequence>, e.g. D103."""
+    n = db.scalar(select(func.count()).select_from(Doctor).where(Doctor.department_id == department_id)) or 0
+    while True:
+        n += 1
+        code = f"D{department_id}{n:02d}"
+        if db.scalar(select(Doctor.id).where(Doctor.staff_code == code)) is None:
+            return code
+
+
+@router.post("/doctors", response_model=DoctorOut, status_code=201)
+def create_doctor(body: DoctorCreate, db: DB, user: User = DoctorsManage) -> DoctorOut:
+    """Register a clinician. The profile is what appointments and care teams point at; a login account
+    for this person is created separately (POST /admin/users with this doctor's id)."""
+    department = db.get(Department, body.department_id)
+    if department is None:
+        raise ValidationFailedError("Unknown department")
+    code = _staff_code(db, body.department_id)
+    surname = re.sub(r"[^a-z]", "", body.full_name.split()[-1].lower()) or "staff"
+    doctor = Doctor(staff_code=code, full_name=body.full_name.strip(), specialty=body.specialty.strip(),
+                    department_id=body.department_id, email=body.email or f"{surname}.{code.lower()}@careflow.demo",
+                    phone=body.phone, availability=body.availability or DEFAULT_AVAILABILITY, is_active=True)
+    db.add(doctor)
+    db.flush()
+    audit("doctor.create", user=user, resource_type="doctor", resource_id=doctor.id,
+          details={"staff_code": code, "department": department.name})
+    return doctor_out(doctor)
 
 
 @router.get("/doctors/{doctor_id}", response_model=DoctorOut)

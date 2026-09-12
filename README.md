@@ -40,8 +40,9 @@ Detailed design: [`docs/architecture.md`](docs/architecture.md) · [`docs/ml.md`
 
 ## Features
 
-**Hospital operations** — patients (registration, demographics, allergies, care team), doctors and
-availability, appointment booking with availability and double-booking checks, admissions/discharges,
+**Hospital operations** — patients (registration, demographics, allergies, care team), clinician
+registration (admin registers the doctor profile; the login account is created separately and linked to
+it), doctors and availability, appointment booking with availability and double-booking checks, admissions/discharges,
 medical records, prescriptions (formulary, high-alert flags, allergy check, discontinue with reason),
 laboratory results with reference ranges and critical flags, knowledge-base document management
 (upload → processing → indexed/failed, versioning, chunk inspection).
@@ -184,6 +185,15 @@ Measured on the development laptop (Intel Core Ultra 5, CPU-only inference throu
 `llama3:8b` in **80 s** with correct citations but weaker structure. With thinking enabled, gemma4
 exceeded a 120 s timeout. Evidence is trimmed to `CAREFLOW_LLM_CONTEXT_BUDGET_CHARS` (default 12,000)
 because Ollama's default 4k-token window silently truncates longer prompts, which could drop the system rules.
+
+### Windows note: blocked native extensions
+
+Some locked-down Windows hosts (Application Control / Smart App Control) block compiled Python
+extensions — `lxml` (used by python-docx) and `mmh3` (used by fastembed) are the ones that hit this
+project. `.docx` ingestion and the real embedding/reranker models then fail with
+*"An Application Control policy has blocked this file"*. The test suite detects this and skips those
+two tests instead of failing; Docker and Linux hosts are unaffected. To run the full stack locally,
+allow those DLLs in the Windows security policy.
 
 ## Testing & evaluation
 

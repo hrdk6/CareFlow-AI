@@ -83,3 +83,54 @@ def test_appointment_list_filters(client, auth, rao_id):
                    headers=auth("doctor"))
     assert r.status_code == 200
     assert all(a["doctor_id"] == rao_id for a in r.json()["items"])
+
+
+# ------------------------------------------------------------------ doctor administration
+@pytest.fixture
+def neurology_id(client, auth) -> int:
+    depts = client.get("/departments", headers=auth("reception")).json()
+    return next(d["id"] for d in depts if d["name"] == "Neurology")
+
+
+def register_doctor(client, auth, neurology_id, role="admin", **overrides):
+    body = {"full_name": "Dr. Meera Joshi", "specialty": "Neurology", "department_id": neurology_id} | overrides
+    return client.post("/doctors", json=body, headers=auth(role))
+
+
+def test_admin_can_register_a_doctor_who_is_then_bookable(client, auth, neurology_id):
+    r = register_doctor(client, auth, neurology_id)
+    assert r.status_code == 201, r.text
+    doctor = r.json()
+    assert doctor["staff_code"].startswith(f"D{neurology_id}") and doctor["department"] == "Neurology"
+    assert doctor["email"].startswith("joshi.") and doctor["is_active"] is True
+    assert doctor["availability"]["mon"] == [["09:00", "13:00"], ["14:00", "17:00"]]
+    listed = client.get("/doctors?q=Joshi", headers=auth("reception")).json()
+    assert [d["id"] for d in listed] == [doctor["id"]]
+    assert client.get(f"/doctors/{doctor['id']}/availability?day={_future_monday()}",
+                      headers=auth("reception")).json()
+
+
+@pytest.mark.parametrize("role", ["doctor", "nurse", "reception"])
+def test_registering_a_doctor_is_admin_only(client, auth, neurology_id, role):
+    assert register_doctor(client, auth, neurology_id, role=role).status_code == 403
+
+
+@pytest.mark.parametrize(("overrides", "status"), [
+    ({"department_id": 9999}, 422),                            # unknown department
+    ({"full_name": "X"}, 422),                                 # too short
+    ({"availability": {"mon": [["09:00", "08:00"]]}}, 422),    # window ends before it starts
+    ({"availability": {"funday": [["09:00", "17:00"]]}}, 422),  # not a weekday
+])
+def test_doctor_registration_validates_input(client, auth, neurology_id, overrides, status):
+    assert register_doctor(client, auth, neurology_id, **overrides).status_code == status
+
+
+def test_user_account_links_to_a_free_doctor_profile_only(client, auth, neurology_id):
+    doctor = register_doctor(client, auth, neurology_id, full_name="Dr. Ravi Kulkarni").json()
+    account = {"email": "ravi@careflow.demo", "full_name": "Ravi Kulkarni", "password": "CareFlow-Demo-2026",
+               "role": "DOCTOR", "doctor_id": doctor["id"], "department_id": neurology_id}
+    assert client.post("/admin/users", json=account, headers=auth("admin")).status_code == 201
+    duplicate = account | {"email": "ravi2@careflow.demo"}
+    assert client.post("/admin/users", json=duplicate, headers=auth("admin")).status_code == 409
+    unknown = account | {"email": "ghost@careflow.demo", "doctor_id": 99999}
+    assert client.post("/admin/users", json=unknown, headers=auth("admin")).status_code == 422

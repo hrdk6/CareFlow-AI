@@ -20,6 +20,8 @@ from app.models import (
     Appointment,
     AuditLog,
     CareAssignment,
+    Department,
+    Doctor,
     Document,
     ModelVersion,
     Patient,
@@ -59,6 +61,13 @@ def create_user(body: UserCreate, db: DB, user: User = UsersManage) -> UserAdmin
     role = db.scalar(select(Role).where(Role.name == body.role))
     if body.role == "DOCTOR" and body.doctor_id is None:
         raise ValidationFailedError("Doctor accounts must be linked to a doctor profile")
+    if body.doctor_id is not None:
+        if db.get(Doctor, body.doctor_id) is None:
+            raise ValidationFailedError("Unknown doctor profile")
+        if db.scalar(select(User.id).where(User.doctor_id == body.doctor_id)):
+            raise ConflictError("That doctor profile is already linked to another account")
+    if body.department_id is not None and db.get(Department, body.department_id) is None:
+        raise ValidationFailedError("Unknown department")
     new = User(email=body.email.lower(), full_name=body.full_name, password_hash=hash_password(body.password),
                role=role, doctor_id=body.doctor_id, department_id=body.department_id)
     db.add(new)

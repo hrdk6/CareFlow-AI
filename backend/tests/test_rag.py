@@ -12,6 +12,7 @@ from app.rag.embeddings import EmbeddingError, HashingEmbeddingService
 from app.rag.parsing import ParsedDocument, ParsedPage, ParsingError, clean_text, parse_file, strip_running_lines
 from app.rag.reranking import RerankerError
 from app.rag.retrieval import HybridRetriever, RetrievalFilters, rrf_fuse
+from tests.conftest import DOCX_SUPPORTED, FASTEMBED_SUPPORTED
 
 GUIDE = """# SAMPLE GUIDELINE
 
@@ -60,6 +61,8 @@ def test_parse_txt_pdf_docx(tmp_path):
     parsed = parse_file(pdf_path)
     assert parsed.page_count == 2 and "metformin" in parsed.pages[1].text
 
+    if not DOCX_SUPPORTED:
+        pytest.skip("python-docx cannot load on this host (blocked lxml extension)")
     import docx
 
     d = docx.Document()
@@ -210,6 +213,7 @@ def test_near_duplicate_passages_are_deduplicated(db, users):
     assert len(hashes) == len(set(hashes))
 
 
+@pytest.mark.skipif(not FASTEMBED_SUPPORTED, reason="fastembed cannot load on this host (blocked native extension)")
 @pytest.mark.models
 def test_real_models_hybrid_rerank_finds_renal_metformin_rule(db, users):
     from app.core.config import get_settings

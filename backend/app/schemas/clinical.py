@@ -1,9 +1,13 @@
+import re
 from datetime import date, datetime
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from app.schemas.common import ORMModel
+
+DAYS = ("mon", "tue", "wed", "thu", "fri", "sat", "sun")
+TIME_RE = re.compile(r"([01]\d|2[0-3]):[0-5]\d")
 
 
 class DepartmentOut(ORMModel):
@@ -24,6 +28,32 @@ class DoctorOut(ORMModel):
     phone: str
     availability: dict
     is_active: bool
+
+
+class DoctorCreate(BaseModel):
+    """Clinician profile. The login account is separate (POST /admin/users links to this profile)."""
+
+    full_name: str = Field(min_length=2, max_length=128)
+    specialty: str = Field(min_length=2, max_length=64)
+    department_id: int
+    email: str = Field("", max_length=255)
+    phone: str = Field("", max_length=32)
+    availability: dict[str, list[tuple[str, str]]] | None = None  # weekday -> [["09:00", "13:00"], ...]
+
+    @field_validator("availability")
+    @classmethod
+    def _check_availability(cls, v):
+        if v is None:
+            return v
+        for day, windows in v.items():
+            if day not in DAYS:
+                raise ValueError(f"Unknown weekday '{day}'; use {', '.join(DAYS)}")
+            for start, end in windows:
+                if not (TIME_RE.fullmatch(start) and TIME_RE.fullmatch(end)):
+                    raise ValueError("Availability times must be 'HH:MM'")
+                if start >= end:
+                    raise ValueError("Availability window must start before it ends")
+        return v
 
 
 class AppointmentCreate(BaseModel):
