@@ -1,51 +1,149 @@
 @import "tailwindcss";
 
-/* CareFlow design tokens: calm clinical palette, dense information layout. */
+/* CareFlow design tokens.
+   A calm clinical palette: deep teal for intent, neutral slate for structure, generous contrast for
+   data. Surfaces are layered (canvas -> surface -> raised) so dense tables stay readable. */
 @theme {
-  --font-sans: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --font-sans: var(--font-inter), "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
   --font-mono: ui-monospace, "Cascadia Code", "SFMono-Regular", Menlo, monospace;
-  --color-brand-50: #eefbf8;
-  --color-brand-100: #d5f4ec;
-  --color-brand-200: #aee8da;
-  --color-brand-500: #149e87;
-  --color-brand-600: #0d8170;
-  --color-brand-700: #0f675b;
-  --color-brand-800: #11524a;
-  --color-brand-900: #0f3f3a;
-  --color-canvas: #f4f6f8;
+
+  --color-brand-50: #edfbf7;
+  --color-brand-100: #d2f4ea;
+  --color-brand-200: #a8e8d7;
+  --color-brand-300: #71d5bf;
+  --color-brand-400: #3cbba3;
+  --color-brand-500: #189e89;
+  --color-brand-600: #0b7f6f;
+  --color-brand-700: #0c665b;
+  --color-brand-800: #0e514a;
+  --color-brand-900: #0d3f3b;
+  --color-brand-950: #04231f;
+
+  /* Surfaces and structure */
+  --color-canvas: #f6f7f9;
+  --color-surface: #ffffff;
+  --color-line: #e5e9ef;
+  --color-line-strong: #d3d9e2;
+  --color-ink: #0f172a;
+  --color-muted: #64748b;
+
+  /* Sidebar: near-black with a teal cast, so the workspace reads as one product */
+  --color-rail: #0b1220;
+  --color-rail-hover: #16203300;
+
+  --radius-md: 0.5rem;
+  --radius-lg: 0.625rem;
+  --radius-xl: 0.875rem;
+
+  --shadow-e1: 0 1px 2px rgba(15, 23, 42, 0.05), 0 1px 1px rgba(15, 23, 42, 0.03);
+  --shadow-e2: 0 2px 4px rgba(15, 23, 42, 0.06), 0 4px 12px -4px rgba(15, 23, 42, 0.08);
+  --shadow-e3: 0 12px 32px -8px rgba(15, 23, 42, 0.18), 0 4px 8px -4px rgba(15, 23, 42, 0.1);
+
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 html,
 body {
   background: var(--color-canvas);
-  color: #1e293b;
+  color: var(--color-ink);
 }
 
 body {
   font-family: var(--font-sans);
   font-size: 14px;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* Numbers line up in tables and metrics; ss01 gives Inter its single-storey 'a' alternates off. */
+  font-feature-settings: "cv05" 1, "cv11" 1;
+}
+
+/* Headings tighten as they grow, the way editorial type does. */
+h1,
+h2,
+h3 {
+  letter-spacing: -0.011em;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
 }
 
 ::selection {
   background: var(--color-brand-100);
+  color: var(--color-brand-900);
 }
 
+/* Focus: one consistent ring everywhere, visible on both light and dark surfaces. */
+:focus-visible {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: 2px;
+}
+
+.scroll-thin {
+  scrollbar-width: thin;
+  scrollbar-color: #c9d1dc transparent;
+}
 .scroll-thin::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 9px;
+  height: 9px;
 }
 .scroll-thin::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #c9d1dc;
+  border: 2px solid transparent;
+  background-clip: padding-box;
   border-radius: 999px;
 }
+.scroll-thin::-webkit-scrollbar-thumb:hover {
+  background: #aab4c2;
+  background-clip: padding-box;
+}
 
+/* ---- motion ------------------------------------------------------------------------------- */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes pop-in {
+  from { opacity: 0; transform: translateY(6px) scale(0.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes slide-in-right {
+  from { transform: translateX(16px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
 @keyframes pulse-dot {
   0%, 80%, 100% { opacity: 0.25; }
   40% { opacity: 1; }
 }
+
+.animate-fade-in { animation: fade-in 0.18s var(--ease-out-quart) both; }
+.animate-pop-in { animation: pop-in 0.22s var(--ease-out-quart) both; }
+.animate-slide-in { animation: slide-in-right 0.24s var(--ease-out-quart) both; }
+
+/* Skeletons shimmer rather than blink: it reads as "loading", not "broken". */
+.shimmer {
+  background: linear-gradient(90deg, #eef1f5 25%, #f7f9fb 37%, #eef1f5 63%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
 .dot-pulse span {
   animation: pulse-dot 1.2s infinite ease-in-out;
 }
 .dot-pulse span:nth-child(2) { animation-delay: 0.15s; }
 .dot-pulse span:nth-child(3) { animation-delay: 0.3s; }
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

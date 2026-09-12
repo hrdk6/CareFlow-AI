@@ -73,7 +73,7 @@ function ReadmissionCard({ card }: { card: ModelCard }) {
       </div>
       <div className="grid gap-4 xl:grid-cols-3">
         <Card title="ROC curve (test)"><LineChart diagonal xDomain={[0, 1]} yDomain={[0, 1]} xLabel="False positive rate" yLabel="True positive rate"
-          series={[{ name: "model", color: "#0d8170", points: t.roc_curve as [number, number][] }]} xFormat={(v) => v.toFixed(1)} yFormat={(v) => v.toFixed(1)} /></Card>
+          series={[{ name: "model", color: "#0b7f6f", points: t.roc_curve as [number, number][] }]} xFormat={(v) => v.toFixed(1)} yFormat={(v) => v.toFixed(1)} /></Card>
         <Card title="Precision–recall (test)"><LineChart xDomain={[0, 1]} yDomain={[0, 1]} xLabel="Recall" yLabel="Precision"
           refLines={[{ y: t.prevalence as number, label: "prevalence", color: "#94a3b8" }]}
           series={[{ name: "model", color: "#7c3aed", points: t.pr_curve as [number, number][] }]} /></Card>

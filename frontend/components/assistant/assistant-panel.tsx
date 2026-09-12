@@ -69,7 +69,7 @@ export function AssistantPanel({ patientId, patientLabel, compact }: { patientId
             <p className="mt-1 text-xs text-slate-500">Answers use only records and documents you are authorized to access, cite their sources, and separate database facts, document passages and model predictions.</p>
             <div className="mt-3 flex flex-wrap gap-1.5">
               {prompts.map((p) => (
-                <button key={p} onClick={() => ask(p)} className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs text-slate-600 hover:border-brand-300 hover:text-brand-800">{p}</button>
+                <button key={p} onClick={() => ask(p)} className="rounded-full border border-line bg-white px-3 py-1.5 text-xs text-slate-600 shadow-e1 transition-all duration-150 hover:-translate-y-px hover:border-brand-300 hover:bg-brand-50/60 hover:text-brand-800">{p}</button>
               ))}
             </div>
           </div>
@@ -77,7 +77,7 @@ export function AssistantPanel({ patientId, patientLabel, compact }: { patientId
         {turns.map((t) => (
           <div key={t.id} className="space-y-2">
             <div className="flex justify-end">
-              <div className="max-w-[85%] rounded-lg bg-slate-800 px-3 py-2 text-sm text-white">{t.query}</div>
+              <div className="max-w-[85%] rounded-2xl rounded-br-md bg-slate-900 px-3.5 py-2 text-sm leading-relaxed text-white shadow-e1">{t.query}</div>
             </div>
             {!t.response && !t.error && <Pending startedAt={t.startedAt} />}
             {t.error ? <ErrorState error={t.error} /> : null}
@@ -87,7 +87,7 @@ export function AssistantPanel({ patientId, patientLabel, compact }: { patientId
         <div ref={bottom} />
       </div>
       <form onSubmit={(e) => { e.preventDefault(); ask(query); }}
-        className="sticky bottom-0 mt-4 flex items-end gap-2 rounded-lg border border-slate-300 bg-white p-2 shadow-sm focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-500/20">
+        className="sticky bottom-0 mt-4 flex items-end gap-2 rounded-xl border border-line-strong bg-white p-2 shadow-e2 transition-[border-color,box-shadow] focus-within:border-brand-500 focus-within:ring-4 focus-within:ring-brand-500/12">
         <textarea value={query} onChange={(e) => setQuery(e.target.value)} rows={2} maxLength={2000}
           onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); ask(query); } }}
           placeholder={patientLabel ? `Question about ${patientLabel}…` : "Ask a question… (mention an MRN such as P1024 for patient questions)"}

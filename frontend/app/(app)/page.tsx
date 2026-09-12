@@ -52,11 +52,11 @@ export default function DashboardPage() {
           <div className="grid gap-5 xl:grid-cols-3">
             {data.appointments_today && (
               <Card title="Today's appointments" className="xl:col-span-2" bodyClassName="p-0"
-                actions={<Link href="/appointments" className="text-xs text-brand-700 hover:underline">View schedule</Link>}>
+                actions={<Link href="/appointments" className="text-xs font-medium text-brand-700 hover:text-brand-800 hover:underline">View schedule</Link>}>
                 {data.appointments_today.length === 0 ? <EmptyState title="No appointments today" /> : (
-                  <ul className="divide-y divide-slate-100">
+                  <ul className="divide-y divide-line/70">
                     {data.appointments_today.map((a) => (
-                      <li key={a.id} className="flex items-center gap-4 px-4 py-2.5">
+                      <li key={a.id} className="flex items-center gap-4 px-4 py-2.5 transition-colors hover:bg-slate-50/80">
                         <span className="w-12 font-mono text-sm tabular-nums text-slate-600">{fmtTime(a.time)}</span>
                         <div className="min-w-0 flex-1">
                           <Link href={`/patients/${a.patient_id}`} className="text-sm font-medium text-slate-800 hover:text-brand-700">{a.patient}</Link>
@@ -74,9 +74,9 @@ export default function DashboardPage() {
               <Card title="Recent discharges (30 days)" bodyClassName="p-0"
                 subtitle="Candidates for readmission-risk review">
                 {data.recent_discharges.length === 0 ? <EmptyState title="No recent discharges" /> : (
-                  <ul className="divide-y divide-slate-100">
+                  <ul className="divide-y divide-line/70">
                     {data.recent_discharges.map((d) => (
-                      <li key={`${d.patient_id}-${d.discharged_at}`} className="px-4 py-2.5">
+                      <li key={`${d.patient_id}-${d.discharged_at}`} className="px-4 py-2.5 transition-colors hover:bg-slate-50/80">
                         <Link href={`/patients/${d.patient_id}`} className="flex items-center gap-2 text-sm font-medium text-slate-800 hover:text-brand-700">
                           <Discharge className="h-3.5 w-3.5 text-slate-400" /> {d.name}
                           <span className="font-mono text-xs font-normal text-slate-400">{d.mrn}</span>
@@ -93,9 +93,9 @@ export default function DashboardPage() {
           {data.census && (
             <Card title="Inpatient census" bodyClassName="p-0" subtitle="Currently admitted patients within your access">
               {data.census.length === 0 ? <EmptyState title="No current inpatients" /> : (
-                <div className="grid divide-y divide-slate-100 sm:grid-cols-2 sm:divide-y-0">
+                <div className="grid divide-y divide-line/70 sm:grid-cols-2 sm:divide-y-0">
                   {data.census.map((c) => (
-                    <Link key={c.patient_id} href={`/patients/${c.patient_id}`} className="flex items-center justify-between gap-3 border-slate-100 px-4 py-2.5 hover:bg-slate-50 sm:border-b">
+                    <Link key={c.patient_id} href={`/patients/${c.patient_id}`} className="flex items-center justify-between gap-3 border-line/70 px-4 py-2.5 transition-colors hover:bg-brand-50/40 sm:border-b">
                       <div className="min-w-0">
                         <div className="truncate text-sm font-medium text-slate-800">{c.name} <span className="font-mono text-xs font-normal text-slate-400">{c.mrn}</span></div>
                         <div className="truncate text-xs text-slate-500">{c.reason}</div>

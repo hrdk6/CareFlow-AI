@@ -285,7 +285,7 @@ export function LabsTab({ patientId }: { patientId: number }) {
       </Card>
       <div className="space-y-4">
         <Card title={`${first?.test_name ?? selected} trend`} subtitle={`${series.length} results · ${first?.unit ?? ""}`}>
-          <LineChart series={[{ name: selected, color: "#0d8170", points: series.map((l) => [new Date(l.collected_at).getTime(), l.value as number]) }]}
+          <LineChart series={[{ name: selected, color: "#0b7f6f", points: series.map((l) => [new Date(l.collected_at).getTime(), l.value as number]) }]}
             refLines={refLines} xFormat={(v) => new Date(v).toISOString().slice(2, 7)} yFormat={(v) => v.toFixed(v < 10 ? 1 : 0)} />
         </Card>
         <Card bodyClassName="p-0" title="Results" actions={addButton}>
