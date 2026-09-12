@@ -27,3 +27,7 @@ frontend/.next/
 frontend/out/
 frontend/next-env.d.ts
 frontend/tsconfig.tsbuildinfo
+
+# editor / tooling config (local only)
+.idea/
+.claude/
