@@ -9,7 +9,7 @@ from app.api.deps import DB, appointment_out, policy_for
 from app.audit.service import audit
 from app.auth.dependencies import require
 from app.auth.rbac import Perm
-from app.core.errors import NotFoundError, ValidationFailedError
+from app.core.errors import ConflictError, NotFoundError, ValidationFailedError
 from app.models import Appointment, Department, Doctor, Patient, User
 from app.schemas.clinical import (
     AppointmentCancel,
@@ -19,10 +19,11 @@ from app.schemas.clinical import (
     DepartmentOut,
     DoctorCreate,
     DoctorOut,
+    DoctorUpdate,
     SlotOut,
 )
 from app.schemas.common import Page
-from app.services.appointments import ALLOWED_TRANSITIONS, free_slots, validate_slot
+from app.services.appointments import ALLOWED_TRANSITIONS, LIVE, free_slots, validate_slot
 
 router = APIRouter(tags=["scheduling"])
 DoctorsRead = Depends(require(Perm.DOCTORS_READ))
@@ -89,6 +90,32 @@ def get_doctor(doctor_id: int, db: DB, user: User = DoctorsRead) -> DoctorOut:
     if d is None:
         raise NotFoundError("Doctor not found")
     return doctor_out(d)
+
+
+@router.patch("/doctors/{doctor_id}", response_model=DoctorOut)
+def update_doctor(doctor_id: int, body: DoctorUpdate, db: DB, user: User = DoctorsManage) -> DoctorOut:
+    """Transfer, reschedule or retire a clinician. Deactivating hides them from booking (validate_slot),
+    so the diary must be empty first - otherwise patients hold appointments nobody will attend."""
+    doctor = db.get(Doctor, doctor_id)
+    if doctor is None:
+        raise NotFoundError("Doctor not found")
+    changes = body.model_dump(exclude_unset=True)
+    if changes.get("department_id") is not None and db.get(Department, changes["department_id"]) is None:
+        raise ValidationFailedError("Unknown department")
+    if changes.get("is_active") is False and doctor.is_active:
+        upcoming = db.scalar(select(func.count()).select_from(Appointment).where(
+            Appointment.doctor_id == doctor.id, Appointment.status.in_(LIVE),
+            Appointment.scheduled_start >= datetime.now(UTC)))
+        if upcoming:
+            raise ConflictError(f"{doctor.full_name} still has {upcoming} upcoming appointment(s); cancel or "
+                                f"reassign them before deactivating the profile")
+    for field, value in changes.items():
+        setattr(doctor, field, value)
+    db.flush()
+    db.refresh(doctor)  # department is a joined relationship; reload it so a transfer is reflected
+    audit("doctor.update", user=user, resource_type="doctor", resource_id=doctor.id,
+          details={"fields": sorted(changes), "is_active": doctor.is_active})
+    return doctor_out(doctor)
 
 
 @router.get("/doctors/{doctor_id}/availability", response_model=list[SlotOut])

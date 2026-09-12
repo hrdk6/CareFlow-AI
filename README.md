@@ -59,7 +59,9 @@ laboratory results with reference ranges and critical flags, knowledge-base docu
   ablations, RAG and similarity evaluation results.
 
 **Security & operations** — Argon2id, JWT in an httpOnly SameSite cookie + CSRF header, login rate
-limiting, RBAC + row-level access, authorization-aware retrieval, prompt-injection quarantine, citation
+limiting, RBAC + row-level access (administration is separated from clinical authoring; care-team
+assignments, doctor profiles and account/profile links are maintained from the UI with their invariants
+enforced server-side), authorization-aware retrieval, prompt-injection quarantine, citation
 validation, safe error envelopes, audit log (no clinical text), AI query traces, Prometheus metrics,
 Docker Compose.
 

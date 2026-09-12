@@ -20,11 +20,27 @@ import type { Appointment, LabReport, MedicalRecord, Medication, Prescription } 
 export function RecordsTab({ patientId }: { patientId: number }) {
   const { data, error, loading, reload } = useApi<MedicalRecord[]>(`/patients/${patientId}/records`);
   const [open, setOpen] = useState<number | null>(null);
+  const [writing, setWriting] = useState(false);
+  const { can } = useAuth();
+  const addButton = can(PERMS.clinicalWrite)
+    ? <Button size="sm" onClick={() => setWriting(true)}><Plus className="h-3.5 w-3.5" /> Add note</Button>
+    : null;
+  const modal = writing
+    ? <AddRecordModal patientId={patientId} onClose={() => setWriting(false)} onDone={() => { setWriting(false); reload(); }} />
+    : null;
   if (error) return <ErrorState error={error} onRetry={reload} />;
   if (loading && !data) return <Skeleton lines={8} />;
-  if (!data?.length) return <EmptyState title="No medical records" />;
+  if (!data?.length) {
+    return (
+      <Card bodyClassName="p-0" title="Medical records" actions={addButton}>
+        <EmptyState title="No medical records" />
+        {modal}
+      </Card>
+    );
+  }
   return (
-    <Card bodyClassName="p-0" title="Medical records" subtitle={`${data.length} notes, newest first`}>
+    <Card bodyClassName="p-0" title="Medical records" subtitle={`${data.length} notes, newest first`} actions={addButton}>
+      {modal}
       <ul className="divide-y divide-slate-100">
         {data.map((r) => (
           <li key={r.id}>
@@ -132,6 +148,91 @@ function PrescribeModal({ patientId, onClose, onDone }: { patientId: number; onC
   );
 }
 
+const RECORD_TYPES = ["consultation", "progress_note", "follow_up", "emergency", "discharge_summary"];
+
+/** Medical notes are the one clinical write a nurse holds, so this form is deliberately available to
+ *  every clinical role (clinical:write) rather than to prescribers only. */
+function AddRecordModal({ patientId, onClose, onDone }: { patientId: number; onClose: () => void; onDone: () => void }) {
+  const [form, setForm] = useState({ record_type: "progress_note", visit_date: new Date().toISOString().slice(0, 10),
+    chief_complaint: "", symptoms: "", diagnosis_summary: "", treatment_plan: "", notes: "" });
+  const [error, setError] = useState<unknown>(null);
+  const [busy, setBusy] = useState(false);
+  async function submit() {
+    setBusy(true);
+    setError(null);
+    try {
+      await api("/records", { method: "POST", json: {
+        patient_id: patientId, record_type: form.record_type, visit_date: form.visit_date,
+        chief_complaint: form.chief_complaint, symptoms: form.symptoms || null,
+        diagnosis_summary: form.diagnosis_summary || null, treatment_plan: form.treatment_plan || null,
+        notes: form.notes || null } });
+      onDone();
+    } catch (e) {
+      setError(e);
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <Modal open onClose={onClose} title="New medical note"
+      footer={<><Button variant="secondary" onClick={onClose}>Cancel</Button><Button onClick={submit} loading={busy} disabled={form.chief_complaint.trim().length < 3}>Save note</Button></>}>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Field label="Type"><Select value={form.record_type} onChange={(e) => setForm({ ...form, record_type: e.target.value })}
+          options={RECORD_TYPES.map((t) => ({ value: t, label: titleCase(t) }))} /></Field>
+        <Field label="Visit date"><Input type="date" value={form.visit_date} onChange={(e) => setForm({ ...form, visit_date: e.target.value })} /></Field>
+        <Field label="Chief complaint" hint="At least 3 characters" className="sm:col-span-2">
+          <Input value={form.chief_complaint} onChange={(e) => setForm({ ...form, chief_complaint: e.target.value })} placeholder="e.g. Follow-up for glycaemic control" /></Field>
+        <Field label="Symptoms"><Textarea value={form.symptoms} onChange={(e) => setForm({ ...form, symptoms: e.target.value })} /></Field>
+        <Field label="Assessment"><Textarea value={form.diagnosis_summary} onChange={(e) => setForm({ ...form, diagnosis_summary: e.target.value })} /></Field>
+        <Field label="Plan"><Textarea value={form.treatment_plan} onChange={(e) => setForm({ ...form, treatment_plan: e.target.value })} /></Field>
+        <Field label="Notes"><Textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} /></Field>
+      </div>
+      {error ? <div className="mt-3"><ErrorState error={error} compact /></div> : null}
+    </Modal>
+  );
+}
+
+interface LabCatalogItem { code: string; name: string; unit: string; reference_low: number | null; reference_high: number | null }
+
+function AddLabModal({ patientId, onClose, onDone }: { patientId: number; onClose: () => void; onDone: () => void }) {
+  const { data: catalog } = useApi<LabCatalogItem[]>("/labs/catalog");
+  const [form, setForm] = useState({ test_code: "", value: "", value_text: "", collected_at: new Date().toISOString().slice(0, 16), notes: "" });
+  const [error, setError] = useState<unknown>(null);
+  const [busy, setBusy] = useState(false);
+  const test = catalog?.find((t) => t.code === form.test_code);
+  async function submit() {
+    setBusy(true);
+    setError(null);
+    try {
+      await api("/labs", { method: "POST", json: {
+        patient_id: patientId, test_code: form.test_code,
+        value: form.value === "" ? null : Number(form.value), value_text: form.value_text || null,
+        collected_at: new Date(form.collected_at).toISOString(), notes: form.notes || null } });
+      onDone();
+    } catch (e) {
+      setError(e);
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <Modal open onClose={onClose} title="Record laboratory result"
+      footer={<><Button variant="secondary" onClick={onClose}>Cancel</Button><Button onClick={submit} loading={busy} disabled={!form.test_code || (form.value === "" && !form.value_text)}>Save result</Button></>}>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Field label="Test" className="sm:col-span-2"><Select value={form.test_code} onChange={(e) => setForm({ ...form, test_code: e.target.value })}
+          placeholder="Select test" options={(catalog ?? []).map((t) => ({ value: t.code, label: `${t.name} (${t.code})` }))} /></Field>
+        <Field label="Value" hint={test ? `${test.unit} · reference ${test.reference_low ?? "—"}–${test.reference_high ?? "—"}` : "Numeric result"}>
+          <Input type="number" step="any" value={form.value} onChange={(e) => setForm({ ...form, value: e.target.value })} /></Field>
+        <Field label="Text result" hint="For non-numeric tests"><Input value={form.value_text} onChange={(e) => setForm({ ...form, value_text: e.target.value })} /></Field>
+        <Field label="Collected at"><Input type="datetime-local" value={form.collected_at} onChange={(e) => setForm({ ...form, collected_at: e.target.value })} /></Field>
+        <Field label="Notes"><Input value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} /></Field>
+      </div>
+      <p className="mt-3 text-xs text-slate-500">The reference range and the normal/low/high/critical flag are assigned by the server from the test catalogue.</p>
+      {error ? <div className="mt-3"><ErrorState error={error} compact /></div> : null}
+    </Modal>
+  );
+}
+
 export function LabsTab({ patientId }: { patientId: number }) {
   const { data, error, loading, reload } = useApi<LabReport[]>(`/patients/${patientId}/labs?limit=1000`);
   const tests = useMemo(() => {
@@ -140,10 +241,25 @@ export function LabsTab({ patientId }: { patientId: number }) {
     return m;
   }, [data]);
   const [code, setCode] = useState<string | null>(null);
+  const [adding, setAdding] = useState(false);
+  const { can } = useAuth();
   const selected = code ?? (tests.has("HBA1C") ? "HBA1C" : tests.keys().next().value ?? null);
+  const addButton = can(PERMS.clinicalWrite)
+    ? <Button size="sm" onClick={() => setAdding(true)}><Plus className="h-3.5 w-3.5" /> Add result</Button>
+    : null;
+  const modal = adding
+    ? <AddLabModal patientId={patientId} onClose={() => setAdding(false)} onDone={() => { setAdding(false); reload(); }} />
+    : null;
   if (error) return <ErrorState error={error} onRetry={reload} />;
   if (loading && !data) return <Skeleton lines={8} />;
-  if (!tests.size || !selected) return <EmptyState title="No laboratory results" />;
+  if (!tests.size || !selected) {
+    return (
+      <Card title="Laboratory" actions={addButton}>
+        <EmptyState title="No laboratory results" />
+        {modal}
+      </Card>
+    );
+  }
   const series = [...(tests.get(selected) ?? [])].filter((l) => l.value !== null).reverse();
   const first = series[0];
   const refLines = [
@@ -172,7 +288,8 @@ export function LabsTab({ patientId }: { patientId: number }) {
           <LineChart series={[{ name: selected, color: "#0d8170", points: series.map((l) => [new Date(l.collected_at).getTime(), l.value as number]) }]}
             refLines={refLines} xFormat={(v) => new Date(v).toISOString().slice(2, 7)} yFormat={(v) => v.toFixed(v < 10 ? 1 : 0)} />
         </Card>
-        <Card bodyClassName="p-0" title="Results">
+        <Card bodyClassName="p-0" title="Results" actions={addButton}>
+          {modal}
           <DataTable dense rows={[...(tests.get(selected) ?? [])]}
             columns={[
               { key: "at", header: "Collected", render: (l) => fmtDateTime(l.collected_at) },

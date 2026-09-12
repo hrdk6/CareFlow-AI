@@ -75,6 +75,8 @@ def upload_document(db: DB, background: BackgroundTasks, user: User = Manage,
         raise ValidationFailedError(f"doc_type must be one of {DOC_TYPES}; access_scope one of {ACCESS_SCOPES}")
     if patient_id is not None:
         policy_for(db, user).get_patient(patient_id, clinical=True)
+    if department_id is not None and db.get(Department, department_id) is None:
+        raise ValidationFailedError("Unknown department")
     limit = get_settings().max_upload_mb * 1024 * 1024
     data = file.file.read(limit + 1)
     doc = create_document(db, data=data, filename=file.filename or "upload", title=title, doc_type=doc_type,

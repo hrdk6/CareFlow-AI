@@ -40,6 +40,23 @@ def get_current_user(request: Request, db: Session = Depends(get_db)) -> User:
     return user
 
 
+def require_any(*permissions: str) -> Callable[..., User]:
+    """Dependency factory: the current user must hold AT LEAST ONE listed permission.
+
+    For endpoints whose fields belong to different roles (patient registration details vs clinical
+    details); the handler then enforces the per-field rule.
+    """
+
+    def dependency(request: Request, user: User = Depends(get_current_user)) -> User:
+        if not any(p in user.permission_codes for p in permissions):
+            audit("permission.denied", user=user, outcome="denied",
+                  details={"required_any": list(permissions), "method": request.method, "path": request.url.path})
+            raise PermissionDeniedError("You do not have permission to perform this action")
+        return user
+
+    return dependency
+
+
 def require(*permissions: str) -> Callable[..., User]:
     """Dependency factory: the current user must hold ALL listed permissions."""
 

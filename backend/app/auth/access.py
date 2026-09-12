@@ -53,8 +53,11 @@ class AccessPolicy:
                 conditions.append(Patient.id.in_(
                     select(Admission.patient_id).where(Admission.department_id == self.user.department_id)))
             if self.user.doctor_id is not None:
+                # A cancelled or missed appointment is not a care relationship, and must not leave the
+                # doctor with permanent access to that patient's record.
                 conditions.append(Patient.id.in_(
-                    select(Appointment.patient_id).where(Appointment.doctor_id == self.user.doctor_id)))
+                    select(Appointment.patient_id).where(Appointment.doctor_id == self.user.doctor_id,
+                                                         Appointment.status.notin_(("cancelled", "no_show")))))
             return or_(*conditions)
         return false()
 

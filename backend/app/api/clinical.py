@@ -222,8 +222,11 @@ def admit(body: AdmissionCreate, db: DB, user: User = Depends(require(Perm.ADMIS
     p = policy_for(db, user).get_patient(body.patient_id, clinical=True)
     if db.scalar(select(Admission.id).where(Admission.patient_id == p.id, Admission.status == "admitted")):
         raise ConflictError("Patient is already admitted")
-    if db.get(Department, body.department_id) is None or db.get(Doctor, body.attending_doctor_id) is None:
+    attending = db.get(Doctor, body.attending_doctor_id)
+    if db.get(Department, body.department_id) is None or attending is None:
         raise ValidationFailedError("Unknown department or attending doctor")
+    if not attending.is_active:
+        raise ValidationFailedError(f"{attending.full_name} is not currently practising")
     adm = Admission(**body.model_dump(), admitted_at=datetime.now(UTC), status="admitted")
     db.add(adm)
     p.status = "admitted"

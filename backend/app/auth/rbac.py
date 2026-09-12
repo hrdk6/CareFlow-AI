@@ -52,7 +52,9 @@ PERMISSION_DESCRIPTIONS: dict[Perm, str] = {
 }
 
 ROLE_PERMISSIONS: dict[RoleName, set[Perm]] = {
-    RoleName.ADMIN: set(Perm),
+    # Administration is not clinical practice: an administrator manages accounts, documents and oversight
+    # but does not author clinical data. (create_prescription also requires a linked doctor profile.)
+    RoleName.ADMIN: set(Perm) - {Perm.CLINICAL_WRITE, Perm.PRESCRIPTIONS_WRITE, Perm.ADMISSIONS_WRITE},
     RoleName.DOCTOR: {
         Perm.PATIENTS_READ_DEMOGRAPHICS, Perm.PATIENTS_READ_CLINICAL, Perm.APPOINTMENTS_READ,
         Perm.APPOINTMENTS_WRITE, Perm.CLINICAL_WRITE, Perm.PRESCRIPTIONS_WRITE, Perm.ADMISSIONS_WRITE,
@@ -69,7 +71,7 @@ ROLE_PERMISSIONS: dict[RoleName, set[Perm]] = {
 }
 
 ROLE_DESCRIPTIONS: dict[RoleName, str] = {
-    RoleName.ADMIN: "Full management permissions",
+    RoleName.ADMIN: "Accounts, documents, audit and oversight; read-only on clinical data",
     RoleName.DOCTOR: "Clinical access to patients under their care or in their department",
     RoleName.NURSE: "Clinical access to explicitly assigned patients",
     RoleName.RECEPTIONIST: "Registration, scheduling and non-clinical information",

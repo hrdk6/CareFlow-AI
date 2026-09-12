@@ -30,7 +30,11 @@
 Two layers, both server-side:
 
 1. **RBAC permissions** (`auth/rbac.py`) — coarse capabilities checked by the `require(...)` dependency.
-   ADMIN has all; DOCTOR clinical + ML + prescribing; NURSE clinical read/write for assigned patients, no ML or prescribing; RECEPTIONIST demographics and scheduling only.
+   ADMIN manages accounts, documents, audit and oversight and reads clinical data, but holds no clinical
+   write permission (authoring records, prescribing and admitting are clinical acts); DOCTOR clinical +
+   ML + prescribing + admissions; NURSE clinical read/write for assigned patients, no ML, prescribing or
+   admissions; RECEPTIONIST demographics and scheduling only. Allergies are clinical: a registration role
+   captures them at intake but cannot overwrite them afterwards.
 2. **Row-level access** (`auth/access.py`) — *which* patients and documents. Predicates are composed into
    the SQL of every query, including vector search, BM25 candidate sets and similarity search:
    * DOCTOR: care-team assignment, patient's primary department, admission to the department, or an appointment with the doctor.

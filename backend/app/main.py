@@ -26,6 +26,15 @@ def _error(status: int, code: str, message: str, details: dict | None = None) ->
         "code": code, "message": message, "request_id": request_id_var.get(), "details": details or {}}})
 
 
+def _sync_rbac() -> None:
+    """Apply the RBAC policy from code to the database (grants live in tables, the policy is code)."""
+    from app.auth.provisioning import sync_role_permissions
+
+    with get_session_factory()() as db:
+        sync_role_permissions(db)
+        db.commit()
+
+
 def _warmup() -> None:
     """Load models in the background so the first user request is not slow. Failures are non-fatal."""
     try:
@@ -50,6 +59,8 @@ def _warmup() -> None:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Authorization must be correct before the first request, so this one is synchronous and fatal.
+    _sync_rbac()
     threading.Thread(target=_warmup, daemon=True).start()
     yield
 

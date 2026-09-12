@@ -32,6 +32,7 @@ class UserUpdate(BaseModel):
     role: RoleLiteral | None = None
     is_active: bool | None = None
     department_id: int | None = None
+    doctor_id: int | None = None  # set when promoting to DOCTOR; cleared automatically for other roles
 
 
 class CareAssignmentIn(BaseModel):

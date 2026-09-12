@@ -14,7 +14,8 @@ from datetime import UTC, date, datetime, time, timedelta
 
 from sqlalchemy.orm import Session
 
-from app.auth.rbac import PERMISSION_DESCRIPTIONS, ROLE_DESCRIPTIONS, ROLE_PERMISSIONS
+from app.auth.provisioning import sync_role_permissions
+from app.auth.rbac import ROLE_DESCRIPTIONS, ROLE_PERMISSIONS
 from app.core.security import hash_password
 from app.models import (
     Admission,
@@ -27,7 +28,6 @@ from app.models import (
     MedicalRecord,
     Medication,
     Patient,
-    Permission,
     Prescription,
     Role,
     User,
@@ -104,13 +104,13 @@ class HospitalGenerator:
         return {"patients": self.n_patients, "doctors": len(self.doctors), "users": len(self.users)}
 
     def _roles(self) -> None:
-        perms = {p: Permission(code=p.value, description=PERMISSION_DESCRIPTIONS[p]) for p in PERMISSION_DESCRIPTIONS}
-        self.db.add_all(perms.values())
         self.roles = {}
-        for role, granted in ROLE_PERMISSIONS.items():
-            r = Role(name=role.value, description=ROLE_DESCRIPTIONS[role], permissions=[perms[p] for p in granted])
+        for role in ROLE_PERMISSIONS:
+            r = Role(name=role.value, description=ROLE_DESCRIPTIONS[role])
             self.db.add(r)
             self.roles[role.value] = r
+        self.db.flush()
+        sync_role_permissions(self.db)  # one implementation of "policy in code -> grants in the database"
 
     def _departments(self) -> None:
         for code, name, desc in C.DEPARTMENTS:

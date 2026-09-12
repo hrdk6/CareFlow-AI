@@ -134,3 +134,33 @@ def test_user_account_links_to_a_free_doctor_profile_only(client, auth, neurolog
     assert client.post("/admin/users", json=duplicate, headers=auth("admin")).status_code == 409
     unknown = account | {"email": "ghost@careflow.demo", "doctor_id": 99999}
     assert client.post("/admin/users", json=unknown, headers=auth("admin")).status_code == 422
+
+
+def test_doctor_profile_can_be_transferred_and_retired(client, auth, neurology_id):
+    doctor = register_doctor(client, auth, neurology_id, full_name="Dr. Anita Bose").json()
+    moved = client.patch(f"/doctors/{doctor['id']}", json={"department_id": 2, "specialty": "Cardiology"},
+                         headers=auth("admin"))
+    assert moved.status_code == 200 and moved.json()["department"] == "Cardiology"
+    assert client.patch(f"/doctors/{doctor['id']}", json={"department_id": 9999},
+                        headers=auth("admin")).status_code == 422
+    assert client.patch(f"/doctors/{doctor['id']}", json={"specialty": "Cardiology"},
+                        headers=auth("doctor")).status_code == 403
+
+    day = _future_monday() + timedelta(days=7)
+    slots = client.get(f"/doctors/{doctor['id']}/availability?day={day}", headers=auth("reception")).json()
+    patient = client.get("/patients?limit=1", headers=auth("reception")).json()["items"][0]["id"]
+    appt = client.post("/appointments", json={"patient_id": patient, "doctor_id": doctor["id"],
+                                              "scheduled_start": slots[0]["start"], "duration_minutes": 30,
+                                              "reason": "New referral"}, headers=auth("reception"))
+    assert appt.status_code == 201, appt.text
+    blocked = client.patch(f"/doctors/{doctor['id']}", json={"is_active": False}, headers=auth("admin"))
+    assert blocked.status_code == 409 and "upcoming appointment" in blocked.json()["error"]["message"]
+
+    client.post(f"/appointments/{appt.json()['id']}/cancel", json={"reason": "Clinician left"},
+                headers=auth("reception"))
+    retired = client.patch(f"/doctors/{doctor['id']}", json={"is_active": False}, headers=auth("admin"))
+    assert retired.status_code == 200 and retired.json()["is_active"] is False
+    rebook = client.post("/appointments", json={"patient_id": patient, "doctor_id": doctor["id"],
+                                                "scheduled_start": slots[1]["start"], "duration_minutes": 30,
+                                                "reason": "Again"}, headers=auth("reception"))
+    assert rebook.status_code == 422 and "not currently accepting" in rebook.json()["error"]["message"]

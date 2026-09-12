@@ -10,6 +10,21 @@ DAYS = ("mon", "tue", "wed", "thu", "fri", "sat", "sun")
 TIME_RE = re.compile(r"([01]\d|2[0-3]):[0-5]\d")
 
 
+def validate_availability(v: dict | None) -> dict | None:
+    """Weekday keys and 'HH:MM' windows that start before they end."""
+    if v is None:
+        return v
+    for day, windows in v.items():
+        if day not in DAYS:
+            raise ValueError(f"Unknown weekday '{day}'; use {', '.join(DAYS)}")
+        for start, end in windows:
+            if not (TIME_RE.fullmatch(start) and TIME_RE.fullmatch(end)):
+                raise ValueError("Availability times must be 'HH:MM'")
+            if start >= end:
+                raise ValueError("Availability window must start before it ends")
+    return v
+
+
 class DepartmentOut(ORMModel):
     id: int
     code: str
@@ -43,17 +58,24 @@ class DoctorCreate(BaseModel):
     @field_validator("availability")
     @classmethod
     def _check_availability(cls, v):
-        if v is None:
-            return v
-        for day, windows in v.items():
-            if day not in DAYS:
-                raise ValueError(f"Unknown weekday '{day}'; use {', '.join(DAYS)}")
-            for start, end in windows:
-                if not (TIME_RE.fullmatch(start) and TIME_RE.fullmatch(end)):
-                    raise ValueError("Availability times must be 'HH:MM'")
-                if start >= end:
-                    raise ValueError("Availability window must start before it ends")
-        return v
+        return validate_availability(v)
+
+
+class DoctorUpdate(BaseModel):
+    """Profile maintenance: transfers, schedule changes and retiring a clinician."""
+
+    full_name: str | None = Field(default=None, min_length=2, max_length=128)
+    specialty: str | None = Field(default=None, min_length=2, max_length=64)
+    department_id: int | None = None
+    email: str | None = Field(default=None, max_length=255)
+    phone: str | None = Field(default=None, max_length=32)
+    availability: dict[str, list[tuple[str, str]]] | None = None
+    is_active: bool | None = None
+
+    @field_validator("availability")
+    @classmethod
+    def _check_availability(cls, v):
+        return validate_availability(v)
 
 
 class AppointmentCreate(BaseModel):

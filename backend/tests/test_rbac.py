@@ -1,4 +1,6 @@
 """Role-based and row-level authorization."""
+from datetime import UTC, datetime, timedelta
+
 import pytest
 from sqlalchemy import select
 
@@ -8,11 +10,33 @@ from app.models import AuditLog, CareAssignment, Document
 
 
 def test_permission_matrix_is_least_privilege():
-    assert ROLE_PERMISSIONS[RoleName.ADMIN] == set(Perm)
+    admin = ROLE_PERMISSIONS[RoleName.ADMIN]
+    assert {Perm.USERS_MANAGE, Perm.AUDIT_READ, Perm.SYSTEM_OBSERVE, Perm.DOCUMENTS_MANAGE} <= admin
+    # Administration is not clinical practice: oversight is read-only on the record.
+    assert Perm.PATIENTS_READ_CLINICAL in admin
+    assert not ({Perm.CLINICAL_WRITE, Perm.PRESCRIPTIONS_WRITE, Perm.ADMISSIONS_WRITE} & admin)
     assert Perm.PATIENTS_READ_CLINICAL not in ROLE_PERMISSIONS[RoleName.RECEPTIONIST]
     assert Perm.ML_READ not in ROLE_PERMISSIONS[RoleName.NURSE]
     assert Perm.PRESCRIPTIONS_WRITE not in ROLE_PERMISSIONS[RoleName.NURSE]
     assert Perm.USERS_MANAGE not in ROLE_PERMISSIONS[RoleName.DOCTOR]
+
+
+def test_stored_grants_are_reconciled_with_the_policy_in_code(db):
+    """Grants live in the database but the policy is code: a stale database must be corrected at startup."""
+    from app.auth.provisioning import sync_role_permissions
+    from app.models import Permission, Role
+
+    admin = db.scalar(select(Role).where(Role.name == "ADMIN"))
+    stray = db.scalar(select(Permission).where(Permission.code == Perm.CLINICAL_WRITE.value))
+    admin.permissions.append(stray)  # as if seeded under the older policy
+    db.flush()
+    assert Perm.CLINICAL_WRITE.value in {p.code for p in admin.permissions}
+
+    changes = sync_role_permissions(db)
+    assert f"ADMIN:{Perm.CLINICAL_WRITE.value}" in changes["revoked"]
+    assert Perm.CLINICAL_WRITE.value not in {p.code for p in admin.permissions}
+    assert sync_role_permissions(db) == {"granted": [], "revoked": []}  # idempotent
+    db.rollback()
 
 
 def test_doctor_cannot_open_patient_outside_care_relationship(client, auth, restricted_patient, db):
@@ -92,3 +116,89 @@ def test_audit_log_contains_no_query_text(client, auth, demo_patient, db):
                 headers=auth("doctor"))
     rows = db.scalars(select(AuditLog).where(AuditLog.action == "ai.query")).all()
     assert rows and all(secret_phrase not in str(r.details) for r in rows)
+
+
+# ------------------------------------------------------------------ role invariants
+def test_administrators_cannot_author_clinical_data(client, auth, demo_patient):
+    """Oversight roles read the record; they do not write in it."""
+    record = {"patient_id": demo_patient.id, "record_type": "consultation", "visit_date": "2026-01-05",
+              "chief_complaint": "Review", "assessment": "Stable", "plan": "Continue"}
+    assert client.post("/records", json=record, headers=auth("admin")).status_code == 403
+    assert client.post("/labs", json={"patient_id": demo_patient.id, "test_code": "HBA1C", "value": 7.0,
+                                      "collected_at": "2026-01-05T09:00:00Z"}, headers=auth("admin")).status_code == 403
+    assert client.post("/admissions", json={"patient_id": demo_patient.id, "department_id": 1,
+                                            "attending_doctor_id": 1, "admission_type": "elective",
+                                            "reason": "x"}, headers=auth("admin")).status_code == 403
+    assert client.get(f"/patients/{demo_patient.id}", headers=auth("admin")).status_code == 200
+
+
+def test_only_clinical_staff_may_change_allergies(client, auth, demo_patient):
+    """Registration roles capture contact details; allergies drive the prescribing safety check."""
+    allergy = {"allergies": [{"substance": "Latex", "reaction": "rash", "severity": "mild"}]}
+    denied = client.patch(f"/patients/{demo_patient.id}", json=allergy, headers=auth("reception"))
+    assert denied.status_code == 403 and "allergies" in denied.json()["error"]["message"]
+    assert client.patch(f"/patients/{demo_patient.id}", json={"phone": "+91 98765 43210"},
+                        headers=auth("reception")).status_code == 200
+    assert client.patch(f"/patients/{demo_patient.id}", json=allergy, headers=auth("doctor")).status_code == 200
+    wrong_way = client.patch(f"/patients/{demo_patient.id}", json={"phone": "+91 90000 00000"}, headers=auth("doctor"))
+    assert wrong_way.status_code == 403 and "registration details" in wrong_way.json()["error"]["message"]
+
+
+def test_cancelled_appointment_does_not_leave_the_doctor_with_access(client, auth, db, restricted_patient):
+    """Booking grants a care relationship; cancelling it must take that access away again."""
+    rao = next(d["id"] for d in client.get("/doctors?q=Rao", headers=auth("reception")).json())
+    day = datetime.now(UTC).date() + timedelta(days=(7 - datetime.now(UTC).date().weekday()) + 21)
+    slots = client.get(f"/doctors/{rao}/availability?day={day}", headers=auth("reception")).json()
+    booked = client.post("/appointments", json={"patient_id": restricted_patient.id, "doctor_id": rao,
+                                                "scheduled_start": slots[0]["start"], "duration_minutes": 30,
+                                                "reason": "Referral"}, headers=auth("reception"))
+    assert booked.status_code == 201, booked.text
+    db.expire_all()
+    assert client.get(f"/patients/{restricted_patient.id}", headers=auth("doctor")).status_code == 200
+    client.post(f"/appointments/{booked.json()['id']}/cancel", json={"reason": "Patient request"},
+                headers=auth("reception"))
+    db.expire_all()
+    assert client.get(f"/patients/{restricted_patient.id}", headers=auth("doctor")).status_code == 404
+
+
+def test_role_change_keeps_the_doctor_profile_invariant(client, auth, db, users):
+    """A DOCTOR account must act as a clinician; a demoted one must stop authoring as that clinician."""
+    nurse_id = users["nurse"].id
+    free_doctor = client.post("/doctors", json={"full_name": "Dr. Nina Kapoor", "specialty": "Cardiology",
+                                                "department_id": 2}, headers=auth("admin")).json()
+    no_profile = client.patch(f"/admin/users/{nurse_id}", json={"role": "DOCTOR"}, headers=auth("admin"))
+    assert no_profile.status_code == 422 and "doctor profile" in no_profile.json()["error"]["message"]
+    taken = client.patch(f"/admin/users/{nurse_id}", json={"role": "DOCTOR", "doctor_id": users["doctor"].doctor_id},
+                         headers=auth("admin"))
+    assert taken.status_code == 409
+    promoted = client.patch(f"/admin/users/{nurse_id}", json={"role": "DOCTOR", "doctor_id": free_doctor["id"]},
+                            headers=auth("admin"))
+    assert promoted.status_code == 200 and promoted.json()["doctor_id"] == free_doctor["id"]
+    demoted = client.patch(f"/admin/users/{nurse_id}", json={"role": "NURSE"}, headers=auth("admin"))
+    assert demoted.status_code == 200 and demoted.json()["doctor_id"] is None  # link cleared, not left stale
+    assert client.patch(f"/admin/users/{nurse_id}", json={"department_id": 9999},
+                        headers=auth("admin")).status_code == 422
+
+
+def test_care_team_membership_is_limited_to_clinical_roles(client, auth, users, demo_patient):
+    def assign(role_key: str, care_role: str):
+        return client.post("/admin/care-assignments", headers=auth("admin"),
+                           json={"patient_id": demo_patient.id, "user_id": users[role_key].id, "care_role": care_role})
+
+    denied = assign("reception", "nurse")
+    assert denied.status_code == 422 and "clinical staff" in denied.json()["error"]["message"]
+    assert assign("nurse", "attending").status_code == 422  # a nurse is not an attending clinician
+    assert assign("nurse", "nurse").status_code == 201
+    assert assign("doctor", "attending").status_code == 201
+
+    listed = client.get(f"/admin/care-assignments?patient_id={demo_patient.id}", headers=auth("admin"))
+    assert listed.status_code == 200
+    team = {row["user_id"]: row for row in listed.json()}
+    assert team[users["nurse"].id]["care_role"] == "nurse" and team[users["nurse"].id]["id"]
+    assert client.get(f"/admin/care-assignments?patient_id={demo_patient.id}",
+                      headers=auth("doctor")).status_code == 403
+    revoked = client.delete(f"/admin/care-assignments/{team[users['nurse'].id]['id']}", headers=auth("admin"))
+    assert revoked.status_code == 204
+    remaining = {row["user_id"] for row in client.get(f"/admin/care-assignments?patient_id={demo_patient.id}",
+                                                      headers=auth("admin")).json()}
+    assert users["nurse"].id not in remaining

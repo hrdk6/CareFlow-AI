@@ -15,9 +15,9 @@ from app.api.deps import (
     record_out,
 )
 from app.audit.service import audit
-from app.auth.dependencies import require
+from app.auth.dependencies import require, require_any
 from app.auth.rbac import Perm
-from app.core.errors import ValidationFailedError
+from app.core.errors import PermissionDeniedError, ValidationFailedError
 from app.llm.tools import care_team
 from app.ml.service import predict_length_of_stay, predict_readmission
 from app.models import (
@@ -122,11 +122,20 @@ def get_patient(patient_id: int, db: DB, user: User = Demographic):
 
 @router.patch("/{patient_id}", response_model=PatientDemographics)
 def update_patient(patient_id: int, body: PatientUpdate, db: DB,
-                   user: User = Depends(require(Perm.PATIENTS_WRITE))) -> PatientDemographics:
+                   user: User = Depends(require_any(Perm.PATIENTS_WRITE, Perm.CLINICAL_WRITE))) -> PatientDemographics:
+    """Registration details and allergies live on the same record but belong to different roles:
+    reception keeps contact details current, clinicians maintain the allergy list."""
     p = policy_for(db, user).get_patient(patient_id, clinical=False)
     changes = body.model_dump(exclude_unset=True)
+    codes = user.permission_codes
     if "allergies" in changes and changes["allergies"] is not None:
+        # Allergies drive the prescribing safety check, so only clinical staff may change them - a
+        # registration role can capture them at intake but cannot silently overwrite them later.
+        if Perm.CLINICAL_WRITE.value not in codes:
+            raise PermissionDeniedError("Only clinical staff can change a patient's allergies")
         changes["allergies"] = [dict(a) for a in changes["allergies"]]
+    if set(changes) - {"allergies"} and Perm.PATIENTS_WRITE.value not in codes:
+        raise PermissionDeniedError("Your role cannot change patient registration details")
     for field, value in changes.items():
         setattr(p, field, value)
     db.flush()

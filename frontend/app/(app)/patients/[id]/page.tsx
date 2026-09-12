@@ -98,7 +98,7 @@ export default function PatientProfilePage() {
       ]} />
 
       <div>
-        {tab === "overview" && <OverviewTab patient={patient} clinical={clinical} onOpen={(t) => setTab(t as TabId)} />}
+        {tab === "overview" && <OverviewTab patient={patient} clinical={clinical} onOpen={(t) => setTab(t as TabId)} onChanged={reload} />}
         {tab === "timeline" && <TimelineTab patientId={patient.id} />}
         {tab === "records" && <RecordsTab patientId={patient.id} />}
         {tab === "prescriptions" && <PrescriptionsTab patientId={patient.id} />}

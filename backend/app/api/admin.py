@@ -83,6 +83,24 @@ def update_user(user_id: int, body: UserUpdate, db: DB, user: User = UsersManage
         raise NotFoundError("User not found")
     if target.id == user.id and (body.is_active is False or (body.role and body.role != "ADMIN")):
         raise ValidationFailedError("You cannot demote or deactivate your own account")
+    new_role = body.role or target.role.name
+    doctor_id = body.doctor_id if "doctor_id" in body.model_fields_set else target.doctor_id
+    if new_role == "DOCTOR":
+        if doctor_id is None:
+            raise ValidationFailedError("Doctor accounts must be linked to a doctor profile")
+    elif doctor_id is not None:
+        # Records and prescriptions are authored under the linked profile, so a stale link would let a
+        # demoted account keep writing as that clinician.
+        doctor_id = None
+    if doctor_id != target.doctor_id:
+        if doctor_id is not None:
+            if db.get(Doctor, doctor_id) is None:
+                raise ValidationFailedError("Unknown doctor profile")
+            if db.scalar(select(User.id).where(User.doctor_id == doctor_id, User.id != target.id)):
+                raise ConflictError("That doctor profile is already linked to another account")
+        audit("user.doctor_link", user=user, resource_type="user", resource_id=target.id,
+              details={"from": target.doctor_id, "to": doctor_id})
+        target.doctor_id = doctor_id
     if body.role and body.role != target.role.name:
         old = target.role.name
         target.role = db.scalar(select(Role).where(Role.name == body.role))
@@ -93,6 +111,8 @@ def update_user(user_id: int, body: UserUpdate, db: DB, user: User = UsersManage
         audit("user.activation_change", user=user, resource_type="user", resource_id=target.id,
               details={"is_active": body.is_active})
     if body.department_id is not None:
+        if db.get(Department, body.department_id) is None:
+            raise ValidationFailedError("Unknown department")
         target.department_id = body.department_id
     db.flush()
     return user_admin_out(target)
@@ -109,10 +129,30 @@ def list_permissions(user: User = UsersManage) -> list[dict]:
     return [{"code": p.value, "description": d} for p, d in PERMISSION_DESCRIPTIONS.items()]
 
 
+@router.get("/admin/care-assignments")
+def list_care_assignments(db: DB, patient_id: int, user: User = UsersManage) -> list[dict]:
+    """Who currently has care-team access to this patient - the lever that grants a nurse any access."""
+    rows = db.execute(select(CareAssignment, User).join(User, User.id == CareAssignment.user_id)
+                      .where(CareAssignment.patient_id == patient_id, CareAssignment.active.is_(True))
+                      .order_by(CareAssignment.id)).all()
+    return [{"id": ca.id, "user_id": u.id, "name": u.full_name, "role": u.role.name, "care_role": ca.care_role}
+            for ca, u in rows]
+
+
 @router.post("/admin/care-assignments", status_code=201)
 def assign_care(body: CareAssignmentIn, db: DB, user: User = UsersManage) -> dict:
-    if db.get(Patient, body.patient_id) is None or db.get(User, body.user_id) is None:
+    assignee = db.get(User, body.user_id)
+    if db.get(Patient, body.patient_id) is None or assignee is None:
         raise NotFoundError("Patient or user not found")
+    if not assignee.is_active:
+        raise ValidationFailedError("That account is deactivated and cannot be given patient access")
+    # A care assignment grants clinical access, so only roles that may read clinical data qualify.
+    if Perm.PATIENTS_READ_CLINICAL.value not in assignee.permission_codes:
+        raise ValidationFailedError("Only clinical staff can be placed on a care team")
+    allowed = {"nurse"} if assignee.role.name == RoleName.NURSE else {"attending", "consulting"}
+    if body.care_role not in allowed:
+        raise ValidationFailedError(f"A {assignee.role.name.lower()} can be assigned as "
+                                    f"{' or '.join(sorted(allowed))}")
     existing = db.scalar(select(CareAssignment).where(CareAssignment.patient_id == body.patient_id,
                                                       CareAssignment.user_id == body.user_id))
     if existing:
