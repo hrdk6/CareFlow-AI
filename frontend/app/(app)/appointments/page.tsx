@@ -53,7 +53,7 @@ function AppointmentsView() {
       <PageHeader title="Appointments" subtitle="Daily schedule across the clinicians and patients you can access."
         actions={can(PERMS.appointmentsWrite) && <Button onClick={() => setBooking(true)}><CalendarPlus className="h-4 w-4" /> Book appointment</Button>} />
       <Card bodyClassName="p-0">
-        <div className="flex flex-wrap items-center gap-2 border-b border-slate-100 p-3">
+        <div className="flex flex-wrap items-center gap-2 border-b border-line p-3">
           <Button size="sm" variant="secondary" onClick={() => setDay(addDays(day, -1))} aria-label="Previous day"><ChevronLeft className="h-4 w-4" /></Button>
           <Input type="date" value={day} onChange={(e) => setDay(e.target.value)} className="w-40" aria-label="Day" />
           <Button size="sm" variant="secondary" onClick={() => setDay(addDays(day, 1))} aria-label="Next day"><ChevronRight className="h-4 w-4" /></Button>
@@ -65,16 +65,16 @@ function AppointmentsView() {
         <DataTable rows={data?.items} loading={loading} error={error} onRetry={reload} empty="No appointments on this day"
           columns={[
             { key: "time", header: "Time", render: (a) => <span className="font-mono tabular-nums">{fmtTime(a.scheduled_start)}</span> },
-            { key: "patient", header: "Patient", render: (a) => <Link href={`/patients/${a.patient_id}`} className="font-medium text-slate-800 hover:text-brand-700">{a.patient_name} <span className="font-mono text-xs font-normal text-slate-400">{a.patient_mrn}</span></Link> },
+            { key: "patient", header: "Patient", render: (a) => <Link href={`/patients/${a.patient_id}`} className="font-medium text-ink hover:text-accent">{a.patient_name} <span className="font-mono text-xs font-normal text-faint">{a.patient_mrn}</span></Link> },
             { key: "doctor", header: "Clinician", render: (a) => a.doctor_name },
             { key: "type", header: "Type", render: (a) => titleCase(a.appointment_type) },
             { key: "reason", header: "Reason", render: (a) => <span className="text-xs">{a.reason}</span> },
             { key: "status", header: "Status", render: (a) => <StatusBadge status={a.status} /> },
             { key: "act", header: "", render: (a) => can(PERMS.appointmentsWrite) && ["scheduled", "checked_in"].includes(a.status) ? (
               <div className="flex gap-2 text-xs">
-                {a.status === "scheduled" && <button className="text-brand-700 hover:underline" onClick={() => act(a, "checked_in")}>Check in</button>}
-                {a.status === "checked_in" && <button className="text-brand-700 hover:underline" onClick={() => act(a, "completed")}>Complete</button>}
-                <button className="text-rose-600 hover:underline" onClick={() => act(a, "cancel")}>Cancel</button>
+                {a.status === "scheduled" && <button className="text-accent hover:underline" onClick={() => act(a, "checked_in")}>Check in</button>}
+                {a.status === "checked_in" && <button className="text-accent hover:underline" onClick={() => act(a, "completed")}>Complete</button>}
+                <button className="text-high hover:underline" onClick={() => act(a, "cancel")}>Cancel</button>
               </div>) : null },
           ]} />
       </Card>
@@ -123,17 +123,17 @@ function BookModal({ initialPatient, doctors, onClose, onBooked }: {
         <Field label="Type"><Select value={type} onChange={(e) => setType(e.target.value)} options={["outpatient", "follow_up", "telehealth"].map((t) => ({ value: t, label: titleCase(t) }))} /></Field>
       </div>
       <div className="mt-3">
-        <div className="mb-1 text-xs font-medium text-slate-600">Available 30-minute slots (UTC)</div>
-        {!doctorId ? <p className="text-xs text-slate-400">Choose a clinician to see availability.</p> : loading ? <p className="text-xs text-slate-400">Loading…</p> :
+        <div className="mb-1 text-xs font-medium text-ink-2">Available 30-minute slots (UTC)</div>
+        {!doctorId ? <p className="text-xs text-faint">Choose a clinician to see availability.</p> : loading ? <p className="text-xs text-faint">Loading…</p> :
           slots?.length ? (
             <div className="flex flex-wrap gap-1.5">
               {slots.map((s) => (
                 <button key={s.start} onClick={() => setSlot(s.start)}
-                  className={cn("rounded border px-2 py-1 font-mono text-xs", slot === s.start ? "border-brand-600 bg-brand-600 text-white" : "border-slate-300 hover:border-brand-400")}>
+                  className={cn("rounded border px-2 py-1 font-mono text-xs", slot === s.start ? "border-accent bg-accent text-ink" : "border-line-strong hover:border-accent")}>
                   {fmtTime(s.start)}
                 </button>
               ))}
-            </div>) : <p className="text-xs text-slate-500">No free slots on this day.</p>}
+            </div>) : <p className="text-xs text-muted">No free slots on this day.</p>}
       </div>
       <Field label="Reason" className="mt-3"><Textarea value={reason} onChange={(e) => setReason(e.target.value)} placeholder="e.g. Post-discharge diabetes follow-up" /></Field>
       {error ? <div className="mt-3"><ErrorState error={error} compact /></div> : null}

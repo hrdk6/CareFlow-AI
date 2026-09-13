@@ -41,23 +41,23 @@ export default function DoctorsPage() {
           <Card key={d.id}>
             <div className="flex items-start justify-between">
               <div>
-                <div className="font-medium text-slate-900">{d.full_name}</div>
-                <div className="text-xs text-slate-500">{d.specialty} · {d.department}</div>
+                <div className="font-medium text-ink">{d.full_name}</div>
+                <div className="text-xs text-muted">{d.specialty} · {d.department}</div>
               </div>
-              <span className="font-mono text-xs text-slate-400">{d.staff_code}</span>
+              <span className="font-mono text-xs text-faint">{d.staff_code}</span>
             </div>
             <div className="mt-3 grid grid-cols-7 gap-1 text-center text-[10px]">
               {DAYS.map((day) => {
                 const slots = d.availability[day] ?? [];
                 return (
-                  <div key={day} className={slots.length ? "rounded bg-brand-50 p-1 text-brand-800" : "rounded bg-slate-50 p-1 text-slate-400"}>
+                  <div key={day} className={slots.length ? "rounded bg-accent-tint p-1 text-accent" : "rounded bg-sunken p-1 text-faint"}>
                     <div className="font-semibold uppercase">{day}</div>
                     {slots.length ? slots.map(([s, e]) => <div key={s}>{s}–{e}</div>) : <div>—</div>}
                   </div>
                 );
               })}
             </div>
-            <div className="mt-3 text-xs text-slate-500">{d.email} · {d.phone}</div>
+            <div className="mt-3 text-xs text-muted">{d.email} · {d.phone}</div>
           </Card>
         ))}
       </div>

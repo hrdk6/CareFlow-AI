@@ -219,3 +219,18 @@ def test_a_doctors_department_follows_the_profile(client, auth, db):
     moved = next(u for u in client.get("/admin/users", headers=auth("admin")).json()
                  if u["id"] == account.json()["id"])
     assert moved["department_id"] == 3  # access moved with the clinician
+
+
+def test_dashboard_alarm_feed_is_scoped_to_clinical_access(client, auth, db, users):
+    """Critical results reach the dashboard only for patients the user may see clinically."""
+    reception = client.get("/dashboard", headers=auth("reception")).json()
+    assert "critical_results" not in reception and "critical_results_7d" not in reception  # no clinical access
+
+    for role in ("doctor", "nurse", "admin"):
+        board = client.get("/dashboard", headers=auth(role)).json()
+        assert board["generated_at"] and board["critical_results_7d"] >= len(board["critical_results"])
+        assert board["discharges_30d"] >= len(board["recent_discharges"])
+        assert board["discharges_30d"] >= board["discharges_7d"]
+        visible = {p["id"] for p in client.get("/patients?limit=200", headers=auth(role)).json()["items"]}
+        assert {r["patient_id"] for r in board["critical_results"]} <= visible
+

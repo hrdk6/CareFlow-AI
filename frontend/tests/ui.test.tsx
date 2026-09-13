@@ -31,8 +31,8 @@ describe("components", () => {
 
   it("DivergingBars labels direction of model factors", () => {
     render(<DivergingBars items={[{ label: "Prior admissions", detail: "3", value: 0.05 }, { label: "HbA1c", detail: "high 8", value: -0.01 }]} />);
-    expect(screen.getByText("+0.050")).toHaveClass("text-rose-600");
-    expect(screen.getByText("-0.010")).toHaveClass("text-emerald-600");
+    expect(screen.getByText("+0.050")).toHaveClass("text-high");
+    expect(screen.getByText("-0.010")).toHaveClass("text-ok");
   });
 
   it("ConfusionMatrix shows counts", () => {

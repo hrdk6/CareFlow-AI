@@ -2,8 +2,7 @@
 
 import { AlertTriangle, ArrowLeft, Bot, CalendarPlus, Droplet, Users } from "lucide-react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
-import { useState } from "react";
+import { useParams, usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { AssistantPanel } from "@/components/assistant/assistant-panel";
 import { AppointmentsTab, LabsTab, PrescriptionsTab, RecordsTab } from "@/components/patient/clinical-tabs";
@@ -21,12 +20,19 @@ import { fmtDate, titleCase } from "@/lib/format";
 import { useApi } from "@/lib/hooks";
 import type { PatientClinical, PatientDemographics } from "@/lib/types";
 
-type TabId = "overview" | "timeline" | "records" | "prescriptions" | "labs" | "appointments" | "predictions" | "similar" | "assistant";
+const TAB_IDS = ["overview", "timeline", "records", "prescriptions", "labs", "appointments", "predictions", "similar", "assistant"] as const;
+type TabId = (typeof TAB_IDS)[number];
 
 export default function PatientProfilePage() {
   const { id } = useParams<{ id: string }>();
   const { can } = useAuth();
-  const [tab, setTab] = useState<TabId>("overview");
+  // The open tab lives in the URL: links can land on it, and Back retraces the path through a record.
+  const router = useRouter();
+  const pathname = usePathname();
+  const params = useSearchParams();
+  const requested = params.get("tab");
+  const tab: TabId = (TAB_IDS as readonly string[]).includes(requested ?? "") ? (requested as TabId) : "overview";
+  const setTab = (next: TabId) => router.push(`${pathname}?tab=${next}`, { scroll: false });
   const { data, error, loading, reload } = useApi<PatientClinical | PatientDemographics>(`/patients/${id}`);
   const clinical = can(PERMS.clinical);
   const patient = data as PatientClinical | undefined;
@@ -38,21 +44,21 @@ export default function PatientProfilePage() {
 
   return (
     <div className="space-y-4">
-      <Link href="/patients" className="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-brand-700"><ArrowLeft className="h-3.5 w-3.5" /> Patients</Link>
+      <Link href="/patients" className="inline-flex items-center gap-1 text-xs text-muted hover:text-accent"><ArrowLeft className="h-3.5 w-3.5" /> Patients</Link>
       <Card>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-100 text-lg font-semibold text-brand-800">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent-tint text-lg font-semibold text-accent">
               {patient.first_name[0]}{patient.last_name[0]}
             </div>
             <div>
               <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-xl font-semibold text-slate-900">{patient.full_name}</h1>
-                <span className="font-mono text-sm text-slate-500">{patient.mrn}</span>
+                <h1 className="text-xl font-semibold text-ink">{patient.full_name}</h1>
+                <span className="font-mono text-sm text-muted">{patient.mrn}</span>
                 <StatusBadge status={patient.status} />
                 {patient.is_synthetic && <Badge tone="warning">Synthetic</Badge>}
               </div>
-              <div className="mt-1 text-sm text-slate-500">
+              <div className="mt-1 text-sm text-muted">
                 {patient.age} years · {patient.sex === "F" ? "Female" : patient.sex === "M" ? "Male" : "Other"} · born {fmtDate(patient.date_of_birth)} · {patient.primary_department ?? "No department"}
               </div>
               {clinical && patient.allergies && (
@@ -73,13 +79,13 @@ export default function PatientProfilePage() {
             {can(PERMS.ai) && <Button onClick={() => setTab("assistant")}><Bot className="h-4 w-4" /> Ask AI</Button>}
           </div>
         </div>
-        <div className="mt-4 border-t border-slate-100 pt-4">
+        <div className="mt-4 border-t border-line pt-4">
           <KeyValue columns={3} items={[
             ["Phone", patient.phone], ["Email", patient.email], ["Language", patient.preferred_language],
             ["Emergency contact", patient.emergency_contact_name ? `${patient.emergency_contact_name} (${patient.emergency_contact_relation ?? "—"})` : null],
             ["Emergency phone", patient.emergency_contact_phone],
             ["Care team", clinical && patient.care_team?.length ? (
-              <span className="inline-flex items-center gap-1"><Users className="h-3.5 w-3.5 text-slate-400" />{patient.care_team.map((c) => `${c.name} (${titleCase(c.care_role)})`).join(", ")}</span>
+              <span className="inline-flex items-center gap-1"><Users className="h-3.5 w-3.5 text-faint" />{patient.care_team.map((c) => `${c.name} (${titleCase(c.care_role)})`).join(", ")}</span>
             ) : "—"],
           ]} />
         </div>

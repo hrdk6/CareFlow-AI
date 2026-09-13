@@ -4,18 +4,14 @@ import { cn } from "@/lib/format";
 
 type Variant = "primary" | "secondary" | "ghost" | "danger";
 
+/* Monitor keys: flat, hard-edged, and lit only by meaning. The primary key is the one lit channel
+   on the panel; everything else is a quiet control on the panel face. */
 const VARIANTS: Record<Variant, string> = {
-  // A one-stop gradient reads as a raised surface without the heaviness of a drop shadow.
-  primary:
-    "bg-gradient-to-b from-brand-600 to-brand-700 text-white shadow-e1 ring-1 ring-inset ring-brand-800/40 " +
-    "hover:from-brand-500 hover:to-brand-600 active:from-brand-700 active:to-brand-800",
+  primary: "bg-accent text-on-signal hover:bg-[#62e0ee] active:bg-[#2cc2d3]",
   secondary:
-    "bg-white text-slate-700 ring-1 ring-inset ring-line-strong shadow-e1 hover:bg-slate-50 hover:text-slate-900 " +
-    "active:bg-slate-100",
-  ghost: "text-slate-600 hover:bg-slate-100 hover:text-slate-900 active:bg-slate-200/70",
-  danger:
-    "bg-gradient-to-b from-rose-500 to-rose-600 text-white shadow-e1 ring-1 ring-inset ring-rose-700/40 " +
-    "hover:from-rose-400 hover:to-rose-500 active:from-rose-600 active:to-rose-700",
+    "bg-raised text-ink ring-1 ring-inset ring-line-strong hover:bg-raised-2 hover:ring-[#3d3d41] active:bg-raised",
+  ghost: "text-ink-2 hover:bg-raised hover:text-ink active:bg-raised-2",
+  danger: "bg-high-tint text-high ring-1 ring-inset ring-high-edge hover:bg-[#3b2224] active:bg-high-tint",
 };
 
 export function Button({
@@ -27,9 +23,9 @@ export function Button({
       disabled={disabled || loading}
       aria-busy={loading || undefined}
       className={cn(
-        "inline-flex select-none items-center justify-center gap-1.5 rounded-lg font-medium",
-        "transition-[background,color,box-shadow,transform] duration-150 ease-out active:translate-y-px",
-        "disabled:pointer-events-none disabled:opacity-55 disabled:shadow-none",
+        "inline-flex select-none items-center justify-center gap-1.5 rounded-md font-medium",
+        "transition-[background,color,box-shadow] duration-150 ease-out",
+        "disabled:pointer-events-none disabled:opacity-45",
         size === "sm" ? "h-8 px-2.5 text-xs" : "h-9 px-3.5 text-sm",
         VARIANTS[variant],
         className,
@@ -41,7 +37,7 @@ export function Button({
   );
 }
 
-/** Square button for a single icon — keeps toolbars on the same 32/36px rhythm as Button. */
+/** Square key for a single icon, on the same 32/36px rhythm as Button. */
 export function IconButton({
   label, size = "md", className, children, ...props
 }: React.ButtonHTMLAttributes<HTMLButtonElement> & { label: string; size?: "sm" | "md" }) {
@@ -51,8 +47,8 @@ export function IconButton({
       aria-label={label}
       title={label}
       className={cn(
-        "inline-flex shrink-0 items-center justify-center rounded-lg text-slate-500 transition-colors duration-150",
-        "hover:bg-slate-100 hover:text-slate-800 disabled:pointer-events-none disabled:opacity-50",
+        "inline-flex shrink-0 items-center justify-center rounded-md text-muted transition-colors duration-150",
+        "hover:bg-raised hover:text-ink disabled:pointer-events-none disabled:opacity-45",
         size === "sm" ? "h-8 w-8" : "h-9 w-9",
         className,
       )}

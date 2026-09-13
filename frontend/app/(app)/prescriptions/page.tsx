@@ -25,19 +25,19 @@ export default function PrescriptionsPage() {
     <>
       <PageHeader title="Prescriptions" subtitle="Outpatient medication orders for your accessible patients." />
       <Card bodyClassName="p-0">
-        <div className="flex flex-wrap items-center gap-3 border-b border-slate-100 p-3">
+        <div className="flex flex-wrap items-center gap-3 border-b border-line p-3">
           <Select value={status} onChange={(e) => { setStatus(e.target.value); setOffset(0); }} placeholder="Any status" className="max-w-[180px]" aria-label="Status"
             options={["active", "completed", "discontinued"].map((s) => ({ value: s, label: titleCase(s) }))} />
-          <label className="flex items-center gap-1.5 text-xs text-slate-600"><input type="checkbox" checked={highAlert} onChange={(e) => { setHighAlert(e.target.checked); setOffset(0); }} /> High-alert only (MED-POL-004)</label>
+          <label className="flex items-center gap-1.5 text-xs text-ink-2"><input type="checkbox" checked={highAlert} onChange={(e) => { setHighAlert(e.target.checked); setOffset(0); }} /> High-alert only (MED-POL-004)</label>
         </div>
         <DataTable rows={data?.items} loading={loading} error={error} onRetry={reload} onRowClick={(p) => router.push(`/patients/${p.patient_id}`)}
           columns={[
             { key: "mrn", header: "Patient", render: (p) => <span className="font-mono text-xs">{p.patient_mrn}</span> },
-            { key: "med", header: "Medication", render: (p) => <span className="font-medium text-slate-800">{p.medication} {p.is_high_alert && <Badge tone="danger">High-alert</Badge>}</span> },
+            { key: "med", header: "Medication", render: (p) => <span className="font-medium text-ink">{p.medication} {p.is_high_alert && <Badge tone="danger">High-alert</Badge>}</span> },
             { key: "dose", header: "Dose", render: (p) => `${p.dosage} · ${p.frequency}` },
             { key: "start", header: "Started", render: (p) => fmtDate(p.start_date) },
             { key: "status", header: "Status", render: (p) => <StatusBadge status={p.status} /> },
-            { key: "reason", header: "Change reason", render: (p) => <span className="text-xs text-slate-500">{p.change_reason ?? "—"}</span> },
+            { key: "reason", header: "Change reason", render: (p) => <span className="text-xs text-muted">{p.change_reason ?? "—"}</span> },
           ]} />
         {data && <Pagination total={data.total} limit={LIMIT} offset={offset} onChange={setOffset} />}
       </Card>

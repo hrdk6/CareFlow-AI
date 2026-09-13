@@ -28,7 +28,7 @@ export function OverviewTab({ patient, clinical, onOpen, onChanged }: { patient:
   if (!clinical) {
     return (
       <Card title="Registration details">
-        <p className="text-sm text-slate-600">Your role can view registration and scheduling information only. Clinical data, predictions and the patient-level AI summary are not available to you.</p>
+        <p className="text-sm text-ink-2">Your role can view registration and scheduling information only. Clinical data, predictions and the patient-level AI summary are not available to you.</p>
       </Card>
     );
   }
@@ -37,13 +37,13 @@ export function OverviewTab({ patient, clinical, onOpen, onChanged }: { patient:
     <div className="grid gap-4 xl:grid-cols-3">
       <div className="min-w-0 space-y-4 xl:col-span-2">
         {adm ? (
-          <div className="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+          <div className="flex items-start gap-3 rounded-lg border border-warn-edge bg-warn-tint p-3 text-sm text-warn">
             <BedDouble className="mt-0.5 h-4 w-4" />
             <div className="min-w-0 flex-1">Currently admitted to <b>{adm.department}</b>{adm.ward ? ` (${adm.ward})` : ""} since {fmtDate(adm.admitted_at)} — {adm.reason}. Attending: {adm.attending_doctor ?? "—"}.</div>
             {can(PERMS.admit) && <Button size="sm" variant="secondary" onClick={() => setDischarging(true)}>Discharge</Button>}
           </div>
         ) : can(PERMS.admit) ? (
-          <div className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-600">
+          <div className="flex items-center justify-between gap-3 rounded-lg border border-line bg-sunken p-3 text-sm text-ink-2">
             <span>Not currently admitted.</span>
             <Button size="sm" variant="secondary" onClick={() => setAdmitting(true)}><Plus className="h-3.5 w-3.5" /> Admit</Button>
           </div>
@@ -57,26 +57,26 @@ export function OverviewTab({ patient, clinical, onOpen, onChanged }: { patient:
               <ul className="space-y-2">
                 {patient.active_diagnoses.map((d) => (
                   <li key={d.id} className="flex items-start justify-between gap-2 text-sm">
-                    <span className="text-slate-800">{d.description}</span>
+                    <span className="text-ink">{d.description}</span>
                     <span className="shrink-0 text-right">
-                      <span className="font-mono text-[11px] text-slate-500">{d.icd10_code}</span>
-                      <span className="block text-[11px] text-slate-400">since {d.diagnosed_on.slice(0, 4)}</span>
+                      <span className="font-mono text-[11px] text-muted">{d.icd10_code}</span>
+                      <span className="block text-[11px] text-faint">since {d.diagnosed_on.slice(0, 4)}</span>
                     </span>
                   </li>
                 ))}
               </ul>
             )}
           </Card>
-          <Card title="Current medications" actions={<button onClick={() => onOpen("prescriptions")} className="text-xs text-brand-700 hover:underline">All</button>}>
+          <Card title="Current medications" actions={<button onClick={() => onOpen("prescriptions")} className="text-xs text-accent hover:underline">All</button>}>
             {patient.current_medications.length === 0 ? <EmptyState title="No active prescriptions" /> : (
               <ul className="space-y-2">
                 {patient.current_medications.map((m) => (
                   <li key={m.id} className="text-sm">
                     <div className="flex items-center gap-1.5">
-                      <span className="font-medium text-slate-800">{m.medication}</span>
+                      <span className="font-medium text-ink">{m.medication}</span>
                       {m.is_high_alert && <Badge tone="danger">High-alert</Badge>}
                     </div>
-                    <div className="text-xs text-slate-500">{m.dosage} · {m.frequency} · {titleCase(m.drug_class)}</div>
+                    <div className="text-xs text-muted">{m.dosage} · {m.frequency} · {titleCase(m.drug_class)}</div>
                   </li>
                 ))}
               </ul>
@@ -88,14 +88,14 @@ export function OverviewTab({ patient, clinical, onOpen, onChanged }: { patient:
           {patient.care_team.length === 0 ? <EmptyState title="Nobody is assigned" /> : (
             <ul className="flex flex-wrap gap-2">
               {patient.care_team.map((m) => (
-                <li key={m.user_id} className="rounded border border-slate-200 px-2 py-1 text-sm text-slate-700">
-                  {m.name} <span className="text-xs text-slate-500">· {titleCase(m.care_role)}</span>
+                <li key={m.user_id} className="rounded border border-line px-2 py-1 text-sm text-ink-2">
+                  {m.name} <span className="text-xs text-muted">· {titleCase(m.care_role)}</span>
                 </li>
               ))}
             </ul>
           )}
         </Card>
-        <Card title="Recent timeline" actions={<button onClick={() => onOpen("timeline")} className="text-xs text-brand-700 hover:underline">Full timeline</button>}>
+        <Card title="Recent timeline" actions={<button onClick={() => onOpen("timeline")} className="text-xs text-accent hover:underline">Full timeline</button>}>
           <TimelineList patientId={patient.id} months={12} limit={8} />
         </Card>
       </div>
@@ -173,7 +173,7 @@ function DischargeModal({ admissionId, onClose, onDone }: { admissionId: number;
       footer={<><Button variant="secondary" onClick={onClose}>Cancel</Button><Button onClick={submit} loading={busy}>Discharge</Button></>}>
       <Field label="Disposition"><Select value={disposition} onChange={(e) => setDisposition(e.target.value)}
         options={DISPOSITIONS.map((d) => ({ value: d, label: titleCase(d) }))} /></Field>
-      <p className="mt-3 text-xs text-slate-500">The discharge is recorded against the current admission and the patient status is updated.</p>
+      <p className="mt-3 text-xs text-muted">The discharge is recorded against the current admission and the patient status is updated.</p>
       {error ? <div className="mt-3"><ErrorState error={error} compact /></div> : null}
     </Modal>
   );
@@ -217,12 +217,12 @@ function CareTeamModal({ patientId, onClose, onDone }: { patientId: number; onCl
     <Modal open onClose={onClose} title="Care team" footer={<Button variant="secondary" onClick={onClose}>Close</Button>}>
       <ul className="mb-4 space-y-2">
         {(assignments ?? []).map((a) => (
-          <li key={a.id} className="flex items-center justify-between gap-2 rounded border border-slate-200 px-2 py-1.5 text-sm">
-            <span>{a.name} <span className="text-xs text-slate-500">· {a.role.toLowerCase()} · {titleCase(a.care_role)}</span></span>
-            <button onClick={() => remove(a.id)} className="flex items-center gap-1 text-xs text-rose-600 hover:underline"><UserMinus className="h-3.5 w-3.5" /> Remove</button>
+          <li key={a.id} className="flex items-center justify-between gap-2 rounded border border-line px-2 py-1.5 text-sm">
+            <span>{a.name} <span className="text-xs text-muted">· {a.role.toLowerCase()} · {titleCase(a.care_role)}</span></span>
+            <button onClick={() => remove(a.id)} className="flex items-center gap-1 text-xs text-high hover:underline"><UserMinus className="h-3.5 w-3.5" /> Remove</button>
           </li>
         ))}
-        {assignments?.length === 0 && <li className="text-sm text-slate-500">Nobody is assigned yet.</li>}
+        {assignments?.length === 0 && <li className="text-sm text-muted">Nobody is assigned yet.</li>}
       </ul>
       <div className="grid gap-3 sm:grid-cols-2">
         <Field label="Staff member"><Select value={form.user_id} onChange={(e) => setForm({ ...form, user_id: e.target.value })}
@@ -231,7 +231,7 @@ function CareTeamModal({ patientId, onClose, onDone }: { patientId: number; onCl
           options={roles.map((r) => ({ value: r, label: titleCase(r) }))} /></Field>
       </div>
       <div className="mt-3 flex justify-end"><Button size="sm" onClick={add} disabled={!form.user_id}><Plus className="h-3.5 w-3.5" /> Assign</Button></div>
-      <p className="mt-3 text-xs text-slate-500">A nurse can only see patients assigned here; doctors also reach patients through their department and appointments.</p>
+      <p className="mt-3 text-xs text-muted">A nurse can only see patients assigned here; doctors also reach patients through their department and appointments.</p>
       {error ? <div className="mt-3"><ErrorState error={error} compact /></div> : null}
     </Modal>
   );

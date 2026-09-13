@@ -31,3 +31,9 @@ frontend/tsconfig.tsbuildinfo
 # editor / tooling config (local only)
 .idea/
 .claude/
+
+# impeccable working files (captures, decision logs, caches)
+.impeccable/review/
+.impeccable/questions/
+.impeccable/hook.cache.json
+.impeccable/config.local.json

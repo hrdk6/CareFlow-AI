@@ -40,7 +40,7 @@ export function PatientSearch() {
 
   return (
     <div className="relative w-full max-w-md">
-      <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+      <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-faint" />
       <input
         ref={input}
         value={term}
@@ -53,15 +53,15 @@ export function PatientSearch() {
         }}
         placeholder="Find patient by MRN or name…"
         aria-label="Find patient"
-        className="h-9 w-full rounded-lg border border-transparent bg-slate-100/80 pl-9 pr-10 text-sm text-slate-800 transition-colors duration-150 placeholder:text-slate-400 hover:bg-slate-100 focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-brand-500/12"
+        className="h-9 w-full rounded-md border border-line-strong bg-sunken pl-9 pr-10 text-sm text-ink transition-colors duration-150 placeholder:text-faint hover:border-[#3d3d41] focus:border-accent focus:bg-panel focus:outline-none focus:ring-2 focus:ring-accent/25"
       />
       {!term && (
-        <kbd className="pointer-events-none absolute right-2.5 top-1/2 hidden -translate-y-1/2 rounded border border-line-strong bg-white px-1.5 py-0.5 font-mono text-[10px] text-slate-400 sm:block">
+        <kbd className="pointer-events-none absolute right-2.5 top-1/2 hidden -translate-y-1/2 rounded-sm border border-line-strong bg-raised px-1.5 py-0.5 font-mono text-[10px] text-muted sm:block">
           /
         </kbd>
       )}
       {open && q.length >= 2 && (
-        <div className="animate-pop-in absolute left-0 right-0 top-11 z-40 overflow-hidden rounded-xl border border-line bg-surface shadow-e3">
+        <div className="animate-pop-in absolute left-0 right-0 top-11 z-40 overflow-hidden rounded-lg border border-line-strong bg-panel shadow-e3">
           {loading && !data && <div className="px-3 py-2.5 text-xs text-muted">Searching…</div>}
           {data && data.items.length === 0 && (
             <div className="px-3 py-2.5 text-xs text-muted">No accessible patients match.</div>
@@ -70,13 +70,13 @@ export function PatientSearch() {
             <button
               key={p.id}
               onMouseDown={() => go(p.id)}
-              className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-sm transition-colors hover:bg-brand-50/70"
+              className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-sm transition-colors hover:bg-raised"
             >
               <span className="min-w-0 truncate">
-                <span className="font-medium text-slate-800">{p.full_name}</span>{" "}
+                <span className="font-medium text-ink">{p.full_name}</span>{" "}
                 <span className="text-xs text-muted">{p.age}y {p.sex}</span>
               </span>
-              <span className="shrink-0 font-mono text-xs text-slate-500">{p.mrn}</span>
+              <span className="shrink-0 font-mono text-xs text-muted">{p.mrn}</span>
             </button>
           ))}
         </div>

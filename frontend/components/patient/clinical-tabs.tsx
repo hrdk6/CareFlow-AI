@@ -41,22 +41,22 @@ export function RecordsTab({ patientId }: { patientId: number }) {
   return (
     <Card bodyClassName="p-0" title="Medical records" subtitle={`${data.length} notes, newest first`} actions={addButton}>
       {modal}
-      <ul className="divide-y divide-slate-100">
+      <ul className="divide-y divide-line">
         {data.map((r) => (
           <li key={r.id}>
-            <button onClick={() => setOpen(open === r.id ? null : r.id)} className="flex w-full items-center gap-3 px-4 py-2.5 text-left hover:bg-slate-50">
-              <span className="w-24 shrink-0 text-xs tabular-nums text-slate-500">{fmtDate(r.visit_date)}</span>
+            <button onClick={() => setOpen(open === r.id ? null : r.id)} className="flex w-full items-center gap-3 px-4 py-2.5 text-left hover:bg-sunken">
+              <span className="w-24 shrink-0 text-xs tabular-nums text-muted">{fmtDate(r.visit_date)}</span>
               <Badge tone={r.record_type === "emergency" ? "danger" : r.record_type === "discharge_summary" ? "info" : "neutral"}>{titleCase(r.record_type)}</Badge>
-              <span className="min-w-0 flex-1 truncate text-sm text-slate-800">{r.chief_complaint}</span>
-              <span className="hidden text-xs text-slate-400 sm:inline">{r.doctor_name}</span>
-              <ChevronDown className={cn("h-4 w-4 text-slate-400 transition-transform", open === r.id && "rotate-180")} />
+              <span className="min-w-0 flex-1 truncate text-sm text-ink">{r.chief_complaint}</span>
+              <span className="hidden text-xs text-faint sm:inline">{r.doctor_name}</span>
+              <ChevronDown className={cn("h-4 w-4 text-faint transition-transform", open === r.id && "rotate-180")} />
             </button>
             {open === r.id && (
-              <div className="grid gap-3 bg-slate-50/60 px-4 pb-4 pt-1 text-sm sm:grid-cols-2">
+              <div className="grid gap-3 bg-sunken/60 px-4 pb-4 pt-1 text-sm sm:grid-cols-2">
                 {([["Symptoms", r.symptoms], ["Assessment", r.diagnosis_summary], ["Notes", r.notes], ["Plan", r.treatment_plan]] as const).map(([k, v]) => (
-                  <div key={k}><div className="text-[11px] font-semibold uppercase text-slate-500">{k}</div><p className="text-slate-700">{v || "—"}</p></div>
+                  <div key={k}><div className="text-[11px] font-semibold uppercase text-muted">{k}</div><p className="text-ink-2">{v || "—"}</p></div>
                 ))}
-                <div className="text-[11px] text-slate-400 sm:col-span-2">Record #{r.id}{r.admission_id ? ` · admission #${r.admission_id}` : ""}</div>
+                <div className="text-[11px] text-faint sm:col-span-2">Record #{r.id}{r.admission_id ? ` · admission #${r.admission_id}` : ""}</div>
               </div>
             )}
           </li>
@@ -87,21 +87,21 @@ export function PrescriptionsTab({ patientId }: { patientId: number }) {
   return (
     <Card bodyClassName="p-0" title="Prescriptions" subtitle="Outpatient medication orders with change history"
       actions={<>
-        <label className="flex items-center gap-1.5 text-xs text-slate-600"><input type="checkbox" checked={all} onChange={(e) => setAll(e.target.checked)} /> Include history</label>
+        <label className="flex items-center gap-1.5 text-xs text-ink-2"><input type="checkbox" checked={all} onChange={(e) => setAll(e.target.checked)} /> Include history</label>
         {can(PERMS.prescribe) && <Button size="sm" onClick={() => setPrescribing(true)}><Plus className="h-3.5 w-3.5" /> Prescribe</Button>}
       </>}>
       <DataTable rows={rows} loading={loading} error={error} onRetry={reload} empty="No prescriptions"
         columns={[
           { key: "medication", header: "Medication", render: (p) => (
-            <div><span className="font-medium text-slate-800">{p.medication}</span> {p.is_high_alert && <Badge tone="danger">High-alert</Badge>}
-              <div className="text-xs text-slate-500">{titleCase(p.drug_class)} · {p.route}</div></div>) },
+            <div><span className="font-medium text-ink">{p.medication}</span> {p.is_high_alert && <Badge tone="danger">High-alert</Badge>}
+              <div className="text-xs text-muted">{titleCase(p.drug_class)} · {p.route}</div></div>) },
           { key: "dose", header: "Dose", render: (p) => `${p.dosage} · ${p.frequency}` },
           { key: "dates", header: "Period", render: (p) => <span className="text-xs">{fmtDate(p.start_date)} → {p.end_date ? fmtDate(p.end_date) : "ongoing"}</span> },
           { key: "status", header: "Status", render: (p) => <StatusBadge status={p.status} /> },
-          { key: "reason", header: "Change reason", render: (p) => <span className="text-xs text-slate-500">{p.change_reason ?? "—"}</span> },
+          { key: "reason", header: "Change reason", render: (p) => <span className="text-xs text-muted">{p.change_reason ?? "—"}</span> },
           { key: "by", header: "Prescriber", render: (p) => <span className="text-xs">{p.doctor_name}</span> },
           { key: "act", header: "", render: (p) => can(PERMS.prescribe) && p.status === "active" ? (
-            <button onClick={() => discontinue(p)} className="flex items-center gap-1 text-xs text-rose-600 hover:underline"><XCircle className="h-3.5 w-3.5" /> Stop</button>) : null },
+            <button onClick={() => discontinue(p)} className="flex items-center gap-1 text-xs text-high hover:underline"><XCircle className="h-3.5 w-3.5" /> Stop</button>) : null },
         ]} />
       {prescribing && <PrescribeModal patientId={patientId} onClose={() => setPrescribing(false)} onDone={() => { setPrescribing(false); reload(); }} />}
     </Card>
@@ -142,7 +142,7 @@ function PrescribeModal({ patientId, onClose, onDone }: { patientId: number; onC
         <Field label="Duration (days)" hint="Leave empty for ongoing"><Input type="number" min={1} value={form.duration_days} onChange={(e) => setForm({ ...form, duration_days: e.target.value })} /></Field>
         <Field label="Instructions" className="sm:col-span-2"><Textarea value={form.instructions} onChange={(e) => setForm({ ...form, instructions: e.target.value })} /></Field>
       </div>
-      {med?.is_high_alert && <p className="mt-2 rounded bg-rose-50 px-2 py-1 text-xs text-rose-700">High-alert medication: an independent double check is required (MED-POL-004).</p>}
+      {med?.is_high_alert && <p className="mt-2 rounded bg-high-tint px-2 py-1 text-xs text-high">High-alert medication: an independent double check is required (MED-POL-004).</p>}
       {error ? <div className="mt-3"><ErrorState error={error} compact /></div> : null}
     </Modal>
   );
@@ -227,7 +227,7 @@ function AddLabModal({ patientId, onClose, onDone }: { patientId: number; onClos
         <Field label="Collected at"><Input type="datetime-local" value={form.collected_at} onChange={(e) => setForm({ ...form, collected_at: e.target.value })} /></Field>
         <Field label="Notes"><Input value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} /></Field>
       </div>
-      <p className="mt-3 text-xs text-slate-500">The reference range and the normal/low/high/critical flag are assigned by the server from the test catalogue.</p>
+      <p className="mt-3 text-xs text-muted">The reference range and the normal/low/high/critical flag are assigned by the server from the test catalogue.</p>
       {error ? <div className="mt-3"><ErrorState error={error} compact /></div> : null}
     </Modal>
   );
@@ -263,8 +263,8 @@ export function LabsTab({ patientId }: { patientId: number }) {
   const series = [...(tests.get(selected) ?? [])].filter((l) => l.value !== null).reverse();
   const first = series[0];
   const refLines = [
-    first?.reference_low != null ? { y: first.reference_low, label: `low ${first.reference_low}`, color: "#0284c7" } : null,
-    first?.reference_high != null ? { y: first.reference_high, label: `high ${first.reference_high}`, color: "#e11d48" } : null,
+    first?.reference_low != null ? { y: first.reference_low, label: `low ${first.reference_low}`, color: "var(--color-info)" } : null,
+    first?.reference_high != null ? { y: first.reference_high, label: `high ${first.reference_high}`, color: "var(--color-high)" } : null,
   ].filter(Boolean) as { y: number; label: string; color: string }[];
   return (
     <div className="grid gap-4 xl:grid-cols-[220px_1fr]">
@@ -274,9 +274,9 @@ export function LabsTab({ patientId }: { patientId: number }) {
             const latest = rows[0];
             return (
               <li key={c}>
-                <button onClick={() => setCode(c)} className={cn("flex w-full items-center justify-between rounded px-2 py-1.5 text-left text-sm", c === selected ? "bg-brand-50 text-brand-900" : "hover:bg-slate-50")}>
+                <button onClick={() => setCode(c)} className={cn("flex w-full items-center justify-between rounded px-2 py-1.5 text-left text-sm", c === selected ? "bg-accent-tint text-accent" : "hover:bg-sunken")}>
                   <span className="truncate">{latest.test_name}</span>
-                  <span className={cn("ml-2 font-mono text-xs", latest.flag === "critical" ? "text-rose-600" : latest.flag !== "normal" ? "text-amber-600" : "text-slate-500")}>{latest.value ?? latest.value_text}</span>
+                  <span className={cn("ml-2 font-mono text-xs", latest.flag === "critical" ? "text-high" : latest.flag !== "normal" ? "text-warn" : "text-muted")}>{latest.value ?? latest.value_text}</span>
                 </button>
               </li>
             );
@@ -285,7 +285,7 @@ export function LabsTab({ patientId }: { patientId: number }) {
       </Card>
       <div className="space-y-4">
         <Card title={`${first?.test_name ?? selected} trend`} subtitle={`${series.length} results · ${first?.unit ?? ""}`}>
-          <LineChart series={[{ name: selected, color: "#0b7f6f", points: series.map((l) => [new Date(l.collected_at).getTime(), l.value as number]) }]}
+          <LineChart series={[{ name: selected, color: "var(--color-ok)", points: series.map((l) => [new Date(l.collected_at).getTime(), l.value as number]) }]}
             refLines={refLines} xFormat={(v) => new Date(v).toISOString().slice(2, 7)} yFormat={(v) => v.toFixed(v < 10 ? 1 : 0)} />
         </Card>
         <Card bodyClassName="p-0" title="Results" actions={addButton}>
@@ -294,9 +294,9 @@ export function LabsTab({ patientId }: { patientId: number }) {
             columns={[
               { key: "at", header: "Collected", render: (l) => fmtDateTime(l.collected_at) },
               { key: "value", header: "Value", render: (l) => <span className="font-mono">{l.value ?? l.value_text} {l.unit}</span> },
-              { key: "range", header: "Reference", render: (l) => <span className="text-xs text-slate-500">{l.reference_low ?? ""}–{l.reference_high ?? ""}</span> },
+              { key: "range", header: "Reference", render: (l) => <span className="text-xs text-muted">{l.reference_low ?? ""}–{l.reference_high ?? ""}</span> },
               { key: "flag", header: "Flag", render: (l) => <StatusBadge status={l.flag} /> },
-              { key: "ctx", header: "Context", render: (l) => <span className="text-xs text-slate-500">{l.admission_id ? `Inpatient #${l.admission_id}` : "Outpatient"}</span> },
+              { key: "ctx", header: "Context", render: (l) => <span className="text-xs text-muted">{l.admission_id ? `Inpatient #${l.admission_id}` : "Outpatient"}</span> },
             ]} />
         </Card>
       </div>

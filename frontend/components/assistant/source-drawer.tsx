@@ -29,23 +29,23 @@ export function SourceDrawer({ citation, onClose }: { citation: Citation | null;
             {Boolean(data.flags?.injection_suspected) && <Badge tone="danger"><ShieldAlert className="h-3 w-3" /> Instruction-like content</Badge>}
           </div>
           <div>
-            <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500">Retrieved passage</div>
-            <blockquote className="whitespace-pre-wrap rounded-md border-l-4 border-violet-400 bg-violet-50/50 p-3 text-sm leading-relaxed text-slate-800">
+            <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-muted">Retrieved passage</div>
+            <blockquote className="whitespace-pre-wrap rounded-md border-l-4 border-ai bg-ai-tint/50 p-3 text-sm leading-relaxed text-ink">
               {data.text}
             </blockquote>
           </div>
           {citation && (
             <div>
-              <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500">Why it was retrieved</div>
+              <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-muted">Why it was retrieved</div>
               <dl className="grid grid-cols-2 gap-2 text-xs">
                 {Object.entries(citation.retrieval).map(([k, v]) => (
-                  <div key={k} className="rounded bg-slate-50 px-2 py-1.5">
-                    <dt className="text-slate-500">{titleCase(k)}</dt>
-                    <dd className="font-mono text-slate-800">{v === null ? "not retrieved" : String(v)}</dd>
+                  <div key={k} className="rounded bg-sunken px-2 py-1.5">
+                    <dt className="text-muted">{titleCase(k)}</dt>
+                    <dd className="font-mono text-ink">{v === null ? "not retrieved" : String(v)}</dd>
                   </div>
                 ))}
               </dl>
-              <p className="mt-2 text-[11px] text-slate-500">Ranks come from semantic (vector) and keyword (BM25) retrieval, fused with reciprocal rank fusion and re-scored by a cross-encoder.</p>
+              <p className="mt-2 text-[11px] text-muted">Ranks come from semantic (vector) and keyword (BM25) retrieval, fused with reciprocal rank fusion and re-scored by a cross-encoder.</p>
             </div>
           )}
         </div>

@@ -63,16 +63,16 @@ function Users() {
       {msg && <div className="p-3"><ErrorState error={new Error(msg)} compact /></div>}
       <DataTable rows={data} loading={loading} error={error} onRetry={reload}
         columns={[
-          { key: "name", header: "User", render: (u) => <div><div className="font-medium text-slate-800">{u.full_name}</div><div className="text-xs text-slate-500">{u.email}</div></div> },
+          { key: "name", header: "User", render: (u) => <div><div className="font-medium text-ink">{u.full_name}</div><div className="text-xs text-muted">{u.email}</div></div> },
           { key: "role", header: "Role", render: (u) => (
             <select value={u.role} disabled={u.id === me?.id || u.role === "DOCTOR"}
-              title={u.role === "DOCTOR" ? "Change the linked doctor profile first" : undefined} onChange={(e) => update(u, { role: e.target.value as AdminUser["role"] })} className="rounded border border-slate-300 px-1.5 py-1 text-xs" aria-label={`Role for ${u.email}`}>
+              title={u.role === "DOCTOR" ? "Change the linked doctor profile first" : undefined} onChange={(e) => update(u, { role: e.target.value as AdminUser["role"] })} className="rounded border border-line-strong px-1.5 py-1 text-xs" aria-label={`Role for ${u.email}`}>
               {ROLES.map((r) => <option key={r}>{r}</option>)}
             </select>) },
           { key: "active", header: "Status", render: (u) => <StatusBadge status={u.is_active ? "active" : "inactive"} /> },
-          { key: "login", header: "Last sign-in", render: (u) => <span className="text-xs text-slate-500">{fmtDateTime(u.last_login_at)}</span> },
+          { key: "login", header: "Last sign-in", render: (u) => <span className="text-xs text-muted">{fmtDateTime(u.last_login_at)}</span> },
           { key: "act", header: "", render: (u) => u.id !== me?.id && (
-            <button className="text-xs text-brand-700 hover:underline" onClick={() => update(u, { is_active: !u.is_active })}>{u.is_active ? "Deactivate" : "Activate"}</button>) },
+            <button className="text-xs text-accent hover:underline" onClick={() => update(u, { is_active: !u.is_active })}>{u.is_active ? "Deactivate" : "Activate"}</button>) },
         ]} />
       {creating && <CreateUser onClose={() => setCreating(false)} onDone={() => { setCreating(false); reload(); }} />}
     </Card>
@@ -119,7 +119,7 @@ function CreateUser({ onClose, onDone }: { onClose: () => void; onDone: () => vo
               </div>
             </Field>
             <Field label="Department" hint="Taken from the doctor profile — it decides which patients this login can see">
-              <div className="flex h-9 items-center rounded border border-slate-200 bg-slate-50 px-2 text-sm text-slate-600">
+              <div className="flex h-9 items-center rounded border border-line bg-sunken px-2 text-sm text-ink-2">
                 {profile ? profile.department : "Select a clinician first"}
               </div>
             </Field>
@@ -143,11 +143,11 @@ function Roles() {
     <Card bodyClassName="p-0" title="Permission matrix" subtitle="Row-level access (which patients) is enforced separately by the access policy">
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
-          <thead><tr className="border-b border-slate-100 text-left text-[11px] uppercase text-slate-500"><th className="px-3 py-2">Permission</th>{data.map((r) => <th key={r.name} className="px-3 text-center">{r.name}</th>)}</tr></thead>
-          <tbody className="divide-y divide-slate-100">
+          <thead><tr className="border-b border-line text-left text-[11px] uppercase text-muted"><th className="px-3 py-2">Permission</th>{data.map((r) => <th key={r.name} className="px-3 text-center">{r.name}</th>)}</tr></thead>
+          <tbody className="divide-y divide-line">
             {perms.map((p) => (
-              <tr key={p.code}><td className="px-3 py-1.5"><div className="font-mono text-xs">{p.code}</div><div className="text-[11px] text-slate-500">{p.description}</div></td>
-                {data.map((r) => <td key={r.name} className="text-center">{r.permissions.includes(p.code) ? <span className="text-brand-700">●</span> : <span className="text-slate-300">○</span>}</td>)}</tr>
+              <tr key={p.code}><td className="px-3 py-1.5"><div className="font-mono text-xs">{p.code}</div><div className="text-[11px] text-muted">{p.description}</div></td>
+                {data.map((r) => <td key={r.name} className="text-center">{r.permissions.includes(p.code) ? <span className="text-accent">●</span> : <span className="text-faint">○</span>}</td>)}</tr>
             ))}
           </tbody>
         </table>
@@ -163,7 +163,7 @@ function Audit() {
   const { data, error, loading, reload } = useApi<Page<AuditLog>>(`/admin/audit-logs${qs({ action, outcome, limit: 50, offset })}`);
   return (
     <Card bodyClassName="p-0" title="Audit trail" subtitle="Identifiers and counts only — no clinical text or query content is stored">
-      <div className="flex flex-wrap gap-2 border-b border-slate-100 p-3">
+      <div className="flex flex-wrap gap-2 border-b border-line p-3">
         <Input placeholder="Action prefix (e.g. patient., ai., document.)" value={action} onChange={(e) => { setAction(e.target.value); setOffset(0); }} className="max-w-xs" aria-label="Action" />
         <Select value={outcome} onChange={(e) => { setOutcome(e.target.value); setOffset(0); }} placeholder="Any outcome" className="max-w-[160px]" aria-label="Outcome"
           options={["success", "denied", "error"].map((o) => ({ value: o, label: o }))} />
@@ -173,9 +173,9 @@ function Audit() {
           { key: "at", header: "Time", render: (l) => <span className="whitespace-nowrap text-xs">{fmtDateTime(l.occurred_at)}</span> },
           { key: "user", header: "User", render: (l) => <span className="text-xs">#{l.user_id ?? "—"} {l.user_role && <Badge>{l.user_role}</Badge>}</span> },
           { key: "action", header: "Action", render: (l) => <span className="font-mono text-xs">{l.action}</span> },
-          { key: "res", header: "Resource", render: (l) => <span className="text-xs text-slate-500">{l.resource_type ? `${l.resource_type} #${l.resource_id}` : "—"}{l.patient_id ? ` · patient #${l.patient_id}` : ""}</span> },
+          { key: "res", header: "Resource", render: (l) => <span className="text-xs text-muted">{l.resource_type ? `${l.resource_type} #${l.resource_id}` : "—"}{l.patient_id ? ` · patient #${l.patient_id}` : ""}</span> },
           { key: "outcome", header: "Outcome", render: (l) => <StatusBadge status={l.outcome} /> },
-          { key: "details", header: "Details", render: (l) => <span className="line-clamp-1 max-w-xs font-mono text-[10px] text-slate-400" title={JSON.stringify(l.details)}>{JSON.stringify(l.details)}</span> },
+          { key: "details", header: "Details", render: (l) => <span className="line-clamp-1 max-w-xs font-mono text-[10px] text-faint" title={JSON.stringify(l.details)}>{JSON.stringify(l.details)}</span> },
         ]} />
       {data && <Pagination total={data.total} limit={50} offset={offset} onChange={setOffset} />}
     </Card>
@@ -195,7 +195,7 @@ function Traces() {
           { key: "provider", header: "Provider", render: (t) => <span className="font-mono text-xs">{t.provider}{t.llm_model ? `/${t.llm_model}` : ""}</span> },
           { key: "status", header: "Status", render: (t) => <StatusBadge status={t.status} /> },
           { key: "ms", header: "Total", render: (t) => <span className="tabular-nums">{(t.total_ms / 1000).toFixed(2)}s</span> },
-          { key: "stages", header: "Stages (ms)", render: (t) => <span className="font-mono text-[10px] text-slate-500">{Object.entries(t.stage_ms).map(([k, v]) => `${k}:${Math.round(v)}`).join(" ")}</span> },
+          { key: "stages", header: "Stages (ms)", render: (t) => <span className="font-mono text-[10px] text-muted">{Object.entries(t.stage_ms).map(([k, v]) => `${k}:${Math.round(v)}`).join(" ")}</span> },
           { key: "src", header: "Sources", render: (t) => <span className="text-xs">{t.cited_source_ids.length}/{t.retrieved_chunk_ids.length}</span> },
           { key: "tok", header: "Tokens", render: (t) => <span className="text-xs tabular-nums">{t.prompt_tokens ?? "—"}/{t.completion_tokens ?? "—"}</span> },
         ]} />
@@ -225,17 +225,17 @@ function Metrics() {
       <div className="grid gap-4 xl:grid-cols-2">
         <Card title="Latency by stage (ms)" bodyClassName="p-0">
           <table className="w-full text-sm">
-            <thead><tr className="border-b border-slate-100 text-left text-[11px] uppercase text-slate-500"><th className="px-3 py-2">Stage</th><th>n</th><th>p50</th><th>p95</th><th>max</th></tr></thead>
-            <tbody className="divide-y divide-slate-100">
+            <thead><tr className="border-b border-line text-left text-[11px] uppercase text-muted"><th className="px-3 py-2">Stage</th><th>n</th><th>p50</th><th>p95</th><th>max</th></tr></thead>
+            <tbody className="divide-y divide-line">
               {Object.entries(data.latency_ms).map(([k, v]) => <tr key={k}><td className="px-3 py-1.5">{titleCase(k)}</td><td>{v.n}</td><td className="tabular-nums">{v.p50 ?? "—"}</td><td className="tabular-nums">{v.p95 ?? "—"}</td><td className="tabular-nums">{v.max ?? "—"}</td></tr>)}
             </tbody>
           </table>
         </Card>
         <Card title="Routes">
-          <ul className="space-y-1 text-sm">{Object.entries(data.routes).map(([r, n]) => <li key={r} className="flex justify-between"><span className="flex flex-wrap gap-0.5">{r.split(" + ").map((x) => <RouteBadge key={x} route={x} />)}</span><span className="tabular-nums text-slate-600">{n}</span></li>)}</ul>
-          <div className="mt-3 text-xs text-slate-500">Routing methods: {Object.entries(data.routing_methods).map(([k, v]) => `${k} ${v}`).join(" · ")}</div>
-          <div className="mt-1 text-xs text-slate-500">Documents: {Object.entries(data.documents).map(([k, v]) => `${k} ${v}`).join(" · ")}</div>
-          <p className="mt-3 text-xs text-slate-500">Prometheus metrics are exposed at <code>/metrics</code> on the API.</p>
+          <ul className="space-y-1 text-sm">{Object.entries(data.routes).map(([r, n]) => <li key={r} className="flex justify-between"><span className="flex flex-wrap gap-0.5">{r.split(" + ").map((x) => <RouteBadge key={x} route={x} />)}</span><span className="tabular-nums text-ink-2">{n}</span></li>)}</ul>
+          <div className="mt-3 text-xs text-muted">Routing methods: {Object.entries(data.routing_methods).map(([k, v]) => `${k} ${v}`).join(" · ")}</div>
+          <div className="mt-1 text-xs text-muted">Documents: {Object.entries(data.documents).map(([k, v]) => `${k} ${v}`).join(" · ")}</div>
+          <p className="mt-3 text-xs text-muted">Prometheus metrics are exposed at <code>/metrics</code> on the API.</p>
         </Card>
       </div>
     </div>

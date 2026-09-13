@@ -14,8 +14,8 @@ const BAND_TONE = { low: "success", moderate: "warning", high: "danger" } as con
 
 function ModelMeta({ p }: { p: Prediction }) {
   return (
-    <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 border-t border-slate-100 pt-2 text-[11px] text-slate-500">
-      <span>Model <span className="font-mono text-slate-700">{p.model_name}@{p.model_version}</span></span>
+    <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 border-t border-line pt-2 text-[11px] text-muted">
+      <span>Model <span className="font-mono text-ink-2">{p.model_name}@{p.model_version}</span></span>
       <span>{p.model_algorithm}</span>
       <span>trained {p.trained_at?.slice(0, 10)}</span>
       <span>predicted {fmtDateTime(p.predicted_at)}</span>
@@ -29,25 +29,25 @@ export function RiskCard({ patientId, compact }: { patientId: number; compact?: 
     <Card title={<span className="flex items-center gap-1.5"><GaugeIcon className="h-4 w-4" /> 30-day readmission risk</span>} subtitle="Model estimate · decision support">
       {error ? <ErrorState error={error} onRetry={reload} compact /> : null}
       {loading && !p && <Skeleton lines={4} />}
-      {p && p.status !== "ok" && <p className="text-sm text-slate-500">{p.reason}</p>}
+      {p && p.status !== "ok" && <p className="text-sm text-muted">{p.reason}</p>}
       {p && p.status === "ok" && p.value !== null && (
         <>
           <div className="flex items-end justify-between">
             <div>
-              <div className="text-3xl font-semibold tabular-nums text-slate-900">{pct(p.value)}</div>
-              <div className="text-xs text-slate-500">{(p.value / p.context.base_rate).toFixed(1)}× the training base rate ({pct(p.context.base_rate)})</div>
+              <div className="text-3xl font-semibold tabular-nums text-ink">{pct(p.value)}</div>
+              <div className="text-xs text-muted">{(p.value / p.context.base_rate).toFixed(1)}× the training base rate ({pct(p.context.base_rate)})</div>
             </div>
             <div className="text-right">
               <Badge tone={BAND_TONE[p.label as keyof typeof BAND_TONE] ?? "neutral"}>{p.label} risk</Badge>
-              <div className="mt-1 text-[11px] text-slate-500">{p.flagged ? "Above" : "Below"} alert threshold {pct(p.threshold)}</div>
+              <div className="mt-1 text-[11px] text-muted">{p.flagged ? "Above" : "Below"} alert threshold {pct(p.threshold)}</div>
             </div>
           </div>
           <Gauge value={p.value} markers={[{ at: p.context.base_rate, label: "base" }, { at: p.threshold ?? 0, label: "alert" }, { at: p.context.high_risk_cutoff, label: "high" }]} />
-          <p className="mt-4 text-[11px] text-slate-500">Scored for the admission of {fmtDate(p.reference?.admitted_at)} ({p.reference?.reason}).</p>
+          <p className="mt-4 text-[11px] text-muted">Scored for the admission of {fmtDate(p.reference?.admitted_at)} ({p.reference?.reason}).</p>
           <div className="mt-3">
-            <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500">Model factors contributing to this prediction</div>
+            <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted">Model factors contributing to this prediction</div>
             <DivergingBars items={p.factors.slice(0, compact ? 4 : 8).map((f) => ({ label: f.label, detail: f.value, value: f.contribution }))} />
-            <p className="mt-2 text-[11px] text-slate-400">Red bars pushed the model&apos;s estimate up, green bars down (SHAP, {p.explanation_space?.replace("_", " ")} scale). They describe the model, not causes.</p>
+            <p className="mt-2 text-[11px] text-faint">Red bars pushed the model&apos;s estimate up, green bars down (SHAP, {p.explanation_space?.replace("_", " ")} scale). They describe the model, not causes.</p>
           </div>
           {!p.in_training_population && <div className="mt-2"><Notice tone="warning">Outside the model&apos;s training population (diabetic inpatients).</Notice></div>}
           {!compact && p.notes.map((n) => <div key={n} className="mt-2"><Notice tone="info" icon={<Info className="h-3.5 w-3.5" />}>{n}</Notice></div>)}
@@ -64,25 +64,25 @@ export function LosCard({ patientId, compact }: { patientId: number; compact?: b
     <Card title={<span className="flex items-center gap-1.5"><Hourglass className="h-4 w-4" /> Estimated length of stay</span>} subtitle="Predicted at admission time · estimate only">
       {error ? <ErrorState error={error} onRetry={reload} compact /> : null}
       {loading && !p && <Skeleton lines={3} />}
-      {p && p.status !== "ok" && <p className="text-sm text-slate-500">{p.reason}</p>}
+      {p && p.status !== "ok" && <p className="text-sm text-muted">{p.reason}</p>}
       {p && p.status === "ok" && p.value !== null && (
         <>
           <div className="flex items-end justify-between">
             <div>
-              <div className="text-3xl font-semibold tabular-nums text-slate-900">{p.value.toFixed(1)} <span className="text-base font-normal text-slate-500">days</span></div>
-              <div className="text-xs text-slate-500">80% interval {p.interval?.[0]}–{p.interval?.[1]} days</div>
+              <div className="text-3xl font-semibold tabular-nums text-ink">{p.value.toFixed(1)} <span className="text-base font-normal text-muted">days</span></div>
+              <div className="text-xs text-muted">80% interval {p.interval?.[0]}–{p.interval?.[1]} days</div>
             </div>
             {p.reference?.actual_length_of_stay_days != null && (
-              <div className="text-right text-xs text-slate-500">Actual stay<div className="text-lg font-semibold tabular-nums text-slate-800">{p.reference.actual_length_of_stay_days} d</div></div>
+              <div className="text-right text-xs text-muted">Actual stay<div className="text-lg font-semibold tabular-nums text-ink">{p.reference.actual_length_of_stay_days} d</div></div>
             )}
           </div>
           {!compact && (
             <div className="mt-3">
-              <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500">Model factors (days)</div>
+              <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted">Model factors (days)</div>
               <DivergingBars items={p.factors.map((f) => ({ label: f.label, detail: f.value, value: f.contribution }))} format={(v) => `${v >= 0 ? "+" : ""}${v.toFixed(2)} d`} />
             </div>
           )}
-          <p className="mt-3 text-[11px] text-slate-500">Typical error ±{p.context.test_mae_days?.toFixed(1)} days (test MAE); admission-time features explain little of the variance (R² {p.context.test_r2?.toFixed(2)}).</p>
+          <p className="mt-3 text-[11px] text-muted">Typical error ±{p.context.test_mae_days?.toFixed(1)} days (test MAE); admission-time features explain little of the variance (R² {p.context.test_r2?.toFixed(2)}).</p>
           <ModelMeta p={p} />
         </>
       )}
@@ -105,18 +105,18 @@ export function PredictionsTab({ patientId }: { patientId: number }) {
       {risk?.status === "ok" && (
         <Card title="Model inputs for this prediction" subtitle="Derived from the database; missing values are imputed by the model pipeline">
           <KeyValue columns={3} items={Object.entries(risk.features).map(([k, v]) => [k.replace(/_/g, " "), String(v ?? "missing")])} />
-          <div className="mt-3 space-y-1 text-[11px] text-slate-500">{risk.limitations.map((l) => <p key={l}>• {l}</p>)}</div>
+          <div className="mt-3 space-y-1 text-[11px] text-muted">{risk.limitations.map((l) => <p key={l}>• {l}</p>)}</div>
         </Card>
       )}
       <Card title="Prediction history" subtitle="Every served prediction is persisted with its model version" bodyClassName="p-0">
-        <ul className="divide-y divide-slate-100 text-sm">
+        <ul className="divide-y divide-line text-sm">
           {(history ?? []).map((h) => (
             <li key={h.id} className="flex items-center justify-between px-4 py-2">
-              <span className="text-slate-700">{h.type === "readmission_30d" ? `Readmission ${pct(h.value)}` : `LOS ${h.value.toFixed(1)} days`}</span>
-              <span className="text-xs text-slate-500">v{h.version} · {fmtDateTime(h.created_at)}</span>
+              <span className="text-ink-2">{h.type === "readmission_30d" ? `Readmission ${pct(h.value)}` : `LOS ${h.value.toFixed(1)} days`}</span>
+              <span className="text-xs text-muted">v{h.version} · {fmtDateTime(h.created_at)}</span>
             </li>
           ))}
-          {history?.length === 0 && <li className="px-4 py-3 text-xs text-slate-500">No predictions stored yet.</li>}
+          {history?.length === 0 && <li className="px-4 py-3 text-xs text-muted">No predictions stored yet.</li>}
         </ul>
       </Card>
     </div>

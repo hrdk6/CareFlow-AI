@@ -25,7 +25,7 @@ export default function LabsPage() {
     <>
       <PageHeader title="Laboratory reports" subtitle="Results with reference ranges; critical values follow policy CF-LAB-02." />
       <Card bodyClassName="p-0">
-        <div className="flex flex-wrap gap-2 border-b border-slate-100 p-3">
+        <div className="flex flex-wrap gap-2 border-b border-line p-3">
           <Select value={flag} onChange={(e) => { setFlag(e.target.value); setOffset(0); }} placeholder="Any flag" className="max-w-[160px]" aria-label="Flag"
             options={["critical", "high", "low", "normal"].map((f) => ({ value: f, label: f }))} />
           <Select value={test} onChange={(e) => { setTest(e.target.value); setOffset(0); }} placeholder="All tests" className="max-w-[240px]" aria-label="Test"
@@ -37,9 +37,9 @@ export default function LabsPage() {
             { key: "mrn", header: "Patient", render: (l) => <span className="font-mono text-xs">{l.patient_mrn}</span> },
             { key: "test", header: "Test", render: (l) => l.test_name },
             { key: "value", header: "Value", render: (l) => <span className="font-mono">{l.value ?? l.value_text} {l.unit}</span> },
-            { key: "ref", header: "Reference", render: (l) => <span className="text-xs text-slate-500">{l.reference_low ?? ""}–{l.reference_high ?? ""}</span> },
+            { key: "ref", header: "Reference", render: (l) => <span className="text-xs text-muted">{l.reference_low ?? ""}–{l.reference_high ?? ""}</span> },
             { key: "flag", header: "Flag", render: (l) => <StatusBadge status={l.flag} /> },
-            { key: "ctx", header: "Setting", render: (l) => <span className="text-xs text-slate-500">{l.admission_id ? "Inpatient" : "Outpatient"}</span> },
+            { key: "ctx", header: "Setting", render: (l) => <span className="text-xs text-muted">{l.admission_id ? "Inpatient" : "Outpatient"}</span> },
           ]} />
         {data && <Pagination total={data.total} limit={LIMIT} offset={offset} onChange={setOffset} />}
       </Card>

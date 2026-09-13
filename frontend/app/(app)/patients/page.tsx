@@ -37,7 +37,7 @@ export default function PatientsPage() {
       <PageHeader title="Patients" subtitle="Only patients within your access policy are listed."
         actions={can(PERMS.patientsWrite) && <Button onClick={() => setRegistering(true)}><UserPlus className="h-4 w-4" /> Register patient</Button>} />
       <Card bodyClassName="p-0">
-        <div className="flex flex-wrap gap-2 border-b border-slate-100 p-3">
+        <div className="flex flex-wrap gap-2 border-b border-line p-3">
           <Input placeholder="Search name or MRN" value={q} onChange={(e) => { setQ(e.target.value); setOffset(0); }} className="max-w-xs" aria-label="Search patients" />
           <Select value={status} onChange={(e) => { setStatus(e.target.value); setOffset(0); }} placeholder="All statuses" className="max-w-[160px]" aria-label="Status"
             options={["active", "admitted", "discharged", "inactive"].map((s) => ({ value: s, label: s }))} />
@@ -47,13 +47,13 @@ export default function PatientsPage() {
         <DataTable rows={data?.items} loading={loading} error={error} onRetry={reload} empty="No patients match these filters"
           onRowClick={(p) => router.push(`/patients/${p.id}`)}
           columns={[
-            { key: "mrn", header: "MRN", render: (p) => <span className="font-mono text-xs text-slate-600">{p.mrn}</span> },
-            { key: "full_name", header: "Name", render: (p) => <span className="font-medium text-slate-800">{p.full_name}</span> },
+            { key: "mrn", header: "MRN", render: (p) => <span className="font-mono text-xs text-ink-2">{p.mrn}</span> },
+            { key: "full_name", header: "Name", render: (p) => <span className="font-medium text-ink">{p.full_name}</span> },
             { key: "age", header: "Age / sex", render: (p) => `${p.age} · ${p.sex}` },
             { key: "dob", header: "Date of birth", render: (p) => fmtDate(p.date_of_birth) },
             { key: "status", header: "Status", render: (p) => <StatusBadge status={p.status} /> },
             { key: "dept", header: "Department", render: (p) => p.primary_department ?? "—" },
-            { key: "phone", header: "Phone", render: (p) => <span className="text-xs text-slate-500">{p.phone ?? "—"}</span> },
+            { key: "phone", header: "Phone", render: (p) => <span className="text-xs text-muted">{p.phone ?? "—"}</span> },
           ]} />
         {data && <Pagination total={data.total} limit={LIMIT} offset={offset} onChange={setOffset} />}
       </Card>
@@ -105,7 +105,7 @@ function RegisterPatient({ open, onClose, departments, onCreated }: {
         </Field>
       </div>
       {error ? <div className="mt-3"><ErrorState error={error} compact /></div> : null}
-      <p className="mt-3 text-[11px] text-slate-500">A new MRN is allocated automatically. Records created in this demo are marked synthetic.</p>
+      <p className="mt-3 text-[11px] text-muted">A new MRN is allocated automatically. Records created in this demo are marked synthetic.</p>
     </Modal>
   );
 }

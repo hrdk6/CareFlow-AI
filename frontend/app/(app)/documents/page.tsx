@@ -52,7 +52,7 @@ export default function DocumentsPage() {
         </>} />
       {notice && <div className="mb-3"><Notice tone="success">{notice}</Notice></div>}
       <Card bodyClassName="p-0">
-        <div className="flex flex-wrap gap-2 border-b border-slate-100 p-3">
+        <div className="flex flex-wrap gap-2 border-b border-line p-3">
           <Input placeholder="Search title or code" value={q} onChange={(e) => setQ(e.target.value)} className="max-w-xs" aria-label="Search documents" />
           <Select value={type} onChange={(e) => setType(e.target.value)} placeholder="All types" className="max-w-[160px]" aria-label="Type" options={TYPES.map((t) => ({ value: t, label: titleCase(t) }))} />
           {manage && <Select value={status} onChange={(e) => setStatus(e.target.value)} placeholder="Any status" className="max-w-[160px]" aria-label="Status"
@@ -61,13 +61,13 @@ export default function DocumentsPage() {
         <DataTable rows={data?.items} loading={loading} error={error} onRetry={reload} onRowClick={(d) => setSelected(d.id)} empty="No documents yet"
           columns={[
             { key: "title", header: "Document", render: (d) => (
-              <div><div className="font-medium text-slate-800">{d.title}</div><div className="font-mono text-[11px] text-slate-400">{d.doc_key} · v{d.version}{!d.is_current && " (superseded)"}</div></div>) },
+              <div><div className="font-medium text-ink">{d.title}</div><div className="font-mono text-[11px] text-faint">{d.doc_key} · v{d.version}{!d.is_current && " (superseded)"}</div></div>) },
             { key: "type", header: "Type", render: (d) => <Badge tone="violet">{titleCase(d.doc_type)}</Badge> },
             { key: "scope", header: "Access", render: (d) => <span className="text-xs">{SCOPES.find(([s]) => s === d.access_scope)?.[1]}{d.patient_mrn ? ` · patient ${d.patient_mrn}` : ""}</span> },
             { key: "dept", header: "Department", render: (d) => <span className="text-xs">{d.department ?? "Hospital-wide"}</span> },
             { key: "chunks", header: "Chunks", render: (d) => <span className="tabular-nums">{d.chunk_count}{d.flagged_chunk_count > 0 && <Badge tone="danger" className="ml-1.5"><ShieldAlert className="h-3 w-3" /> {d.flagged_chunk_count}</Badge>}</span> },
             { key: "status", header: "Status", render: (d) => <span title={d.error_message ?? undefined}><StatusBadge status={d.status} /></span> },
-            { key: "at", header: "Uploaded", render: (d) => <span className="text-xs text-slate-500">{fmtDateTime(d.created_at)}</span> },
+            { key: "at", header: "Uploaded", render: (d) => <span className="text-xs text-muted">{fmtDateTime(d.created_at)}</span> },
           ]} />
       </Card>
       {uploading && <UploadModal onClose={() => setUploading(false)} onUploaded={() => { setUploading(false); reload(); }} />}
@@ -107,7 +107,7 @@ function UploadModal({ onClose, onUploaded }: { onClose: () => void; onUploaded:
             const f = e.target.files?.[0] ?? null;
             setFile(f);
             if (f && !form.title) setForm({ ...form, title: f.name.replace(/\.[^.]+$/, "").replace(/[_-]+/g, " ") });
-          }} className="block w-full text-sm file:mr-3 file:rounded file:border-0 file:bg-brand-50 file:px-3 file:py-1.5 file:text-brand-800" />
+          }} className="block w-full text-sm file:mr-3 file:rounded file:border-0 file:bg-accent-tint file:px-3 file:py-1.5 file:text-accent" />
         </Field>
         <Field label="Title" className="sm:col-span-2"><Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></Field>
         <Field label="Type"><Select value={form.doc_type} onChange={(e) => setForm({ ...form, doc_type: e.target.value })} options={TYPES.map((t) => ({ value: t, label: titleCase(t) }))} /></Field>
@@ -115,7 +115,7 @@ function UploadModal({ onClose, onUploaded }: { onClose: () => void; onUploaded:
         <Field label="Department"><Select value={form.department_id} onChange={(e) => setForm({ ...form, department_id: e.target.value })} placeholder="Hospital-wide" options={(departments ?? []).map((d) => ({ value: d.id, label: d.name }))} /></Field>
         <Field label="Document code" hint="Same code as an existing document creates a new version"><Input value={form.doc_key} onChange={(e) => setForm({ ...form, doc_key: e.target.value })} placeholder="e.g. MED-POL-004" /></Field>
       </div>
-      <p className="mt-3 text-[11px] text-slate-500">Pipeline: upload → parse → clean → detect structure → chunk → scan for prompt injection → embed → index (vector + keyword). Upload only synthetic or properly de-identified material.</p>
+      <p className="mt-3 text-[11px] text-muted">Pipeline: upload → parse → clean → detect structure → chunk → scan for prompt injection → embed → index (vector + keyword). Upload only synthetic or properly de-identified material.</p>
       {error ? <div className="mt-3"><ErrorState error={error} compact /></div> : null}
     </Modal>
   );
@@ -145,15 +145,15 @@ function DocumentDrawer({ id, onClose, canManage, onDeleted }: { id: number | nu
             {canManage && <Button size="sm" variant="danger" onClick={remove}><Trash2 className="h-3.5 w-3.5" /> Delete</Button>}
           </div>
           <div>
-            <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-slate-500">Chunks ({data.chunks.length})</div>
+            <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-muted">Chunks ({data.chunks.length})</div>
             <ol className="space-y-2">
               {data.chunks.map((c) => (
-                <li key={c.id} className={`rounded border p-2 text-xs ${c.flags?.injection_suspected ? "border-rose-300 bg-rose-50" : "border-slate-200"}`}>
-                  <div className="mb-1 flex flex-wrap items-center gap-1.5 text-[11px] text-slate-500">
+                <li key={c.id} className={`rounded border p-2 text-xs ${c.flags?.injection_suspected ? "border-high-edge bg-high-tint" : "border-line"}`}>
+                  <div className="mb-1 flex flex-wrap items-center gap-1.5 text-[11px] text-muted">
                     <span className="font-mono">#{c.chunk_index}</span><span>{c.section_path || "Body"}</span><span>· p.{c.page_start}{c.page_end !== c.page_start ? `–${c.page_end}` : ""}</span><span>· {c.word_count} words</span>
                     {Boolean(c.flags?.injection_suspected) && <Badge tone="danger"><ShieldAlert className="h-3 w-3" /> quarantined: {(c.flags.injection_patterns as string[]).join(", ")}</Badge>}
                   </div>
-                  <p className="whitespace-pre-wrap text-slate-700">{c.text}</p>
+                  <p className="whitespace-pre-wrap text-ink-2">{c.text}</p>
                 </li>
               ))}
             </ol>

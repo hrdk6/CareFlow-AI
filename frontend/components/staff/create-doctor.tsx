@@ -41,7 +41,7 @@ export function CreateDoctor({ departments, onClose, onDone }: {
         <Field label="Email" hint="Optional — generated from the staff code if left empty" className="sm:col-span-2">
           <Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></Field>
       </div>
-      <p className="mt-3 text-xs text-slate-500">A staff code and the standard weekday availability are assigned automatically. The clinician&apos;s department decides which patients their login can see.</p>
+      <p className="mt-3 text-xs text-muted">A staff code and the standard weekday availability are assigned automatically. The clinician&apos;s department decides which patients their login can see.</p>
       {error ? <div className="mt-3"><ErrorState error={error} compact /></div> : null}
     </Modal>
   );

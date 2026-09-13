@@ -13,7 +13,7 @@ export function CitationChip({ id, onClick, label }: { id: string; onClick?: (id
   return (
     <button type="button" onClick={() => onClick?.(id)} title={label}
       className={cn("mx-0.5 inline-flex -translate-y-px items-center rounded px-1 py-0 align-baseline font-mono text-[10px] font-semibold ring-1 ring-inset transition-colors",
-        isSource ? "bg-violet-50 text-violet-700 ring-violet-200 hover:bg-violet-100" : "bg-sky-50 text-sky-700 ring-sky-200 hover:bg-sky-100")}>
+        isSource ? "bg-ai-tint text-ai ring-ai-edge hover:bg-ai-tint" : "bg-info-tint text-info ring-info-edge hover:bg-info-tint")}>
       {id}
     </button>
   );
@@ -24,9 +24,9 @@ function inline(text: string, onCite?: (id: string) => void, labels?: Record<str
     if (!part) return null;
     const cite = part.match(/^\[([SR]\d+)\]$/);
     if (cite) return <CitationChip key={i} id={cite[1]} onClick={onCite} label={labels?.[cite[1]]} />;
-    if (part.startsWith("**") && part.endsWith("**")) return <strong key={i} className="font-semibold text-slate-900">{part.slice(2, -2)}</strong>;
-    if (part.startsWith("`") && part.endsWith("`")) return <code key={i} className="rounded bg-slate-100 px-1 font-mono text-[12px]">{part.slice(1, -1)}</code>;
-    if (part.startsWith("_") && part.endsWith("_") && part.length > 2) return <em key={i} className="text-slate-500">{part.slice(1, -1)}</em>;
+    if (part.startsWith("**") && part.endsWith("**")) return <strong key={i} className="font-semibold text-ink">{part.slice(2, -2)}</strong>;
+    if (part.startsWith("`") && part.endsWith("`")) return <code key={i} className="rounded bg-raised px-1 font-mono text-[12px]">{part.slice(1, -1)}</code>;
+    if (part.startsWith("_") && part.endsWith("_") && part.length > 2) return <em key={i} className="text-muted">{part.slice(1, -1)}</em>;
     return <Fragment key={i}>{part}</Fragment>;
   });
 }
@@ -39,7 +39,7 @@ export function Answer({ text, onCite, labels }: { text: string; onCite?: (id: s
     if (!list) return;
     const Tag = list.ordered ? "ol" : "ul";
     out.push(
-      <Tag key={`l${out.length}`} className={cn("my-2 space-y-1 pl-5", list.ordered ? "list-decimal" : "list-disc marker:text-slate-400")}>
+      <Tag key={`l${out.length}`} className={cn("my-2 space-y-1 pl-5", list.ordered ? "list-decimal" : "list-disc marker:text-faint")}>
         {list.items.map((item, i) => <li key={i}>{inline(item, onCite, labels)}</li>)}
       </Tag>,
     );
@@ -61,12 +61,12 @@ export function Answer({ text, onCite, labels }: { text: string; onCite?: (id: s
       }
       flush();
       if (heading) {
-        out.push(<h3 key={`h${out.length}`} className="mb-1 mt-3 text-[13px] font-semibold uppercase tracking-wide text-slate-600">{inline(heading[1], onCite, labels)}</h3>);
+        out.push(<h3 key={`h${out.length}`} className="mb-1 mt-3 text-[13px] font-semibold uppercase tracking-wide text-ink-2">{inline(heading[1], onCite, labels)}</h3>);
       } else {
         out.push(<p key={`p${out.length}`} className="my-1.5">{inline(trimmed, onCite, labels)}</p>);
       }
     }
     flush();
   }
-  return <div className="text-[14px] leading-relaxed text-slate-700">{out}</div>;
+  return <div className="text-[14px] leading-relaxed text-ink-2">{out}</div>;
 }

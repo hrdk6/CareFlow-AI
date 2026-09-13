@@ -22,6 +22,7 @@ from app.models import (
     CareAssignment,
     Doctor,
     Document,
+    LabReport,
     ModelVersion,
     Patient,
     Role,
@@ -297,6 +298,8 @@ def dashboard(db: DB, user: CurrentUser) -> dict:
             Admission.status == "admitted", Admission.patient_id.in_(clinical)))
         out["discharges_7d"] = db.scalar(select(func.count()).select_from(Admission).where(
             Admission.discharged_at >= now - timedelta(days=7), Admission.patient_id.in_(clinical)))
+        out["discharges_30d"] = db.scalar(select(func.count()).select_from(Admission).where(
+            Admission.discharged_at >= now - timedelta(days=30), Admission.patient_id.in_(clinical)))
         recent = db.execute(select(Patient, Admission).join(Admission, Admission.patient_id == Patient.id)
                             .where(Patient.id.in_(clinical), Admission.discharged_at >= now - timedelta(days=30))
                             .order_by(Admission.discharged_at.desc()).limit(8)).all()
@@ -309,6 +312,22 @@ def dashboard(db: DB, user: CurrentUser) -> dict:
         out["census"] = [{"patient_id": p.id, "mrn": p.mrn, "name": p.full_name, "reason": a.reason,
                           "admitted_at": a.admitted_at, "department": a.department.name, "ward": a.ward}
                          for p, a in census]
+        # Alarm feed: results flagged critical in the last week, for patients this user may see clinically.
+        week = now - timedelta(days=7)
+        recent_labs = select(LabReport).where(LabReport.patient_id.in_(clinical), LabReport.collected_at >= week)
+        out["critical_results_7d"] = db.scalar(select(func.count()).select_from(
+            recent_labs.where(LabReport.flag == "critical").subquery()))
+        out["abnormal_results_7d"] = db.scalar(select(func.count()).select_from(
+            recent_labs.where(LabReport.flag.in_(("high", "low"))).subquery()))
+        critical = db.execute(select(LabReport, Patient).join(Patient, Patient.id == LabReport.patient_id)
+                              .where(LabReport.patient_id.in_(clinical), LabReport.flag == "critical",
+                                     LabReport.collected_at >= week)
+                              .order_by(LabReport.collected_at.desc()).limit(8)).all()
+        out["critical_results"] = [{"id": lab.id, "patient_id": p.id, "mrn": p.mrn, "name": p.full_name,
+                                    "test": lab.test_name, "code": lab.test_code, "value": lab.value,
+                                    "value_text": lab.value_text, "unit": lab.unit,
+                                    "reference_low": lab.reference_low, "reference_high": lab.reference_high,
+                                    "collected_at": lab.collected_at} for lab, p in critical]
     if Perm.DOCUMENTS_READ.value in user.permission_codes:
         out["documents_indexed"] = db.scalar(select(func.count()).select_from(Document).where(
             Document.status == "indexed", Document.is_current.is_(True), policy.document_predicate()))
@@ -317,6 +336,7 @@ def dashboard(db: DB, user: CurrentUser) -> dict:
             AIQueryTrace.created_at >= now - timedelta(hours=24)))
         out["denied_events_24h"] = db.scalar(select(func.count()).select_from(AuditLog).where(
             AuditLog.outcome == "denied", AuditLog.occurred_at >= now - timedelta(hours=24)))
+    out["generated_at"] = now  # every figure above is as of this instant; the UI shows it as the live stamp
     out["role_label"] = {RoleName.ADMIN: "Administrator", RoleName.DOCTOR: "Doctor", RoleName.NURSE: "Nurse",
                          RoleName.RECEPTIONIST: "Reception"}[policy.role]
     return out

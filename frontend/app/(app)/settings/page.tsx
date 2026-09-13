@@ -52,7 +52,7 @@ export default function SettingsPage() {
         <Card title="Profile">
           <KeyValue items={[["Name", user.full_name], ["Email", user.email], ["Role", user.role], ["Doctor profile", user.doctor_id ?? "—"]]} />
           <div className="mt-4">
-            <div className="mb-1 text-xs text-slate-500">Permissions</div>
+            <div className="mb-1 text-xs text-muted">Permissions</div>
             <div className="flex flex-wrap gap-1">{user.permissions.map((p) => <Badge key={p}>{p}</Badge>)}</div>
           </div>
         </Card>
@@ -68,7 +68,7 @@ export default function SettingsPage() {
         {status && (
           <Card title="AI configuration" className="lg:col-span-2">
             <KeyValue columns={3} items={Object.entries(status).map(([k, v]) => [k.replace(/_/g, " "), formatValue(v)])} />
-            <p className="mt-3 text-xs text-slate-500">Providers are configured server-side via environment variables (CAREFLOW_LLM_PROVIDER, CAREFLOW_LLM_FALLBACK_PROVIDER, GROQ_API_KEY, GEMINI_API_KEY, …). See the README.</p>
+            <p className="mt-3 text-xs text-muted">Providers are configured server-side via environment variables (CAREFLOW_LLM_PROVIDER, CAREFLOW_LLM_FALLBACK_PROVIDER, GROQ_API_KEY, GEMINI_API_KEY, …). See the README.</p>
           </Card>
         )}
       </div>

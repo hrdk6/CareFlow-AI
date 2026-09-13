@@ -14,6 +14,7 @@ export interface Column<T> {
   className?: string;
 }
 
+/** A trend table in monitor grammar: condensed channel headings, hairline rows, values in tabular figures. */
 export function DataTable<T extends { id: number | string }>({
   columns, rows, loading, error, onRetry, empty = "No records found", onRowClick, dense,
 }: {
@@ -33,9 +34,8 @@ export function DataTable<T extends { id: number | string }>({
                 key={c.key}
                 scope="col"
                 className={cn(
-                  // Sticky so a long table keeps its headings while the body scrolls.
-                  "sticky top-0 z-10 whitespace-nowrap border-b border-line bg-slate-50/90 px-3 py-2",
-                  "text-[11px] font-semibold uppercase tracking-[0.06em] text-slate-500 backdrop-blur",
+                  "sticky top-0 z-10 whitespace-nowrap border-b border-line-strong bg-sunken px-3 py-2",
+                  "font-display text-[11px] font-semibold uppercase tracking-[0.1em] text-muted",
                   c.className,
                 )}
               >
@@ -49,16 +49,12 @@ export function DataTable<T extends { id: number | string }>({
             <tr
               key={row.id}
               onClick={onRowClick ? () => onRowClick(row) : undefined}
-              className={cn("group transition-colors duration-100", onRowClick && "cursor-pointer hover:bg-brand-50/50")}
+              className={cn("transition-colors duration-100", onRowClick && "cursor-pointer hover:bg-raised")}
             >
               {columns.map((c) => (
                 <td
                   key={c.key}
-                  className={cn(
-                    "border-b border-line/70 px-3 align-top text-slate-700",
-                    dense ? "py-2" : "py-2.5",
-                    c.className,
-                  )}
+                  className={cn("border-b border-line px-3 align-top text-ink-2", dense ? "py-2" : "py-2.5", c.className)}
                 >
                   {c.render ? c.render(row) : String((row as Record<string, unknown>)[c.key] ?? "—")}
                 </td>

@@ -1,0 +1,196 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-13T00:00:00Z",
+  "title": "Design System: CareFlow AI",
+  "extensions": {
+    "colorMeta": {
+      "field": { "role": "neutral", "displayName": "Field Black", "canonical": "#070707", "tonalRamp": ["#040404", "#070707", "#0a0a0b", "#0f0f10", "#171718", "#202022", "#2e2e31", "#3d3d41"] },
+      "rail": { "role": "neutral", "displayName": "Rail Black", "canonical": "#040404" },
+      "panel": { "role": "neutral", "displayName": "Panel", "canonical": "#0f0f10" },
+      "sunken": { "role": "neutral", "displayName": "Sunken", "canonical": "#0a0a0b" },
+      "raised": { "role": "neutral", "displayName": "Raised", "canonical": "#171718" },
+      "raised-2": { "role": "neutral", "displayName": "Raised 2", "canonical": "#202022" },
+      "line": { "role": "neutral", "displayName": "Rule", "canonical": "#1f1f21" },
+      "line-strong": { "role": "neutral", "displayName": "Strong Rule", "canonical": "#2e2e31" },
+      "ink": { "role": "neutral", "displayName": "Ink", "canonical": "#ededee", "tonalRamp": ["#2e2e31", "#3d3d41", "#5c5c61", "#85858b", "#a3a3a8", "#cbcbcf", "#ededee", "#f7f7f8"] },
+      "ink-2": { "role": "neutral", "displayName": "Ink 2", "canonical": "#cbcbcf" },
+      "muted": { "role": "neutral", "displayName": "Muted", "canonical": "#a3a3a8" },
+      "faint": { "role": "neutral", "displayName": "Faint", "canonical": "#85858b" },
+      "on-signal": { "role": "neutral", "displayName": "On Signal", "canonical": "#041014" },
+      "accent": { "role": "primary", "displayName": "Monitor Cyan", "canonical": "#38d5e6", "tonalRamp": ["#14292c", "#1f5a61", "#1d8a96", "#2cc2d3", "#38d5e6", "#62e0ee", "#9aebf4", "#d3f7fb"] },
+      "accent-tint": { "role": "primary", "displayName": "Monitor Cyan Tint", "canonical": "#14292c" },
+      "accent-edge": { "role": "primary", "displayName": "Monitor Cyan Edge", "canonical": "#1f5a61" },
+      "info": { "role": "primary", "displayName": "Advisory Cyan", "canonical": "#38d5e6" },
+      "info-tint": { "role": "primary", "displayName": "Advisory Cyan Tint", "canonical": "#14292c" },
+      "info-edge": { "role": "primary", "displayName": "Advisory Cyan Edge", "canonical": "#1f5a61" },
+      "ok": { "role": "secondary", "displayName": "Census Green", "canonical": "#43de8c", "tonalRamp": ["#162a20", "#235e3f", "#23965a", "#34c577", "#43de8c", "#6fe6a7", "#a3efc6", "#d6f8e6"] },
+      "ok-tint": { "role": "secondary", "displayName": "Census Green Tint", "canonical": "#162a20" },
+      "ok-edge": { "role": "secondary", "displayName": "Census Green Edge", "canonical": "#235e3f" },
+      "warn": { "role": "secondary", "displayName": "Caution Yellow", "canonical": "#f4c34a", "tonalRamp": ["#2d2618", "#665326", "#9c7b22", "#d6a52f", "#f4c34a", "#f7d273", "#fae3a6", "#fdf3d8"] },
+      "warn-tint": { "role": "secondary", "displayName": "Caution Yellow Tint", "canonical": "#2d2618" },
+      "warn-edge": { "role": "secondary", "displayName": "Caution Yellow Edge", "canonical": "#665326" },
+      "high": { "role": "secondary", "displayName": "Alarm Red", "canonical": "#ff6b6b", "tonalRamp": ["#2e1b1c", "#3b2224", "#6a3233", "#b54646", "#ff6b6b", "#ff8f8f", "#ffbdbd", "#ffe3e3"] },
+      "high-tint": { "role": "secondary", "displayName": "Alarm Red Tint", "canonical": "#2e1b1c" },
+      "high-edge": { "role": "secondary", "displayName": "Alarm Red Edge", "canonical": "#6a3233" },
+      "ai": { "role": "tertiary", "displayName": "Retrieval Violet", "canonical": "#b79cff", "tonalRamp": ["#25212f", "#4f456b", "#6f5eaa", "#9a7ff0", "#b79cff", "#cab6ff", "#ded2ff", "#f0ebff"] },
+      "ai-tint": { "role": "tertiary", "displayName": "Retrieval Violet Tint", "canonical": "#25212f" },
+      "ai-edge": { "role": "tertiary", "displayName": "Retrieval Violet Edge", "canonical": "#4f456b" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Channel Numeric", "purpose": "Monitor-scale tabular numerics in channel cells (60px desktop, 44px mobile); smaller readouts use the same face." },
+      "headline": { "displayName": "Page Title", "purpose": "Page titles in Barlow Semi Condensed." },
+      "title": { "displayName": "Channel Label", "purpose": "Uppercase panel headers, channel labels and tab keys." },
+      "body": { "displayName": "Body", "purpose": "Inter for prose, names and table cells." },
+      "label": { "displayName": "Label", "purpose": "Uppercase field labels, column heads, state tags, nav group names." },
+      "mono": { "displayName": "Code", "purpose": "MRNs, staff and ward codes, request IDs, route tags." }
+    },
+    "shadows": [
+      { "name": "e3-float", "value": "0 18px 44px -12px rgba(0,0,0,0.75), 0 4px 10px -4px rgba(0,0,0,0.6)", "purpose": "Floating layers only: modal, drawer, mobile nav drawer, patient search results." },
+      { "name": "e1", "value": "0 1px 0 rgba(255,255,255,0.02)", "purpose": "Defined token with no sanctioned resting use." },
+      { "name": "e2", "value": "0 2px 6px -1px rgba(0,0,0,0.45)", "purpose": "Defined token with no sanctioned resting use." },
+      { "name": "focus-ring", "value": "outline: 2px solid var(--color-accent); outline-offset: 2px", "purpose": "Global :focus-visible treatment." }
+    ],
+    "motion": [
+      { "name": "ease-out-quart", "value": "cubic-bezier(0.25, 1, 0.5, 1)", "purpose": "Value-settle and fades." },
+      { "name": "ease-out-expo", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Sweep, overlay rise and slide." },
+      { "name": "sweep", "value": "1.1s ease-out-expo, translateX(-100%) to 100%", "purpose": "The authored moment: a channel-coloured line crosses each channel on refresh; remounted per refresh so it plays once." },
+      { "name": "value-settle", "value": "1.2s ease-out-quart, color from channel to ink", "purpose": "A changed value settles in place from its channel colour." },
+      { "name": "alarm-lamp", "value": "0.5s steps(1, end) infinite, opacity 1 / 0.3", "purpose": "High-priority alarm lamp at 2 Hz, 50% duty; stops under reduced motion." },
+      { "name": "fade-in", "value": "160ms ease-out-quart", "purpose": "Scrims." },
+      { "name": "pop-in", "value": "200ms ease-out-expo, rise 6px", "purpose": "Modal and search results." },
+      { "name": "slide-in", "value": "220ms ease-out-expo, 16px from right", "purpose": "Drawers." },
+      { "name": "control-transition", "value": "150ms ease-out, colour and background only", "purpose": "Buttons, rows, tabs, nav items; no lift." },
+      { "name": "reduced-motion", "value": "animation and transition durations 0.01ms; alarm-lamp animation none", "purpose": "prefers-reduced-motion: reduce collapses all motion." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" },
+      { "name": "content-max", "value": "1560px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one lit key on the panel: cyan face, dark text.",
+      "html": "<button class=\"ds-btn-primary\">Sign in</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 36px; padding: 0 14px; border: 0; border-radius: 0.375rem; background: var(--color-accent, #38d5e6); color: var(--color-on-signal, #041014); font: 500 14px/1 Inter, 'Segoe UI', system-ui, sans-serif; cursor: pointer; transition: background 150ms ease-out, color 150ms ease-out; } .ds-btn-primary:hover { background: #62e0ee; } .ds-btn-primary:active { background: #2cc2d3; } .ds-btn-primary:focus-visible { outline: 2px solid #38d5e6; outline-offset: 2px; } .ds-btn-primary:disabled { opacity: 0.45; pointer-events: none; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "A quiet control on the panel face.",
+      "html": "<button class=\"ds-btn-secondary\">Ask the assistant</button>",
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; height: 36px; padding: 0 14px; border: 0; border-radius: 0.375rem; background: #171718; color: #ededee; box-shadow: inset 0 0 0 1px #2e2e31; font: 500 14px/1 Inter, 'Segoe UI', system-ui, sans-serif; cursor: pointer; transition: background 150ms ease-out, box-shadow 150ms ease-out; } .ds-btn-secondary:hover { background: #202022; box-shadow: inset 0 0 0 1px #3d3d41; } .ds-btn-secondary:focus-visible { outline: 2px solid #38d5e6; outline-offset: 2px; }"
+    },
+    {
+      "name": "Danger Button",
+      "kind": "button",
+      "refersTo": "button-danger",
+      "description": "Destructive action on the alarm channel tint.",
+      "html": "<button class=\"ds-btn-danger\">Deactivate</button>",
+      "css": ".ds-btn-danger { display: inline-flex; align-items: center; height: 36px; padding: 0 14px; border: 0; border-radius: 0.375rem; background: #2e1b1c; color: #ff6b6b; box-shadow: inset 0 0 0 1px #6a3233; font: 500 14px/1 Inter, 'Segoe UI', system-ui, sans-serif; cursor: pointer; transition: background 150ms ease-out; } .ds-btn-danger:hover { background: #3b2224; } .ds-btn-danger:focus-visible { outline: 2px solid #38d5e6; outline-offset: 2px; }"
+    },
+    {
+      "name": "Field and Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Uppercase condensed label over a sunken control that lights cyan on focus.",
+      "html": "<label class=\"ds-field\"><span class=\"ds-field-label\">Email</span><input class=\"ds-input\" placeholder=\"dr.rao@careflow.demo\" /></label>",
+      "css": ".ds-field { display: block; } .ds-field-label { display: block; margin-bottom: 6px; font: 600 11px/1.4 'Barlow Semi Condensed', 'Arial Narrow', system-ui, sans-serif; letter-spacing: 0.1em; text-transform: uppercase; color: #a3a3a8; } .ds-input { display: block; width: 100%; height: 36px; padding: 6px 12px; border: 1px solid #2e2e31; border-radius: 0.375rem; background: #0a0a0b; color: #ededee; caret-color: #38d5e6; font: 400 14px/1.5 Inter, 'Segoe UI', system-ui, sans-serif; transition: border-color 150ms, box-shadow 150ms, background 150ms; } .ds-input::placeholder { color: #85858b; } .ds-input:hover { border-color: #3d3d41; } .ds-input:focus { outline: none; border-color: #38d5e6; background: #0f0f10; box-shadow: 0 0 0 2px rgba(56,213,230,0.25); }"
+    },
+    {
+      "name": "Status Tag",
+      "kind": "chip",
+      "refersTo": "status-tag-high",
+      "description": "Rectangular lettered tag with a square lamp, one per channel.",
+      "html": "<span class=\"ds-tag ds-tag-high\"><span class=\"ds-lamp\"></span>Critical</span> <span class=\"ds-tag ds-tag-ok\"><span class=\"ds-lamp\"></span>Active</span> <span class=\"ds-tag ds-tag-warn\"><span class=\"ds-lamp\"></span>Admitted</span>",
+      "css": ".ds-tag { display: inline-flex; align-items: center; gap: 6px; padding: 1px 6px; border-radius: 0.25rem; font: 600 11px/18px 'Barlow Semi Condensed', 'Arial Narrow', system-ui, sans-serif; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; } .ds-lamp { width: 6px; height: 6px; background: currentColor; } .ds-tag-high { background: #2e1b1c; color: #ff6b6b; box-shadow: inset 0 0 0 1px #6a3233; } .ds-tag-ok { background: #162a20; color: #43de8c; box-shadow: inset 0 0 0 1px #235e3f; } .ds-tag-warn { background: #2d2618; color: #f4c34a; box-shadow: inset 0 0 0 1px #665326; }"
+    },
+    {
+      "name": "Panel",
+      "kind": "card",
+      "refersTo": "panel",
+      "description": "A flat plane behind a hairline, headed by a channel label; no shadow.",
+      "html": "<section class=\"ds-panel\"><header class=\"ds-panel-head\"><h2>Recent discharges · 5</h2></header><div class=\"ds-panel-body\">Last 30 days · check readmission risk</div></section>",
+      "css": ".ds-panel { border: 1px solid #1f1f21; border-radius: 0.5rem; background: #0f0f10; color: #ededee; } .ds-panel-head { padding: 10px 16px; border-bottom: 1px solid #1f1f21; } .ds-panel-head h2 { margin: 0; font: 600 13px/1.25 'Barlow Semi Condensed', 'Arial Narrow', system-ui, sans-serif; letter-spacing: 0.08em; text-transform: uppercase; color: #cbcbcf; } .ds-panel-body { padding: 16px; font: 400 12px/1.5 Inter, system-ui, sans-serif; color: #a3a3a8; }"
+    },
+    {
+      "name": "Channel Strip",
+      "kind": "custom",
+      "refersTo": "channel-cell",
+      "description": "Signature instrument: flush channel cells sharing 1px rules, coloured label and top rule, near-white 60px numeric, state lamp, sweep on refresh.",
+      "html": "<div class=\"ds-strip\"><a class=\"ds-cell\" style=\"--ch:#43de8c\"><span class=\"ds-rule\"></span><span class=\"ds-sweep\"></span><div class=\"ds-cell-row\"><span class=\"ds-cell-label\">Inpatients</span><span class=\"ds-state\"><span class=\"ds-state-lamp\"></span>Live</span></div><div class=\"ds-cell-value\"><span class=\"ds-num\">12</span><span class=\"ds-unit\">patients</span></div><div class=\"ds-cell-ctx\">0 discharged in the last 7 days</div></a><a class=\"ds-cell\" style=\"--ch:#ff6b6b\"><span class=\"ds-rule\"></span><span class=\"ds-sweep\"></span><div class=\"ds-cell-row\"><span class=\"ds-cell-label\">Critical results</span><span class=\"ds-state\"><span class=\"ds-state-lamp\"></span>Live</span></div><div class=\"ds-cell-value\"><span class=\"ds-num\">4</span><span class=\"ds-unit\">results</span></div><div class=\"ds-cell-ctx\">Last 7 days · 65 abnormal</div></a></div>",
+      "css": ".ds-strip { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 1px; overflow: hidden; border: 1px solid #1f1f21; border-radius: 0.25rem; background: #1f1f21; } .ds-cell { position: relative; display: block; overflow: hidden; padding: 14px 16px 12px; background: #0f0f10; color: #ededee; text-decoration: none; cursor: pointer; transition: background 150ms; } .ds-cell:hover { background: #171718; } .ds-cell:focus-visible { outline: 2px solid #38d5e6; outline-offset: 2px; } .ds-rule { position: absolute; left: 0; right: 0; top: 0; height: 1px; background: var(--ch); } .ds-sweep { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, transparent 0%, transparent 82%, color-mix(in oklab, var(--ch) 18%, transparent) 97%, var(--ch) 99.4%, transparent 100%); animation: ds-sweep 1.1s cubic-bezier(0.16,1,0.3,1) both; } @keyframes ds-sweep { from { transform: translateX(-100%); opacity: 0; } 10% { opacity: 1; } to { transform: translateX(100%); opacity: 0; } } .ds-cell-row { display: flex; height: 20px; align-items: center; justify-content: space-between; gap: 8px; } .ds-cell-label { font: 600 13px/1 'Barlow Semi Condensed', 'Arial Narrow', system-ui, sans-serif; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ch); } .ds-state { display: flex; align-items: center; gap: 6px; font: 600 11px/1 'Barlow Semi Condensed', 'Arial Narrow', system-ui, sans-serif; letter-spacing: 0.12em; text-transform: uppercase; color: #a3a3a8; } .ds-state-lamp { width: 6px; height: 6px; background: #43de8c; } .ds-cell-value { display: flex; align-items: flex-end; gap: 8px; margin-top: 8px; } .ds-num { font: 600 60px/0.85 'Barlow Semi Condensed', 'Arial Narrow', system-ui, sans-serif; font-variant-numeric: tabular-nums; color: #ededee; } .ds-unit { margin-bottom: 2px; font: 600 13px/1 'Barlow Semi Condensed', 'Arial Narrow', system-ui, sans-serif; letter-spacing: 0.08em; text-transform: uppercase; color: #a3a3a8; } .ds-cell-ctx { margin-top: 10px; font: 400 12px/1.5 Inter, system-ui, sans-serif; color: #a3a3a8; } @media (prefers-reduced-motion: reduce) { .ds-sweep { animation-duration: 0.01ms; } }"
+    },
+    {
+      "name": "Alarm Bar",
+      "kind": "custom",
+      "refersTo": "status-tag-high",
+      "description": "Critical results band, ordered by distance outside the reference range, with a 2 Hz high-priority lamp.",
+      "html": "<section class=\"ds-alarm\"><header class=\"ds-alarm-head\"><span class=\"ds-alarm-lamp\"></span><span class=\"ds-alarm-title\">Critical</span><span class=\"ds-alarm-count\">4</span></header><a class=\"ds-alarm-item\"><span class=\"ds-alarm-val\">GLU 498 mg/dL</span><span class=\"ds-alarm-who\">Meena Kapoor <code>P1026</code><br><small>ref 70–140 · 28 h ago</small></span></a></section>",
+      "css": ".ds-alarm { overflow: hidden; border: 1px solid #6a3233; border-radius: 0.25rem; background: #2e1b1c; } .ds-alarm-head { display: flex; align-items: center; gap: 12px; padding: 8px 16px; border-bottom: 1px solid #6a3233; } .ds-alarm-lamp { width: 10px; height: 10px; background: #ff6b6b; animation: ds-blink 0.5s steps(1, end) infinite; } @keyframes ds-blink { 0%, 50% { opacity: 1; } 50.01%, 100% { opacity: 0.3; } } .ds-alarm-title { font: 700 14px/1 'Barlow Semi Condensed', 'Arial Narrow', system-ui, sans-serif; letter-spacing: 0.12em; text-transform: uppercase; color: #ff6b6b; } .ds-alarm-count { font: 700 14px/1 'Barlow Semi Condensed', system-ui, sans-serif; font-variant-numeric: tabular-nums; color: #ededee; } .ds-alarm-item { display: flex; align-items: flex-start; gap: 12px; padding: 10px 16px; color: #ededee; text-decoration: none; transition: background 150ms; } .ds-alarm-item:hover { background: #3b2224; } .ds-alarm-item:focus-visible { outline: 2px solid #38d5e6; outline-offset: 2px; } .ds-alarm-val { font: 700 18px/1.25 'Barlow Semi Condensed', 'Arial Narrow', system-ui, sans-serif; text-transform: uppercase; font-variant-numeric: tabular-nums; color: #ff6b6b; } .ds-alarm-who { font: 500 13px/1.25 Inter, system-ui, sans-serif; } .ds-alarm-who code { font: 11px ui-monospace, monospace; color: #a3a3a8; } .ds-alarm-who small { font-size: 11px; font-weight: 400; color: #cbcbcf; } @media (prefers-reduced-motion: reduce) { .ds-alarm-lamp { animation: none; } }"
+    },
+    {
+      "name": "Navigation Rail",
+      "kind": "nav",
+      "refersTo": "tab-key-selected",
+      "description": "Rail-black navigation; the active item is raised with a cyan icon and a square cyan lamp.",
+      "html": "<nav class=\"ds-rail\"><div class=\"ds-rail-group\">Care</div><a class=\"ds-rail-item is-active\"><svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/></svg><span>Patients</span><i></i></a><a class=\"ds-rail-item\"><svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"3\" y=\"4\" width=\"18\" height=\"18\" rx=\"2\"/><path d=\"M16 2v4M8 2v4M3 10h18\"/></svg><span>Appointments</span><i></i></a></nav>",
+      "css": ".ds-rail { width: 240px; padding: 0 10px 16px; background: #040404; border-right: 1px solid #1f1f21; } .ds-rail-group { padding: 20px 10px 6px; font: 600 11px/1 'Barlow Semi Condensed', 'Arial Narrow', system-ui, sans-serif; letter-spacing: 0.14em; text-transform: uppercase; color: #85858b; } .ds-rail-item { display: flex; align-items: center; gap: 10px; margin-top: 1px; padding: 7px 10px; border-radius: 0.375rem; font: 400 13px/1.4 Inter, system-ui, sans-serif; color: #a3a3a8; text-decoration: none; cursor: pointer; transition: background 150ms, color 150ms; } .ds-rail-item svg { color: #85858b; flex-shrink: 0; } .ds-rail-item span { flex: 1; } .ds-rail-item i { width: 6px; height: 6px; background: #38d5e6; opacity: 0; } .ds-rail-item:hover { background: #0f0f10; color: #ededee; } .ds-rail-item:focus-visible { outline: 2px solid #38d5e6; outline-offset: 2px; } .ds-rail-item.is-active { background: #171718; color: #ededee; } .ds-rail-item.is-active svg { color: #38d5e6; } .ds-rail-item.is-active i { opacity: 1; }"
+    },
+    {
+      "name": "Advisory Band",
+      "kind": "custom",
+      "refersTo": "advisory-band",
+      "description": "Standing, non-dismissible synthetic-data notice under the top bar.",
+      "html": "<div class=\"ds-advisory\" role=\"note\"><span></span><p>Synthetic demonstration data · decision support only, not for clinical use</p></div>",
+      "css": ".ds-advisory { display: flex; align-items: center; gap: 10px; padding: 6px 24px; background: #2d2618; border-bottom: 1px solid #665326; } .ds-advisory span { width: 8px; height: 8px; flex-shrink: 0; background: #f4c34a; } .ds-advisory p { margin: 0; font: 600 12px/1.4 'Barlow Semi Condensed', 'Arial Narrow', system-ui, sans-serif; letter-spacing: 0.08em; text-transform: uppercase; color: #f4c34a; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Bedside Monitor",
+    "overview": "CareFlow AI is drawn as a central monitoring station. The scene is a clinician glancing between patients beside monitor-adjacent equipment, so the field is matte black, the planes are flat, and nothing on screen is lit unless it means something. Every figure is a channel at a fixed position: a condensed uppercase label in its clinical colour, a near-white monitor-scale numeric in tabular figures, and a quiet line of context beneath. Prose and tables recede into a neutral sans so the channels read first.\n\nDensity is high but ordered. Instruments are built from flush cells that share 1px rules rather than floating as separate cards, and the grid never moves: when data refreshes a thin sweep line crosses each channel and changed values settle in place. Colour is never decoration. One channel table supplies every hue on screen, and each hue carries exactly one meaning, so a red lamp is an alarm and nothing else.\n\nThe world refuses the SaaS dashboard grammar: same-size KPI cards with icon tiles, gradient text, decorative blur, soft pill tags and card shadows. Honesty about state is part of the surface: every value declares whether it is live, stale, untimed or withheld, and every time is labelled with its zone.",
+    "keyCharacteristics": [
+      "Matte black field with neutral greys of near-equal RGB, never blue slate; `color-scheme: dark`.",
+      "One channel table (cyan, green, yellow, red, violet) is the only source of hue.",
+      "Depth by 1px rules; only floating layers cast a shadow.",
+      "Barlow Semi Condensed for channel labels, headings and numerics; Inter for prose and tables.",
+      "Small radii, rectangular tags, square lamps.",
+      "One authored motion: the monitor sweep with value-settle; a 2 Hz alarm lamp for high priority."
+    ],
+    "rules": [
+      { "name": "The Channel Table Rule", "body": "Hue exists only in the channel table, and each hue has one meaning. If a colour is not accent, info, ok, warn, high or ai, it is a neutral.", "section": "colors" },
+      { "name": "The Near-White Value Rule", "body": "The label and the top rule carry the channel colour; the number stays near-white so it reads first. Colour arrives on a value only while it settles.", "section": "colors" },
+      { "name": "The Red Means Alarm Rule", "body": "Red marks a clinical alarm, a failure or a denial. Wrong model predictions render neutral, correct ones advisory cyan.", "section": "colors" },
+      { "name": "The Readout Face Rule", "body": "Anything a clinician compares or scans - labels, units, counts, times, codes on alarms - is set in Barlow Semi Condensed. Sentences never are.", "section": "typography" },
+      { "name": "The Tabular Rule", "body": "Tables, `<time>` and every `.tabular` value use tabular figures so digits align down a column and do not jitter on refresh.", "section": "typography" },
+      { "name": "The Shared Rule Rule", "body": "Instruments are flush cells sharing hairlines, never gapped cards with individual borders or shadows.", "section": "elevation" },
+      { "name": "The Only Floaters Cast Rule", "body": "A shadow means the layer is above the page. If it is not a modal, drawer or popover result list, it is flat.", "section": "elevation" }
+    ],
+    "dos": [
+      "**Do** take every hue from the channel table and use it for its one meaning; pair fills with the matching -tint and rules with the matching -edge.",
+      "**Do** build instruments from flush cells on a 1px gap over the rule colour inside a 0.25rem border.",
+      "**Do** keep numerics near-white in Barlow Semi Condensed with tabular figures; put the colour on the label and top rule.",
+      "**Do** declare each value's state (Live, Stale after 3 minutes, No timestamp, Not permitted) with a square lamp.",
+      "**Do** label every displayed time \"UTC\" while hospital time is UTC.",
+      "**Do** keep the synthetic-data advisory visible and non-dismissible under the top bar.",
+      "**Do** refresh in place with the sweep and value-settle; never reflow the grid on refresh.",
+      "**Do** honour reduced motion by stopping the alarm lamp and collapsing all animation."
+    ],
+    "donts": [
+      "**Don't** add hues outside the channel table or use neutral greys with a blue cast.",
+      "**Don't** use red for model error, wrong predictions or decoration.",
+      "**Don't** give resting panels, cards or buttons a shadow; shadows belong to modal, drawer and popover results only.",
+      "**Don't** build same-size KPI cards with icon tiles.",
+      "**Don't** place eyebrow labels above headings.",
+      "**Don't** use gradient text, decorative blur or glow; the risk scale is the only gradient because the ramp is the data.",
+      "**Don't** use pill-shaped tags or round lamps; tags are rectangular and lamps are square.",
+      "**Don't** flash anything other than a high-priority alarm lamp."
+    ]
+  }
+}
