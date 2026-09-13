@@ -35,7 +35,7 @@ DOCTORS = [
 
 # email, full name, role, doctor staff code, department code
 USERS = [
-    ("admin@careflow.demo", "Alex Morgan", "ADMIN", None, None),
+    ("admin@careflow.demo", "Hardik", "ADMIN", None, None),
     ("dr.rao@careflow.demo", "Dr. Ananya Rao", "DOCTOR", "D101", "GM"),
     ("dr.mensah@careflow.demo", "Dr. Kwame Mensah", "DOCTOR", "D201", "CARD"),
     ("nurse.kim@careflow.demo", "Jiwoo Kim, RN", "NURSE", None, "GM"),
