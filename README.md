@@ -77,7 +77,7 @@ Docker Compose.
 | LLM | Provider abstraction: Ollama/OpenAI-compatible (httpx), Anthropic (official SDK, Claude Opus 5 default), extractive fallback | Swap providers by configuration |
 | Parsing | pypdf, python-docx | PDF/TXT/MD/DOCX ingestion |
 | Observability | JSON logs, Prometheus client, trace table | Latency per AI stage, tokens, errors |
-| Tests | pytest (179 tests, real PostgreSQL), Vitest + Testing Library (13 tests) | |
+| Tests | pytest (181 tests, real PostgreSQL), Vitest + Testing Library (13 tests) | |
 | Packaging | uv, npm, Docker Compose (3 services) | |
 
 No separate vector database, queue or cache: they were not needed at this scale (see
@@ -241,6 +241,24 @@ switch on (`CAREFLOW_DEMO_PROTECTION` overrides this either way):
   `CAREFLOW_AI_QUERY_WINDOW_SECONDS` (30 per 10 minutes by default), protecting the free-tier LLM quota;
 * `/metrics` requires an administrator.
 
+**Free 512 MB instances (Render free).** The full backend peaks at about 680 MB, measured through sign-in,
+predictions and AI questions. Three settings bring a real uvicorn server to a measured **483 MB peak**, stable over
+repeated use:
+
+```env
+CAREFLOW_RERANKER_PROVIDER=none
+CAREFLOW_ML_EXPLAINER=tree_path
+CAREFLOW_MODEL_THREADS=1
+```
+
+What it costs, measured on this project: document search matches the benchmark's `hybrid` row instead of
+`hybrid_rerank` (Recall@1 0.909 vs 0.955, context precision 0.621 vs 0.835, abstention 0.75 vs 1.00; answer
+correctness and faithfulness unchanged), and readmission explanations use tree-path attributions instead of
+TreeSHAP (same top factor for 82% of the 110 scorable demo patients, same direction for 99% of shown factors,
+bar sizes within 15%). Risk values, access control and every other feature are identical. The patient page and the
+Model performance page say when the lighter settings are in use. Remove the three variables on a host with 1 GB
+or more to return to the evaluated configuration.
+
 Visitors can still add patients, notes and appointments. To return the demo to its original state,
 point `CAREFLOW_DATABASE_URL` at an empty database and restart (the seed runs only when the database is empty).
 
@@ -250,7 +268,7 @@ on the Vercel URL as each demo account, open patient **P1024** as Dr. Rao, and a
 
 ## Testing & evaluation
 
-Backend tests run against a real PostgreSQL test database with a seeded mini-hospital (179 tests: auth,
+Backend tests run against a real PostgreSQL test database with a seeded mini-hospital (181 tests: auth,
 RBAC/row-level access, patients, appointments, clinical writes, documents/ingestion, ML, RAG, routing,
 prompt injection, AI integration for SQL / RAG / ML / SQL+RAG / SQL+ML / SQL+RAG+ML / similarity):
 
@@ -323,7 +341,7 @@ Interpretation and caveats: [`docs/ml.md`](docs/ml.md), [`docs/rag.md`](docs/rag
 ## Repository layout
 
 ```
-backend/        FastAPI app (app/), Alembic migration, 179 tests, Dockerfile
+backend/        FastAPI app (app/), Alembic migration, 181 tests, Dockerfile
 frontend/       Next.js app (app/, components/, lib/), Vitest tests, Dockerfile
 ml/             UCI preprocessing, training, evaluation reports, versioned artifacts
 rag/            synthetic knowledge base (source → dist), benchmark and evaluation runner

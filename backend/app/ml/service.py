@@ -14,8 +14,9 @@ import pandas as pd
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.core.config import get_settings
 from app.core.errors import ServiceUnavailableError, ValidationFailedError
-from app.ml.explain import grouped_contributions
+from app.ml.explain import explanation_method, grouped_contributions
 from app.ml.feature_contract import FEATURE_LABELS, LOS_FEATURES, READMISSION_FEATURES, FeatureSet, validate_features
 from app.ml.features import FeatureBuild, los_features, readmission_features, reference_admission
 from app.ml.registry import LoadedModel, get_registry, model_version_row
@@ -42,8 +43,9 @@ def _display(value) -> str:
     return str(value).replace("_", " ") if value is not None else "missing"
 
 
-def _factors(model: LoadedModel, X: pd.DataFrame, clean: dict, top: int = 6) -> tuple[list[FactorOut], str]:
-    frame, _, space = grouped_contributions(model.payload["pipeline"], X, model.payload.get("background"))
+def _factors(model: LoadedModel, X: pd.DataFrame, clean: dict, top: int = 6) -> tuple[list[FactorOut], str, str]:
+    pipeline, method = model.payload["pipeline"], get_settings().ml_explainer
+    frame, _, space = grouped_contributions(pipeline, X, model.payload.get("background"), method)
     row = frame.iloc[0].sort_values(key=lambda s: -s.abs())
     factors = []
     for feature, value in row.head(top).items():
@@ -55,7 +57,7 @@ def _factors(model: LoadedModel, X: pd.DataFrame, clean: dict, top: int = 6) -> 
             contribution=round(float(value), 4), direction="up" if value > 0 else "down",
             text=f"{FEATURE_LABELS.get(feature, feature)} ({_display(clean.get(feature))}) {direction} "
                  f"the model's prediction"))
-    return factors, space
+    return factors, space, explanation_method(pipeline, method)
 
 
 def _persist(db: Session, model: LoadedModel, patient: Patient, fb: FeatureBuild, kind: str, value: float,
@@ -110,7 +112,7 @@ def predict_readmission(db: Session, patient: Patient, user_id: int | None = Non
     try:
         raw = float(model.payload["pipeline"].predict_proba(X)[0, 1])
         prob = float(model.payload["calibrator"].predict([raw])[0])
-        factors, space = _factors(model, X, clean)
+        factors, space, method = _factors(model, X, clean)
     except Exception as exc:
         COMPONENT_ERRORS.labels("ml_inference").inc()
         logger.exception("readmission inference failed")
@@ -129,6 +131,7 @@ def predict_readmission(db: Session, patient: Patient, user_id: int | None = Non
         model_name=model.name, model_version=model.version, model_algorithm=model.metadata["algorithm"],
         trained_at=model.trained_at, predicted_at=row.created_at, reference=_reference(fb),
         features=clean, missing_features=missing, factors=factors, explanation_space=space,
+        explanation_method=method,
         in_training_population=fb.in_training_population, notes=fb.notes,
         context={"base_rate": bands["moderate"], "high_risk_cutoff": bands["high"],
                  "test_roc_auc": test["roc_auc"], "test_pr_auc": test["pr_auc"]},
@@ -145,7 +148,7 @@ def predict_length_of_stay(db: Session, patient: Patient, user_id: int | None = 
     t0 = time.perf_counter()
     try:
         days = float(model.payload["pipeline"].predict(X)[0])
-        factors, space = _factors(model, X, clean)
+        factors, space, method = _factors(model, X, clean)
     except Exception as exc:
         COMPONENT_ERRORS.labels("ml_inference").inc()
         logger.exception("LOS inference failed")
@@ -162,8 +165,8 @@ def predict_length_of_stay(db: Session, patient: Patient, user_id: int | None = 
         interval=[round(low, 1), round(high, 1)], model_name=model.name, model_version=model.version,
         model_algorithm=model.metadata["algorithm"], trained_at=model.trained_at, predicted_at=row.created_at,
         reference=_reference(fb), features=clean, missing_features=missing, factors=factors,
-        explanation_space=space, in_training_population=fb.in_training_population, notes=fb.notes,
-        context={"test_mae_days": test["mae"], "test_r2": test["r2"],
+        explanation_space=space, explanation_method=method, in_training_population=fb.in_training_population,
+        notes=fb.notes, context={"test_mae_days": test["mae"], "test_r2": test["r2"],
                  "interval_coverage_target": pi["coverage_target"]},
         limitations=model.metadata["limitations"], disclaimer=DISCLAIMER)
 

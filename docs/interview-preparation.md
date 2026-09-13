@@ -232,7 +232,7 @@ stay loadable for rollback and for explaining past predictions.
 * **Latency:** measured per stage (reranking ~0.8 s CPU, local 12B LLM tens of seconds, everything else ~10–100 ms). Levers: fewer rerank candidates, GPU, smaller/faster LLM, streaming, caching.
 * **Failures:** each dependency degrades independently — no embeddings → keyword search; no reranker → fused order + lexical gate; LLM down/timeout → extractive answer with a warning; missing model → 503 with guidance; ingestion error → document `failed` with a safe message.
 * **Security:** Argon2id, JWT in httpOnly SameSite cookie + CSRF header, rate limiting, RBAC + row-level policy, upload validation, safe errors, audit trail, non-root containers.
-* **Deployment:** Docker Compose (pgvector, backend with baked-in models and migrations-on-start, Next.js standalone). For production: managed Postgres, secrets manager, HTTPS, Kubernetes or ECS, CI running the 179-test suite and the RAG benchmark as a regression gate.
+* **Deployment:** Docker Compose (pgvector, backend with baked-in models and migrations-on-start, Next.js standalone). For production: managed Postgres, secrets manager, HTTPS, Kubernetes or ECS, CI running the 181-test suite and the RAG benchmark as a regression gate.
 
 ---
 

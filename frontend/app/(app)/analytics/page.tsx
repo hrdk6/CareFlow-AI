@@ -164,6 +164,7 @@ interface RagResult { status?: string; generated_at: string; k: number; question
 
 function RagEval() {
   const { data, error } = useApi<RagResult>("/ml/evaluation/rag");
+  const { data: server } = useApi<{ reranker: string }>("/ai/status");
   if (error) return <ErrorState error={error} />;
   if (!data) return <Skeleton lines={6} />;
   if (data.status === "not_run") return <Notice tone="info">Run <code>python -m rag.evaluation.run_eval</code> to produce retrieval results.</Notice>;
@@ -173,6 +174,12 @@ function RagEval() {
   const cats = Object.keys(data.modes[modes[0]].by_category as object);
   return (
     <div className="space-y-4">
+      {server?.reranker === "none" && (
+        <Notice tone="info">
+          This server runs without the reranker to fit a small hosting plan, so its document search matches the{" "}
+          <b>hybrid</b> column below rather than <b>hybrid_rerank</b>.
+        </Notice>
+      )}
       <Card title="Vector vs keyword vs hybrid vs hybrid + reranking" subtitle={`${data.questions} benchmark questions (${data.answerable} answerable) · top-k ${data.k} · generated ${data.generated_at}`} bodyClassName="p-0">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">

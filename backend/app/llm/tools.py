@@ -370,7 +370,8 @@ def _prediction_text(pred, ref: str | None) -> str:
     factors = "\n".join(f"- {f.label} = {f.value}: contribution {f.contribution:+.4f} "
                         f"({'towards higher' if f.direction == 'up' else 'towards lower'} prediction)" for f in pred.factors)
     notes = " ".join(pred.notes)
-    return (f"{head}{scored}\nModel factors (additive SHAP attributions, {pred.explanation_space} scale; they describe "
+    attribution = "tree-path attributions approximating SHAP" if pred.explanation_method == "tree_path" else "SHAP attributions"
+    return (f"{head}{scored}\nModel factors (additive {attribution}, {pred.explanation_space} scale; they describe "
             f"the model, not causes):\n{factors}" + (f"\nNotes: {notes}" if notes else "")
             + f"\nLimitations: {' '.join(pred.limitations)}")
 

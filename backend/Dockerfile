@@ -5,8 +5,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy \
-    UV_PYTHON_DOWNLOADS=never
+    UV_PYTHON_DOWNLOADS=never \
+    MALLOC_ARENA_MAX=2
 
+# MALLOC_ARENA_MAX=2 stops glibc giving every worker thread its own heap, which inflates memory on small hosts.
 # libgomp: OpenMP runtime needed by XGBoost and ONNX Runtime.
 RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 curl \
     && rm -rf /var/lib/apt/lists/*

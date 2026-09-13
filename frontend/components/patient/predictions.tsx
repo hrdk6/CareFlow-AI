@@ -59,7 +59,11 @@ export function RiskCard({ patientId, compact }: { patientId: number; compact?: 
           {!p.in_training_population && <div className="mt-2"><Notice tone="warning">Outside the model&apos;s training population (diabetic inpatients).</Notice></div>}
           {!compact && p.notes.map((n) => <div key={n} className="mt-2"><Notice tone="info" icon={<Info className="h-3.5 w-3.5" />}>{n}</Notice></div>)}
           <ModelMeta p={p}>
-            <p>Factor sizes are SHAP contributions on the {p.explanation_space?.replace("_", " ")} scale.</p>
+            <p>
+              {p.explanation_method === "tree_path"
+                ? "Factor sizes are tree-path contributions on the probability scale, a lighter approximation of SHAP used on this server to save memory."
+                : `Factor sizes are SHAP contributions on the ${p.explanation_space?.replace("_", " ")} scale.`}
+            </p>
           </ModelMeta>
         </>
       )}

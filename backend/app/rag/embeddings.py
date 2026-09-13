@@ -49,7 +49,10 @@ class FastEmbedService:
                 try:
                     from fastembed import TextEmbedding
 
-                    self._model = TextEmbedding(self.name, cache_dir=self._cache_dir)
+                    from app.core.config import get_settings
+
+                    self._model = TextEmbedding(self.name, cache_dir=self._cache_dir,
+                                                threads=get_settings().model_threads)
                 except Exception as exc:
                     COMPONENT_ERRORS.labels("embedding").inc()
                     logger.exception("embedding model load failed")

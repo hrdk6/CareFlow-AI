@@ -43,6 +43,7 @@ class PredictionOut(BaseModel):
     missing_features: list[str] = []
     factors: list[FactorOut] = []
     explanation_space: str | None = None
+    explanation_method: str | None = None  # "shap" (exact) or "tree_path" (approximation used on small hosts)
     in_training_population: bool = True
     notes: list[str] = []
     context: dict = {}

@@ -77,7 +77,7 @@ export interface Prediction {
   model_algorithm: string | null; trained_at: string | null; predicted_at: string | null;
   reference: { admission_id: number; admitted_at: string; discharged_at: string | null; status: string; reason: string;
     actual_length_of_stay_days: number | null } | null;
-  features: Record<string, unknown>; missing_features: string[]; factors: Factor[]; explanation_space: string | null;
+  features: Record<string, unknown>; missing_features: string[]; factors: Factor[]; explanation_space: string | null; explanation_method?: string | null;
   in_training_population: boolean; notes: string[]; context: Record<string, number>; limitations: string[]; disclaimer: string;
 }
 export interface SimilarPatient {

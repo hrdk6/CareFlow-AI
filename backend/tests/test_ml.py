@@ -93,6 +93,30 @@ def test_explanations_are_additive():
     assert set(frame.columns) == set(READMISSION_FEATURES.all)  # one-hot columns summed back per feature
 
 
+def test_tree_path_explanations_are_additive_and_close_to_shap():
+    """The light explainer for 512 MB hosts must add up to the forest's probability and rank factors like SHAP."""
+    model = get_registry().get("readmission_30d")
+    pipeline = model.payload["pipeline"]
+    clean, _ = validate_features(READMISSION_FEATURES, {**BASE, "number_inpatient": 4, "number_emergency": 2})
+    X = pd.DataFrame([clean], columns=list(READMISSION_FEATURES.all))
+    fast, base, space = grouped_contributions(pipeline, X, model.payload.get("background"), "tree_path")
+    exact, _, _ = grouped_contributions(pipeline, X, model.payload.get("background"))
+    assert space == "probability"
+    assert abs(fast.iloc[0].sum() + base[0] - pipeline.predict_proba(X)[0, 1]) < 1e-6
+    top = lambda frame: set(frame.iloc[0].abs().sort_values(ascending=False).index[:4])  # noqa: E731
+    assert len(top(fast) & top(exact)) >= 2
+
+
+def test_risk_endpoint_reports_the_explainer_in_use(client, auth, demo_patient, monkeypatch):
+    from app.core.config import get_settings
+
+    monkeypatch.setattr(get_settings(), "ml_explainer", "tree_path")
+    body = client.get(f"/patients/{demo_patient.id}/risk", headers=auth("doctor")).json()
+    assert body["explanation_method"] == "tree_path" and body["factors"]
+    los = client.get(f"/patients/{demo_patient.id}/length-of-stay", headers=auth("doctor")).json()
+    assert los["explanation_method"] == "shap"  # XGBoost keeps its exact native TreeSHAP
+
+
 def test_db_feature_engineering_for_demo_patient(db, demo_patient):
     adm = reference_admission(db, demo_patient.id)
     fb = readmission_features(db, demo_patient, adm)

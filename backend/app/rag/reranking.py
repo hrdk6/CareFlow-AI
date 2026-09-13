@@ -41,7 +41,10 @@ class CrossEncoderReranker:
                 try:
                     from fastembed.rerank.cross_encoder import TextCrossEncoder
 
-                    self._model = TextCrossEncoder(self.name, cache_dir=self._cache_dir)
+                    from app.core.config import get_settings
+
+                    self._model = TextCrossEncoder(self.name, cache_dir=self._cache_dir,
+                                                   threads=get_settings().model_threads)
                 except Exception as exc:
                     COMPONENT_ERRORS.labels("reranker").inc()
                     raise RerankerError(f"Reranker '{self.name}' could not be loaded") from exc

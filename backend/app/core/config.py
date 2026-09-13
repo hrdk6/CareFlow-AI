@@ -54,6 +54,13 @@ class Settings(BaseSettings):
     model_cache_dir: Path = BACKEND_DIR / ".models"
     reranker_provider: Literal["cross_encoder", "none"] = "cross_encoder"
     reranker_model: str = "Xenova/ms-marco-MiniLM-L-6-v2"
+    # Readmission explanations: exact TreeSHAP ("shap"), or tree-path attributions ("tree_path") that skip the
+    # ~90 MB shap library on 512 MB hosts. Measured against SHAP on the 110 scorable demo patients: same top factor
+    # for 82%, same direction for 99% of shown factors, bar sizes within 15% on average. Risk values are identical.
+    ml_explainer: Literal["shap", "tree_path"] = "shap"
+    # CPU threads for the ONNX embedding/reranker sessions; empty = all cores. 1 suits small shared-CPU instances
+    # and trims per-thread buffers.
+    model_threads: int | None = None
     retrieval_candidates: int = 30      # per retriever, before fusion
     rerank_candidates: int = 30         # fused candidates sent to the cross-encoder
     context_chunks: int = 6             # chunks that reach the LLM
