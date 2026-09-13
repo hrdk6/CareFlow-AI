@@ -159,7 +159,10 @@ function LoginForm() {
         <DemoAccount account={admin} selected={email === admin.email} onSelect={() => setEmail(admin.email)} className="w-full" />
       </div>
 
-      <p className="mt-6 text-center text-xs text-neutral-500">All demo accounts use the demo password from the project README.</p>
+      <p className="mt-6 text-center text-xs text-neutral-500">
+        Doctor, nurse and front desk accounts use the demo password from the project README. The administrator
+        account has its own password.
+      </p>
     </>
   );
 }

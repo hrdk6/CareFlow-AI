@@ -29,10 +29,11 @@ def _error(status: int, code: str, message: str, details: dict | None = None) ->
 
 def _sync_rbac() -> None:
     """Apply the RBAC policy from code to the database (grants live in tables, the policy is code)."""
-    from app.auth.provisioning import sync_role_permissions
+    from app.auth.provisioning import sync_admin_password, sync_role_permissions
 
     with get_session_factory()() as db:
         sync_role_permissions(db)
+        sync_admin_password(db)
         db.commit()
 
 

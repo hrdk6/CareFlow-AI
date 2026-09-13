@@ -262,3 +262,16 @@ def test_public_demo_limits_metrics_to_administrators(client, auth, monkeypatch)
     assert client.get("/metrics").status_code == 401
     assert client.get("/metrics", headers=auth("doctor")).status_code == 403
     assert client.get("/metrics", headers=auth("admin")).status_code == 200
+
+
+def test_private_admin_password_is_applied_once(db, monkeypatch):
+    from app.auth.provisioning import ADMIN_EMAIL, sync_admin_password
+    from app.core.config import get_settings
+    from app.core.security import verify_password
+    from app.models import User
+
+    monkeypatch.setattr(get_settings(), "admin_password", "Owner-Only-Password-99")
+    assert sync_admin_password(db) is True
+    admin = db.scalar(select(User).where(User.email == ADMIN_EMAIL))
+    assert verify_password(admin.password_hash, "Owner-Only-Password-99")
+    assert sync_admin_password(db) is False  # already applied: no rewrite on every restart

@@ -24,7 +24,7 @@
 * **Browser sessions:** the token is set as an `httpOnly`, `SameSite=Strict` cookie (`Secure` when `CAREFLOW_COOKIE_SECURE=true`). JavaScript never sees it. API clients may send `Authorization: Bearer`.
 * **CSRF:** cookie-authenticated `POST/PATCH/DELETE` must carry `X-CareFlow-CSRF: 1`; browsers cannot add custom headers cross-site without a CORS preflight, which the CORS policy (explicit origins) rejects.
 * **Brute force:** 5 failed logins per IP+email per 15 minutes → HTTP 429 (`core/ratelimit.py`). Failures are audited with a hashed email reference.
-* **Public demo protection** (on when `CAREFLOW_ENVIRONMENT=production`, or `CAREFLOW_DEMO_PROTECTION=true`): the shared demo accounts cannot change their password or have their role, doctor link or activation changed (HTTP 403, audited), so one visitor cannot lock the others out; each user's AI questions are rate limited (HTTP 429, default 30 per 10 minutes) to protect the LLM quota; `/metrics` requires `system:observe`.
+* **Public demo protection** (on when `CAREFLOW_ENVIRONMENT=production`, or `CAREFLOW_DEMO_PROTECTION=true`): the shared demo accounts cannot change their password or have their role, doctor link or activation changed (HTTP 403, audited), so one visitor cannot lock the others out; each user's AI questions are rate limited (HTTP 429, default 30 per 10 minutes) to protect the LLM quota; `/metrics` requires `system:observe`. `CAREFLOW_ADMIN_PASSWORD` gives the seeded administrator a private password, applied at every startup, so visitors use the doctor, nurse and reception accounts while only the owner can manage accounts and documents.
 
 ## 3. Authorization
 

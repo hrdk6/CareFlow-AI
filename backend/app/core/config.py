@@ -37,6 +37,9 @@ class Settings(BaseSettings):
     # keep their password, role and activation, and each user's AI questions are rate limited to protect the
     # free-tier LLM quota. Unset means on in production only.
     demo_protection: bool | None = None
+    # A private password for the seeded administrator (admin@careflow.demo), applied at every startup. The doctor,
+    # nurse and reception accounts keep the shared CAREFLOW_DEMO_PASSWORD. Empty = the administrator shares it too.
+    admin_password: str = Field(default="", repr=False)
     ai_queries_per_window: int = 30
     ai_query_window_seconds: int = 600
 
@@ -131,6 +134,8 @@ class Settings(BaseSettings):
         return self.environment == "production" if self.demo_protection is None else self.demo_protection
 
     def validate_runtime(self) -> None:
+        if self.admin_password and len(self.admin_password) < 10:
+            raise RuntimeError("CAREFLOW_ADMIN_PASSWORD must be at least 10 characters")
         if self.environment != "test" and len(self.jwt_secret) < 32:
             raise RuntimeError(
                 "CAREFLOW_JWT_SECRET must be set to a random value of at least 32 characters "

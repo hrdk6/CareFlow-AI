@@ -72,6 +72,9 @@ def me(user: CurrentUser) -> UserOut:
 def change_password(body: ChangePasswordIn, user: CurrentUser, db: DB) -> Response:
     if get_settings().demo_protected and user.email in DEMO_EMAILS:
         audit("auth.password_change_blocked", user=user, outcome="denied")
+        if get_settings().admin_password and user.role.name == "ADMIN":
+            raise PermissionDeniedError("The administrator password is set in the server configuration "
+                                        "(CAREFLOW_ADMIN_PASSWORD). Change it there and restart the server.")
         raise PermissionDeniedError("Demo accounts keep their shared password so every visitor can sign in.")
     if not verify_password(user.password_hash, body.current_password):
         audit("auth.password_change_failed", user=user, outcome="denied")

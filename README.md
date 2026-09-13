@@ -77,7 +77,7 @@ Docker Compose.
 | LLM | Provider abstraction: Ollama/OpenAI-compatible (httpx), Anthropic (official SDK, Claude Opus 5 default), extractive fallback | Swap providers by configuration |
 | Parsing | pypdf, python-docx | PDF/TXT/MD/DOCX ingestion |
 | Observability | JSON logs, Prometheus client, trace table | Latency per AI stage, tokens, errors |
-| Tests | pytest (183 tests, real PostgreSQL), Vitest + Testing Library (13 tests) | |
+| Tests | pytest (184 tests, real PostgreSQL), Vitest + Testing Library (13 tests) | |
 | Packaging | uv, npm, Docker Compose (3 services) | |
 
 No separate vector database, queue or cache: they were not needed at this scale (see
@@ -101,7 +101,8 @@ docker compose up --build
 The backend container runs migrations, seeds the synthetic hospital and knowledge base on first start
 (idempotent), and serves the API. Open **http://localhost:3000** (API docs: http://localhost:8000/docs).
 
-Demo accounts — password `CareFlow-Demo-2026` (or your `CAREFLOW_DEMO_PASSWORD`):
+Demo accounts — password `CareFlow-Demo-2026` (or your `CAREFLOW_DEMO_PASSWORD`). If
+`CAREFLOW_ADMIN_PASSWORD` is set, the administrator signs in with that private password instead:
 
 | Email | Role |
 |---|---|
@@ -222,6 +223,7 @@ CAREFLOW_DATABASE_URL=<connection string from step 1>
 CAREFLOW_JWT_SECRET=<python -c "import secrets; print(secrets.token_urlsafe(48))">
 CAREFLOW_COOKIE_SECURE=true
 CAREFLOW_DEMO_PASSWORD=<the password visitors will use>
+CAREFLOW_ADMIN_PASSWORD=<a private password for admin@careflow.demo, only for you>
 CAREFLOW_LLM_PROVIDER=groq
 GROQ_API_KEY=<your Groq key>
 CAREFLOW_LLM_FALLBACK_PROVIDER=gemini
@@ -236,7 +238,8 @@ bakes the `/api` rewrite in at build time, so changing it later needs a redeploy
 switch on (`CAREFLOW_DEMO_PROTECTION` overrides this either way):
 
 * the five shared demo accounts cannot have their password, role, doctor link or activation changed, so one
-  visitor cannot lock the others out (administrators can still create and edit other accounts);
+  visitor cannot lock the others out; set `CAREFLOW_ADMIN_PASSWORD` so only you can sign in as administrator
+  (account management, documents, audit), while visitors keep full doctor, nurse and reception features;
 * each user may ask the assistant `CAREFLOW_AI_QUERIES_PER_WINDOW` questions every
   `CAREFLOW_AI_QUERY_WINDOW_SECONDS` (30 per 10 minutes by default), protecting the free-tier LLM quota;
 * `/metrics` requires an administrator.
@@ -268,7 +271,7 @@ on the Vercel URL as each demo account, open patient **P1024** as Dr. Rao, and a
 
 ## Testing & evaluation
 
-Backend tests run against a real PostgreSQL test database with a seeded mini-hospital (183 tests: auth,
+Backend tests run against a real PostgreSQL test database with a seeded mini-hospital (184 tests: auth,
 RBAC/row-level access, patients, appointments, clinical writes, documents/ingestion, ML, RAG, routing,
 prompt injection, AI integration for SQL / RAG / ML / SQL+RAG / SQL+ML / SQL+RAG+ML / similarity):
 
@@ -341,7 +344,7 @@ Interpretation and caveats: [`docs/ml.md`](docs/ml.md), [`docs/rag.md`](docs/rag
 ## Repository layout
 
 ```
-backend/        FastAPI app (app/), Alembic migration, 183 tests, Dockerfile
+backend/        FastAPI app (app/), Alembic migration, 184 tests, Dockerfile
 frontend/       Next.js app (app/, components/, lib/), Vitest tests, Dockerfile
 ml/             UCI preprocessing, training, evaluation reports, versioned artifacts
 rag/            synthetic knowledge base (source → dist), benchmark and evaluation runner
