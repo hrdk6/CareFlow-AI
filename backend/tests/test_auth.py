@@ -85,3 +85,10 @@ def test_security_headers_present(client):
     assert r.headers["x-content-type-options"] == "nosniff"
     assert r.headers["x-frame-options"] == "DENY"
     assert "x-request-id" in r.headers
+
+
+def test_root_and_readiness_answer_host_probes(client):
+    assert client.get("/").status_code == 200 and client.head("/").status_code == 200
+    assert client.head("/health").status_code == 200
+    ready = client.get("/health/ready").json()
+    assert set(ready["memory"]) == {"process_mb", "process_peak_mb", "container_mb", "container_peak_mb", "container_limit_mb"}

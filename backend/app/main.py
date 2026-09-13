@@ -16,6 +16,7 @@ from app.core.config import get_settings
 from app.core.errors import AppError
 from app.core.logging import configure_logging, request_id_var
 from app.db.session import get_engine, get_session_factory
+from app.observability.memory import memory_line, memory_snapshot
 from app.observability.middleware import RequestContextMiddleware
 
 logger = logging.getLogger("careflow")
@@ -40,19 +41,22 @@ def _warmup() -> None:
     try:
         from app.ml.registry import get_registry, sync_registry
 
+        logger.info("memory at startup: %s", memory_line())
         with get_session_factory()() as db:
             sync_registry(db)
             db.commit()
         for name in get_registry().active_versions():
             get_registry().get(name)
+        logger.info("memory after prediction models: %s", memory_line())
         s = get_settings()
         if s.environment != "test":
             from app.rag.embeddings import get_embedding_service
             from app.rag.reranking import get_reranker
 
             get_embedding_service().embed_query("warm up")
+            logger.info("memory after embedding model: %s", memory_line())
             get_reranker().score("warm up", ["warm up"])
-        logger.info("warmup complete")
+        logger.info("warmup complete; memory: %s", memory_line())
     except Exception:
         logger.exception("warmup failed - components will load lazily")
 
@@ -110,7 +114,14 @@ def create_app() -> FastAPI:
     for module in (auth, patients, scheduling, clinical, documents, ai, admin):
         app.include_router(module.router)
 
+    @app.get("/", include_in_schema=False)
+    @app.head("/", include_in_schema=False)
+    def root() -> dict:
+        # Hosts probe the root URL; answer instead of logging a 404 on every check.
+        return {"service": "CareFlow AI API", "docs": "/docs", "health": "/health"}
+
     @app.get("/health", tags=["health"])
+    @app.head("/health", include_in_schema=False)
     def health() -> dict:
         return {"status": "ok"}
 
@@ -127,7 +138,8 @@ def create_app() -> FastAPI:
 
         checks["models"] = get_registry().active_versions() or "missing"
         ok = checks["database"] == "ok" and checks["models"] != "missing"
-        return JSONResponse(status_code=200 if ok else 503, content={"status": "ok" if ok else "degraded", **checks})
+        return JSONResponse(status_code=200 if ok else 503,
+                            content={"status": "ok" if ok else "degraded", **checks, "memory": memory_snapshot()})
 
     @app.get("/metrics", include_in_schema=False)
     def metrics(request: Request) -> PlainTextResponse:
