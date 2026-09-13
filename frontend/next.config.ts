@@ -5,7 +5,9 @@ import type { NextConfig } from "next";
 const API_URL = process.env.CAREFLOW_API_URL ?? "http://localhost:8000";
 
 const nextConfig: NextConfig = {
-  output: "standalone",
+  // "standalone" is needed for Docker (Render) but breaks Vercel's build pipeline.
+  // Vercel auto-sets the VERCEL env var, so we conditionally include it.
+  ...(process.env.VERCEL ? {} : { output: "standalone" as const }),
   poweredByHeader: false,
   experimental: {
     // AI answers from a local CPU-bound LLM can take minutes; the default rewrite-proxy timeout would
