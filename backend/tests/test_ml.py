@@ -128,7 +128,8 @@ def test_thread_limit_leaves_predictions_unchanged():
     limited = copy.deepcopy(model.payload)
     limit_threads(limited, 1)
     assert limited["pipeline"].named_steps["model"].n_jobs == 1
-    assert limited["pipeline"].predict_proba(X)[0, 1] == model.payload["pipeline"].predict_proba(X)[0, 1]
+    # Multi-threaded forests add the trees' probabilities in varying order, so compare beyond float rounding only.
+    assert abs(limited["pipeline"].predict_proba(X)[0, 1] - model.payload["pipeline"].predict_proba(X)[0, 1]) < 1e-12
 
 
 def test_db_feature_engineering_for_demo_patient(db, demo_patient):
