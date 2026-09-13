@@ -24,6 +24,7 @@
 * **Browser sessions:** the token is set as an `httpOnly`, `SameSite=Strict` cookie (`Secure` when `CAREFLOW_COOKIE_SECURE=true`). JavaScript never sees it. API clients may send `Authorization: Bearer`.
 * **CSRF:** cookie-authenticated `POST/PATCH/DELETE` must carry `X-CareFlow-CSRF: 1`; browsers cannot add custom headers cross-site without a CORS preflight, which the CORS policy (explicit origins) rejects.
 * **Brute force:** 5 failed logins per IP+email per 15 minutes → HTTP 429 (`core/ratelimit.py`). Failures are audited with a hashed email reference.
+* **Public demo protection** (on when `CAREFLOW_ENVIRONMENT=production`, or `CAREFLOW_DEMO_PROTECTION=true`): the shared demo accounts cannot change their password or have their role, doctor link or activation changed (HTTP 403, audited), so one visitor cannot lock the others out; each user's AI questions are rate limited (HTTP 429, default 30 per 10 minutes) to protect the LLM quota; `/metrics` requires `system:observe`.
 
 ## 3. Authorization
 
@@ -95,7 +96,7 @@ Written through a separate session so denied or failed requests are still record
 
 * No MFA, SSO/OIDC, password reset flow or refresh-token rotation; no server-side token revocation list (short expiry instead).
 * Rate limiter is per process (move to Redis for multiple instances).
-* `/metrics` is unauthenticated — restrict at the network layer in production.
+* `/metrics` is open outside production; in production it requires an administrator session, so a Prometheus scraper needs a service token or network-level access.
 * HS256 shared secret; asymmetric keys (RS256/EdDSA) would allow verification without the signing key.
 * No field-level encryption or row-level security in PostgreSQL itself (authorization is enforced in the application layer).
 * Heuristic injection detection can be evaded; the architecture limits the blast radius (authorization, no DB access for the model) rather than relying on detection.

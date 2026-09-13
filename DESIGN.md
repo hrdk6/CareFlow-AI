@@ -244,7 +244,7 @@ A cool, low-chroma neutral family around one clinical teal, with five quiet stat
 - **Raised / Pressed** (raised, raised-2): hover and pressed fills for ghost controls, neutral chips, count pills, empty-state marks.
 - **Hairline / Strong Hairline** (line, line-strong): card borders and row dividers; input borders, secondary button rings and resting row chevrons.
 - **Teal Ink** (ink), **Slate Ink** (ink-2), **Muted** (muted), **Faint** (faint): primary text, secondary text and table cells, supporting lines and labels, placeholders and MRNs. Faint still clears 4.5:1 on the canvas.
-- **Rail Teal-Ink** (rail) and **Rail Active** (rail-2), with **Rail Ink** (rail-ink) and **Rail Muted** (rail-muted): the sidebar, the sign-in brand panel, and the modal and drawer scrims (rail at 35-45%).
+- **Rail Teal-Ink** (rail) and **Rail Active** (rail-2), with **Rail Ink** (rail-ink) and **Rail Muted** (rail-muted): the sidebar and the modal and drawer scrims (rail at 35-45%).
 
 ### Named Rules
 **The One Teal Rule.** Teal is the only action and selection colour. Summary figures and headings stay in ink; a figure takes colour only when the figure is itself a status.
@@ -262,7 +262,7 @@ A cool, low-chroma neutral family around one clinical teal, with five quiet stat
 **Character:** A friendly, slightly humanist grotesk for headings and numbers over a highly legible UI sans. The pairing reads as confident software, not as a lab instrument.
 
 ### Hierarchy
-- **Display** (600, 44px, 1.08, -0.025em): the sign-in brand panel headline only.
+- **Display**: reserved; the sign-in headline follows the Stitch design (Inter 700, 44px) described under Layout.
 - **Headline** (600, 30px, tight): the dashboard greeting and the sign-in form heading; ordinary page headers use 26px.
 - **Figure** (600, 34px desktop / 28px mobile, line-height 1, -0.02em, tabular): summary card numbers.
 - **Title** (600, 15-17px): card, panel, dialog and drawer titles.
@@ -281,7 +281,7 @@ The app shell is a fixed 256px sidebar on large screens beside a fluid content c
 
 The dashboard stacks sections 24px apart: the greeting row (heading left, primary action right), the attention panel, a row of summary cards (2 columns on mobile, 4 at xl, 3 when only three exist, 12-16px gaps), then admitted patients across two thirds with discharges in the right third at xl, then today's appointments in a two-column list. Cards pad 20px; list rows pad 12px by 20px. Wide tables scroll inside their card rather than widening the page.
 
-Sign-in is a split screen at lg (1.1fr brand panel, 1fr form); the form column is capped at 420px, and the brand panel is hidden on small screens where the wordmark sits above the form.
+Sign-in is the one deliberate exception to the light world: it reproduces the owner's Google Stitch design. A black hero (glowing emerald care core with orbiting rings, a medical cross and an ECG trace, soft emerald backlights, white 44px Inter bold headline) sits beside a white form panel (rounded-xl inputs, deep green #0a5c48 Sign in button, demo-account tiles with a 2px emerald selected border). The two halves split 1:1 at lg and stack on small screens, hero first. Its animations stop under reduced motion. Keep the rest of the product in the light system; do not spread the black hero to other screens.
 
 ## Elevation & Depth
 
@@ -297,7 +297,7 @@ A layered-light system: surfaces are separated first by hairline borders and ton
 
 ## Shapes
 
-Softly rounded, never pill-shaped for containers. Controls and small wells use 8px; cards, panels and demo-account tiles use 14px; dialogs and the sign-in product still use 18px. Chips, count pills, avatars and the advisory are full pills or circles. The wordmark tile is a 10px-rounded teal square. Borders are 1px hairlines; status shapes use a 1px inset ring rather than an outer border. Focus is a 2px teal outline offset by 2px.
+Softly rounded, never pill-shaped for containers. Controls and small wells use 8px; cards, panels and demo-account tiles use 14px; dialogs use 18px. Chips, count pills, avatars and the advisory are full pills or circles. The wordmark tile is a 10px-rounded teal square. Borders are 1px hairlines; status shapes use a 1px inset ring rather than an outer border. Focus is a 2px teal outline offset by 2px.
 
 ## Components
 

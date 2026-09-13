@@ -7,7 +7,8 @@ from app.audit.service import audit
 from app.auth.dependencies import get_current_user, require
 from app.auth.rbac import Perm
 from app.core.config import get_settings
-from app.core.errors import NotFoundError
+from app.core.errors import AppError, NotFoundError
+from app.core.ratelimit import ai_query_limiter
 from app.llm.orchestrator import AIOrchestrator
 from app.llm.providers import get_llm_provider
 from app.models import Department, Document, DocumentChunk, User
@@ -17,8 +18,22 @@ from app.schemas.documents import SourceOut
 router = APIRouter(prefix="/ai", tags=["ai"])
 
 
+class TooManyQuestions(AppError):
+    status_code = 429
+    code = "too_many_questions"
+
+
 @router.post("/query", response_model=AIResponse)
 def ai_query(body: AIQueryIn, db: DB, user: User = Depends(require(Perm.AI_QUERY))) -> AIResponse:
+    s = get_settings()
+    if s.demo_protected:
+        limiter = ai_query_limiter.get()
+        key = f"user:{user.id}"
+        if limiter.blocked(key):
+            minutes = max(1, round(s.ai_query_window_seconds / 60))
+            raise TooManyQuestions(f"You have asked a lot of questions in a short time. Please try again in a few "
+                                   f"minutes (limit {s.ai_queries_per_window} every {minutes} minutes).")
+        limiter.hit(key)
     return AIOrchestrator(db, user).run(body)
 
 

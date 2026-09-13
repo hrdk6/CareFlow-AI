@@ -8,11 +8,12 @@ from app.api.deps import DB, CurrentUser
 from app.audit.service import audit
 from app.auth.dependencies import SESSION_COOKIE
 from app.core.config import get_settings
-from app.core.errors import AppError, AuthenticationError, ValidationFailedError
+from app.core.errors import AppError, AuthenticationError, PermissionDeniedError, ValidationFailedError
 from app.core.ratelimit import login_limiter
 from app.core.security import create_access_token, hash_password, verify_password
 from app.models import User
 from app.schemas.auth import ChangePasswordIn, LoginIn, TokenOut, UserOut
+from app.seed.catalog import DEMO_EMAILS
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -69,6 +70,9 @@ def me(user: CurrentUser) -> UserOut:
 
 @router.post("/change-password", status_code=204)
 def change_password(body: ChangePasswordIn, user: CurrentUser, db: DB) -> Response:
+    if get_settings().demo_protected and user.email in DEMO_EMAILS:
+        audit("auth.password_change_blocked", user=user, outcome="denied")
+        raise PermissionDeniedError("Demo accounts keep their shared password so every visitor can sign in.")
     if not verify_password(user.password_hash, body.current_password):
         audit("auth.password_change_failed", user=user, outcome="denied")
         raise AuthenticationError("Current password is incorrect")

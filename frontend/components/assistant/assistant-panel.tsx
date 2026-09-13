@@ -130,19 +130,20 @@ function ResponseCard({ r, onCite }: { r: AIResponse; onCite: (c: Citation) => v
     { id: "sources" as const, label: "Document sources", count: r.citations.length, icon: FileSearch },
     { id: "records" as const, label: "Database records", count: r.record_refs.length, icon: Database },
     { id: "model" as const, label: "Model output", count: r.predictions.length + (r.similarity ? 1 : 0), icon: Cpu },
-    { id: "trace" as const, label: "Trace", count: r.tool_calls.length, icon: Wrench },
+    { id: "trace" as const, label: "Details", count: r.tool_calls.length, icon: Wrench },
   ];
+  const origins = [...new Set(r.route.map((x) => ORIGIN_LABEL[x]).filter(Boolean))];
   return (
     <article className="rounded-lg border border-line bg-panel">
       <div className="flex flex-wrap items-center gap-1.5 border-b border-line px-4 py-2">
-        {r.route.map((x) => <RouteBadge key={x} route={x} />)}
-        <span className="text-[11px] text-faint">{r.routing_method === "llm" ? "LLM tool selection" : "deterministic routing"}</span>
-        <span className="ml-auto flex items-center gap-1 text-[11px] text-faint">
-          <Clock className="h-3 w-3" /> {(r.stage_ms.total / 1000).toFixed(1)}s · {r.provider === "extractive" ? "extractive (no LLM)" : r.model ?? r.provider}
+        <span className="text-xs text-muted">Answered from</span>
+        {origins.map((o) => <Badge key={o}>{o}</Badge>)}
+        <span className="ml-auto flex items-center gap-1 text-xs text-muted">
+          <Clock className="h-3 w-3" aria-hidden /> {(r.stage_ms.total / 1000).toFixed(1)} s
         </span>
       </div>
       <div className="px-4 py-3">
-        {r.insufficient_context && <div className="mb-2"><Notice tone="warning" icon={<Info className="h-3.5 w-3.5" />}>No authorized record or document answered this question.</Notice></div>}
+        {r.insufficient_context && <div className="mb-2"><Notice tone="warning" icon={<Info className="h-3.5 w-3.5" />}>No record or document answered this question.</Notice></div>}
         <Answer text={r.answer} onCite={cite} labels={labels} />
         {r.warnings.length > 0 && (
           <div className="mt-3 space-y-1.5">
@@ -239,9 +240,21 @@ function ModelOutput({ r }: { r: AIResponse }) {
   );
 }
 
+const ORIGIN_LABEL: Record<string, string> = {
+  SQL: "Hospital records", RAG: "Documents", ML: "Predictions", SIMILARITY: "Similar patients", LLM: "Assistant",
+};
+
 function Trace({ r }: { r: AIResponse }) {
   return (
     <div className="grid gap-3 lg:grid-cols-2">
+      <div className="flex flex-wrap items-center gap-1.5 lg:col-span-2">
+        <span className="font-semibold text-ink-2">Route</span>
+        {r.route.map((x) => <RouteBadge key={x} route={x} />)}
+        <span className="text-muted">
+          {r.routing_method === "llm" ? "LLM tool selection" : "deterministic routing"} ·{" "}
+          {r.provider === "extractive" ? "extractive (no LLM)" : r.model ?? r.provider}
+        </span>
+      </div>
       <div>
         <div className="mb-1 font-semibold text-ink-2">Tool calls (authorized server-side)</div>
         {r.tool_calls.length === 0 ? <p className="text-faint">No tools were needed.</p> : (

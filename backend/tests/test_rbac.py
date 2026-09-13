@@ -234,3 +234,31 @@ def test_dashboard_alarm_feed_is_scoped_to_clinical_access(client, auth, db, use
         visible = {p["id"] for p in client.get("/patients?limit=200", headers=auth(role)).json()["items"]}
         assert {r["patient_id"] for r in board["critical_results"]} <= visible
 
+
+
+def test_public_demo_keeps_shared_accounts_usable(client, auth, users, monkeypatch):
+    """On a public demo one visitor must not lock the others out of the shared sign-ins."""
+    from app.core.config import get_settings
+    from app.core.ratelimit import SlidingWindowLimiter, ai_query_limiter
+
+    monkeypatch.setattr(get_settings(), "demo_protection", True)
+    # The guard runs before the current password is checked, so a wrong one proves the block without side effects.
+    blocked = client.post("/auth/change-password", json={"current_password": "not-the-password",
+                                                          "new_password": "Another-Password-456"}, headers=auth("doctor"))
+    assert blocked.status_code == 403
+    rao = users["doctor"].id
+    assert client.patch(f"/admin/users/{rao}", json={"is_active": False}, headers=auth("admin")).status_code == 403
+    assert client.patch(f"/admin/users/{rao}", json={"role": "NURSE"}, headers=auth("admin")).status_code == 403
+    # An exhausted AI budget answers 429 before any retrieval or model call.
+    monkeypatch.setattr(ai_query_limiter, "_limiter", SlidingWindowLimiter(max_events=0, window_seconds=60))
+    limited = client.post("/ai/query", json={"query": "How many appointments today?"}, headers=auth("doctor"))
+    assert limited.status_code == 429 and limited.json()["error"]["code"] == "too_many_questions"
+
+
+def test_public_demo_limits_metrics_to_administrators(client, auth, monkeypatch):
+    from app.core.config import get_settings
+
+    monkeypatch.setattr(get_settings(), "demo_protection", True)
+    assert client.get("/metrics").status_code == 401
+    assert client.get("/metrics", headers=auth("doctor")).status_code == 403
+    assert client.get("/metrics", headers=auth("admin")).status_code == 200

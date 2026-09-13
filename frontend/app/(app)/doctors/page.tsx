@@ -51,7 +51,7 @@ export default function DoctorsPage() {
                 const slots = d.availability[day] ?? [];
                 return (
                   <div key={day} className={slots.length ? "rounded bg-accent-tint p-1 text-accent" : "rounded bg-sunken p-1 text-faint"}>
-                    <div className="font-semibold uppercase">{day}</div>
+                    <div className="font-semibold capitalize">{day}</div>
                     {slots.length ? slots.map(([s, e]) => <div key={s}>{s}–{e}</div>) : <div>—</div>}
                   </div>
                 );

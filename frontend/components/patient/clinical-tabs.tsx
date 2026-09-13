@@ -267,7 +267,7 @@ export function LabsTab({ patientId }: { patientId: number }) {
     first?.reference_high != null ? { y: first.reference_high, label: `high ${first.reference_high}`, color: "var(--color-high)" } : null,
   ].filter(Boolean) as { y: number; label: string; color: string }[];
   return (
-    <div className="grid gap-4 xl:grid-cols-[220px_1fr]">
+    <div className="grid grid-cols-1 gap-4 xl:grid-cols-[220px_minmax(0,1fr)]">
       <Card bodyClassName="p-1.5" title="Tests">
         <ul>
           {[...tests.entries()].map(([c, rows]) => {
@@ -283,7 +283,7 @@ export function LabsTab({ patientId }: { patientId: number }) {
           })}
         </ul>
       </Card>
-      <div className="space-y-4">
+      <div className="min-w-0 space-y-4">
         <Card title={`${first?.test_name ?? selected} trend`} subtitle={`${series.length} results · ${first?.unit ?? ""}`}>
           <LineChart series={[{ name: selected, color: "var(--color-ok)", points: series.map((l) => [new Date(l.collected_at).getTime(), l.value as number]) }]}
             refLines={refLines} xFormat={(v) => new Date(v).toISOString().slice(2, 7)} yFormat={(v) => v.toFixed(v < 10 ? 1 : 0)} />

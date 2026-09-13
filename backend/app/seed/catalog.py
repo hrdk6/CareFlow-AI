@@ -42,6 +42,9 @@ USERS = [
     ("reception@careflow.demo", "Sam Rivera", "RECEPTIONIST", None, None),
 ]
 
+# The shared sign-ins listed on the login page; protected on a public demo (see Settings.demo_protected).
+DEMO_EMAILS = frozenset(email for email, *_ in USERS)
+
 
 @dataclass(frozen=True)
 class Med:

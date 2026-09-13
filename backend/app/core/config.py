@@ -32,6 +32,14 @@ class Settings(BaseSettings):
     cookie_secure: bool = False
     cors_origins: list[str] = ["http://localhost:3000"]
 
+    # --- public demo hardening ---
+    # On a shared public demo, one visitor must not be able to lock the others out: the seeded demo accounts
+    # keep their password, role and activation, and each user's AI questions are rate limited to protect the
+    # free-tier LLM quota. Unset means on in production only.
+    demo_protection: bool | None = None
+    ai_queries_per_window: int = 30
+    ai_query_window_seconds: int = 600
+
     # --- storage ---
     storage_dir: Path = BACKEND_DIR / "storage"
     max_upload_mb: int = 20
@@ -94,12 +102,26 @@ class Settings(BaseSettings):
     anthropic_refusal_fallbacks: bool = True
     injection_policy: Literal["quarantine", "annotate"] = "quarantine"
 
+    @field_validator("database_url")
+    @classmethod
+    def _psycopg_driver(cls, v: str) -> str:
+        # Managed Postgres hosts (Neon, Supabase, Render, Railway) hand out postgres:// or postgresql:// URLs;
+        # SQLAlchemy needs the psycopg 3 driver named explicitly.
+        for prefix in ("postgres://", "postgresql://"):
+            if v.startswith(prefix):
+                return "postgresql+psycopg://" + v[len(prefix):]
+        return v
+
     @field_validator("cors_origins", mode="before")
     @classmethod
     def _split_origins(cls, v):
         if isinstance(v, str):
             return [o.strip() for o in v.split(",") if o.strip()]
         return v
+
+    @property
+    def demo_protected(self) -> bool:
+        return self.environment == "production" if self.demo_protection is None else self.demo_protection
 
     def validate_runtime(self) -> None:
         if self.environment != "test" and len(self.jwt_secret) < 32:

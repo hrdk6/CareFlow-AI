@@ -11,12 +11,15 @@ export function proxy(request: NextRequest) {
     url.searchParams.set("next", request.nextUrl.pathname);
     return NextResponse.redirect(url);
   }
-  if (hasSession && isLogin) {
+  // A cookie can outlive its session (secret rotated, account deactivated). The app then sends the browser to
+  // /login?next=..., which must render the form instead of bouncing back to "/" and looping.
+  if (hasSession && isLogin && !request.nextUrl.searchParams.has("next")) {
     return NextResponse.redirect(new URL("/", request.url));
   }
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  // Pages only: API calls, Next internals and files with an extension (icons, images) pass straight through.
+  matcher: ["/((?!api|_next/static|_next/image|.*\\..*).*)"],
 };

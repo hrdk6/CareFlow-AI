@@ -10,8 +10,8 @@ from app.api.deps import DB, CurrentUser, policy_for
 from app.audit.service import audit
 from app.auth.dependencies import require
 from app.auth.rbac import PERMISSION_DESCRIPTIONS, ROLE_DESCRIPTIONS, ROLE_PERMISSIONS, Perm, RoleName
-from app.core.config import REPO_DIR
-from app.core.errors import ConflictError, NotFoundError, ValidationFailedError
+from app.core.config import REPO_DIR, get_settings
+from app.core.errors import ConflictError, NotFoundError, PermissionDeniedError, ValidationFailedError
 from app.core.security import hash_password
 from app.ml.registry import get_registry
 from app.models import (
@@ -39,6 +39,7 @@ from app.schemas.admin import (
 )
 from app.schemas.common import Page
 from app.schemas.ml import ModelCardOut
+from app.seed.catalog import DEMO_EMAILS
 
 router = APIRouter(tags=["admin"])
 UsersManage = Depends(require(Perm.USERS_MANAGE))
@@ -87,6 +88,12 @@ def update_user(user_id: int, body: UserUpdate, db: DB, user: User = UsersManage
         raise NotFoundError("User not found")
     if target.id == user.id and (body.is_active is False or (body.role and body.role != "ADMIN")):
         raise ValidationFailedError("You cannot demote or deactivate your own account")
+    if get_settings().demo_protected and target.email in DEMO_EMAILS and (
+            (body.is_active is not None and body.is_active != target.is_active)
+            or (body.role and body.role != target.role.name)
+            or ("doctor_id" in body.model_fields_set and body.doctor_id != target.doctor_id)):
+        raise PermissionDeniedError("Demo accounts keep their role and access so every visitor can sign in. "
+                                    "Create a new account to try these changes.")
     new_role = body.role or target.role.name
     doctor_id = body.doctor_id if "doctor_id" in body.model_fields_set else target.doctor_id
     if new_role == "DOCTOR":

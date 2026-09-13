@@ -130,7 +130,16 @@ def create_app() -> FastAPI:
         return JSONResponse(status_code=200 if ok else 503, content={"status": "ok" if ok else "degraded", **checks})
 
     @app.get("/metrics", include_in_schema=False)
-    def metrics() -> PlainTextResponse:
+    def metrics(request: Request) -> PlainTextResponse:
+        if get_settings().demo_protected:
+            # On a public deployment the counters are for administrators, not every visitor.
+            from app.auth.dependencies import get_current_user
+            from app.auth.rbac import Perm
+            from app.core.errors import PermissionDeniedError
+
+            with get_session_factory()() as db:
+                if Perm.SYSTEM_OBSERVE.value not in get_current_user(request, db).permission_codes:
+                    raise PermissionDeniedError("Metrics are available to administrators only")
         return PlainTextResponse(generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
     return app

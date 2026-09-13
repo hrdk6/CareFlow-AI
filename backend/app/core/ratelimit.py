@@ -35,3 +35,21 @@ class SlidingWindowLimiter:
 
 
 login_limiter = SlidingWindowLimiter(max_events=5, window_seconds=15 * 60)
+
+
+class _AIQueryLimiter:
+    """Per-user AI question budget, sized from settings on first use."""
+
+    def __init__(self) -> None:
+        self._limiter: SlidingWindowLimiter | None = None
+
+    def get(self) -> SlidingWindowLimiter:
+        if self._limiter is None:
+            from app.core.config import get_settings
+
+            s = get_settings()
+            self._limiter = SlidingWindowLimiter(s.ai_queries_per_window, s.ai_query_window_seconds)
+        return self._limiter
+
+
+ai_query_limiter = _AIQueryLimiter()

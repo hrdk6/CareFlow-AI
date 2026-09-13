@@ -36,7 +36,8 @@ RUN python -c "from fastembed import TextEmbedding; from fastembed.rerank.cross_
 TextEmbedding('BAAI/bge-small-en-v1.5', cache_dir='/app/backend/.models'); \
 TextCrossEncoder('Xenova/ms-marco-MiniLM-L-6-v2', cache_dir='/app/backend/.models')"
 
+# Hosts such as Render and Railway assign the port through $PORT; 8000 otherwise.
 EXPOSE 8000
 HEALTHCHECK --interval=15s --timeout=5s --start-period=60s --retries=5 \
-    CMD curl -fsS http://localhost:8000/health || exit 1
-CMD ["sh", "-c", "alembic upgrade head && python -m app.seed --if-empty --with-documents && exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --proxy-headers --forwarded-allow-ips='*'"]
+    CMD curl -fsS "http://localhost:${PORT:-8000}/health" || exit 1
+CMD ["sh", "-c", "alembic upgrade head && python -m app.seed --if-empty --with-documents && exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --proxy-headers --forwarded-allow-ips='*'"]

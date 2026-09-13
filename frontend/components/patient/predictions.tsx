@@ -41,7 +41,7 @@ export function RiskCard({ patientId, compact }: { patientId: number; compact?: 
         <>
           <div className="flex items-end justify-between">
             <div>
-              <div className="text-3xl font-semibold tabular-nums text-ink">{pct(p.value)}</div>
+              <div className="font-display text-3xl font-semibold tabular-nums text-ink">{pct(p.value)}</div>
               <div className="text-xs text-muted">{(p.value / p.context.base_rate).toFixed(1)}× the training base rate ({pct(p.context.base_rate)})</div>
             </div>
             <div className="text-right">
@@ -78,7 +78,7 @@ export function LosCard({ patientId, compact }: { patientId: number; compact?: b
         <>
           <div className="flex items-end justify-between">
             <div>
-              <div className="text-3xl font-semibold tabular-nums text-ink">{p.value.toFixed(1)} <span className="text-base font-normal text-muted">days</span></div>
+              <div className="font-display text-3xl font-semibold tabular-nums text-ink">{p.value.toFixed(1)} <span className="text-base font-normal text-muted">days</span></div>
               <div className="text-xs text-muted">80% interval {p.interval?.[0]}–{p.interval?.[1]} days</div>
             </div>
             {p.reference?.actual_length_of_stay_days != null && (
@@ -114,12 +114,12 @@ export function PredictionsTab({ patientId }: { patientId: number }) {
         <LosCard patientId={patientId} />
       </div>
       {risk?.status === "ok" && (
-        <Card title="Model inputs for this prediction" subtitle="Derived from the database; missing values are imputed by the model pipeline">
+        <Card title="Model inputs for this prediction" subtitle="What the models used from this patient's record. Missing values are estimated.">
           <KeyValue columns={3} items={Object.entries(risk.features).map(([k, v]) => [k.replace(/_/g, " "), String(v ?? "missing")])} />
           <div className="mt-3 space-y-1 text-[11px] text-muted">{risk.limitations.map((l) => <p key={l}>• {l}</p>)}</div>
         </Card>
       )}
-      <Card title="Prediction history" subtitle="Every served prediction is persisted with its model version" bodyClassName="p-0">
+      <Card title="Prediction history" subtitle="Earlier estimates for this patient" bodyClassName="p-0">
         <ul className="divide-y divide-line text-sm">
           {(history ?? []).map((h) => (
             <li key={h.id} className="flex items-center justify-between px-4 py-2">

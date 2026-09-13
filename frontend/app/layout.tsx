@@ -11,7 +11,7 @@ const hanken = Hanken_Grotesk({
 
 export const metadata: Metadata = {
   title: { default: "CareFlow AI", template: "%s · CareFlow AI" },
-  description: "Hospital information platform with authorization-aware ML, RAG and AI assistance (synthetic demo data).",
+  description: "A calm hospital workspace for patients, appointments, lab results and prescriptions, with an AI assistant that cites its sources. Demo with synthetic data.",
 };
 
 export const viewport: Viewport = { themeColor: "#f3f6f7", colorScheme: "light" };

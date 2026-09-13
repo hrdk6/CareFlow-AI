@@ -77,7 +77,7 @@ Docker Compose.
 | LLM | Provider abstraction: Ollama/OpenAI-compatible (httpx), Anthropic (official SDK, Claude Opus 5 default), extractive fallback | Swap providers by configuration |
 | Parsing | pypdf, python-docx | PDF/TXT/MD/DOCX ingestion |
 | Observability | JSON logs, Prometheus client, trace table | Latency per AI stage, tokens, errors |
-| Tests | pytest (133 tests, real PostgreSQL), Vitest + Testing Library (13 tests) | |
+| Tests | pytest (179 tests, real PostgreSQL), Vitest + Testing Library (13 tests) | |
 | Packaging | uv, npm, Docker Compose (3 services) | |
 
 No separate vector database, queue or cache: they were not needed at this scale (see
@@ -197,9 +197,60 @@ project. `.docx` ingestion and the real embedding/reranker models then fail with
 two tests instead of failing; Docker and Linux hosts are unaffected. To run the full stack locally,
 allow those DLLs in the Windows security policy.
 
+## Deploying the public demo
+
+Three pieces: a PostgreSQL database with pgvector, the FastAPI backend as a Docker web service, and the
+Next.js frontend on Vercel. The browser only ever talks to the Vercel origin; Vercel forwards `/api/*` to the
+backend, so the session cookie stays first-party and no CORS setup is needed.
+
+**1. Database.** Create a PostgreSQL 16 database on a host that supports the `vector` extension (Neon,
+Supabase, Render Postgres and Railway all do). Copy its connection string; `postgres://` and
+`postgresql://` URLs are accepted as-is. The first backend start runs the migration, which enables the
+extension.
+
+**2. Backend** (Render or Railway, Docker web service with **at least 1 GB of memory** — the embedding
+and reranker models are loaded into RAM).
+
+* Repository root as the build context, Dockerfile `backend/Dockerfile`. The container honours `$PORT`,
+  runs migrations, seeds the synthetic hospital and knowledge base on first start, then serves the API.
+* Health check path: `/health` (liveness) or `/health/ready` (database and models loaded).
+* Environment variables:
+
+```env
+CAREFLOW_ENVIRONMENT=production
+CAREFLOW_DATABASE_URL=<connection string from step 1>
+CAREFLOW_JWT_SECRET=<python -c "import secrets; print(secrets.token_urlsafe(48))">
+CAREFLOW_COOKIE_SECURE=true
+CAREFLOW_DEMO_PASSWORD=<the password visitors will use>
+CAREFLOW_LLM_PROVIDER=groq
+GROQ_API_KEY=<your Groq key>
+CAREFLOW_LLM_FALLBACK_PROVIDER=gemini
+GEMINI_API_KEY=<your Gemini key>
+```
+
+**3. Frontend** (Vercel). Import the repository, set **Root Directory** to `frontend`, and add
+`CAREFLOW_API_URL=https://<your-backend-host>` (no trailing slash) *before* the first build — Next.js
+bakes the `/api` rewrite in at build time, so changing it later needs a redeploy. No API keys go here.
+
+**What production mode changes.** With `CAREFLOW_ENVIRONMENT=production` the public-demo protections
+switch on (`CAREFLOW_DEMO_PROTECTION` overrides this either way):
+
+* the five shared demo accounts cannot have their password, role, doctor link or activation changed, so one
+  visitor cannot lock the others out (administrators can still create and edit other accounts);
+* each user may ask the assistant `CAREFLOW_AI_QUERIES_PER_WINDOW` questions every
+  `CAREFLOW_AI_QUERY_WINDOW_SECONDS` (30 per 10 minutes by default), protecting the free-tier LLM quota;
+* `/metrics` requires an administrator.
+
+Visitors can still add patients, notes and appointments. To return the demo to its original state,
+point `CAREFLOW_DATABASE_URL` at an empty database and restart (the seed runs only when the database is empty).
+
+**Smoke test after deploying:** open `https://<backend>/health/ready` (expect `"status": "ok"`), sign in
+on the Vercel URL as each demo account, open patient **P1024** as Dr. Rao, and ask the assistant
+*"What does our diabetes guideline say about monitoring?"* — the answer should cite the guideline.
+
 ## Testing & evaluation
 
-Backend tests run against a real PostgreSQL test database with a seeded mini-hospital (133 tests: auth,
+Backend tests run against a real PostgreSQL test database with a seeded mini-hospital (179 tests: auth,
 RBAC/row-level access, patients, appointments, clinical writes, documents/ingestion, ML, RAG, routing,
 prompt injection, AI integration for SQL / RAG / ML / SQL+RAG / SQL+ML / SQL+RAG+ML / similarity):
 
@@ -272,7 +323,7 @@ Interpretation and caveats: [`docs/ml.md`](docs/ml.md), [`docs/rag.md`](docs/rag
 ## Repository layout
 
 ```
-backend/        FastAPI app (app/), Alembic migration, 133 tests, Dockerfile
+backend/        FastAPI app (app/), Alembic migration, 179 tests, Dockerfile
 frontend/       Next.js app (app/, components/, lib/), Vitest tests, Dockerfile
 ml/             UCI preprocessing, training, evaluation reports, versioned artifacts
 rag/            synthetic knowledge base (source → dist), benchmark and evaluation runner
@@ -286,7 +337,7 @@ docker-compose.yml · .env.example
 * The readmission and LOS models come from 1999–2008 US diabetic encounters; the serving population is synthetic, so outputs demonstrate the pipeline, not clinical validity. No subgroup fairness audit yet.
 * A local LLM on CPU is slow (minutes per answer); use a GPU, a smaller model, or the Anthropic provider for interactive use.
 * Ingestion runs in-process (FastAPI background tasks); no OCR for scanned PDFs; BM25 index is per process.
-* Security gaps are listed in [`docs/security.md`](docs/security.md#10-known-gaps-deliberately-out-of-scope) (no MFA/SSO, per-process rate limiting, unauthenticated `/metrics`).
+* Security gaps are listed in [`docs/security.md`](docs/security.md#10-known-gaps-deliberately-out-of-scope) (no MFA/SSO, per-process rate limiting).
 * The Docker Compose configuration was written for, but not executed in, the development environment (Docker was unavailable there); the same steps — migrations, seeding, uvicorn, `next build` — were validated natively.
 
 ## Future improvements
