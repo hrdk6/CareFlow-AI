@@ -7,6 +7,7 @@ import {
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { Avatar } from "@/components/ui/avatar";
 import { StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState, ErrorState, Skeleton } from "@/components/ui/feedback";
@@ -66,21 +67,6 @@ function firstName(fullName: string | undefined): string {
   const parts = trimmed.split(/\s+/);
   if (/^Dr\.?$/i.test(parts[0])) return `Dr. ${parts[parts.length - 1]}`;
   return parts[0];
-}
-
-function Avatar({ name, tone = "neutral" }: { name: string; tone?: "neutral" | "alert" }) {
-  const letters = name.replace(/^Dr\.\s*/, "").split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase()).join("");
-  return (
-    <span
-      className={cn(
-        "flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[12px] font-semibold",
-        tone === "alert" ? "bg-high-tint text-high ring-1 ring-inset ring-high-edge" : "bg-accent-tint text-accent",
-      )}
-      aria-hidden
-    >
-      {letters}
-    </span>
-  );
 }
 
 /** A card section with a title row and an optional link out. */

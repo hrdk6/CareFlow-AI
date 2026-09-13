@@ -42,23 +42,35 @@ export function DataTable<T extends { id: number | string }>({
                 {c.header}
               </th>
             ))}
+            {onRowClick && <th scope="col" className="sticky top-0 z-10 border-b border-line bg-sunken"><span className="sr-only">Open</span></th>}
           </tr>
         </thead>
         <tbody>
           {rows.map((row) => (
             <tr
               key={row.id}
+              // Rows that open something are reachable by keyboard, not only by pointer.
+              tabIndex={onRowClick ? 0 : undefined}
               onClick={onRowClick ? () => onRowClick(row) : undefined}
-              className={cn("transition-colors duration-100", onRowClick && "cursor-pointer hover:bg-sunken")}
+              onKeyDown={onRowClick ? (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onRowClick(row); } } : undefined}
+              className={cn(
+                "transition-colors duration-100",
+                onRowClick && "group cursor-pointer hover:bg-sunken focus-visible:bg-sunken focus-visible:outline-offset-[-2px]",
+              )}
             >
               {columns.map((c) => (
                 <td
                   key={c.key}
-                  className={cn("border-b border-line px-3 align-top text-ink-2", dense ? "py-2" : "py-2.5", c.className)}
+                  className={cn("border-b border-line px-3 align-middle text-ink-2", dense ? "py-2" : "py-2.5", c.className)}
                 >
                   {c.render ? c.render(row) : String((row as Record<string, unknown>)[c.key] ?? "—")}
                 </td>
               ))}
+              {onRowClick && (
+                <td className="w-10 border-b border-line pr-3 text-right align-middle">
+                  <ChevronRight className="ml-auto h-4 w-4 text-line-strong transition-[color,transform] duration-200 group-hover:translate-x-0.5 group-hover:text-accent group-focus-visible:text-accent" aria-hidden />
+                </td>
+              )}
             </tr>
           ))}
         </tbody>
@@ -74,7 +86,7 @@ export function Pagination({ total, limit, offset, onChange }: {
   const page = Math.floor(offset / limit) + 1;
   const pages = Math.ceil(total / limit);
   return (
-    <div className="flex items-center justify-between border-t border-line px-3 py-2 text-xs text-muted">
+    <div className="flex items-center justify-between border-t border-line px-5 py-2.5 text-[13px] text-muted">
       <span className="tabular">
         {offset + 1}–{Math.min(offset + limit, total)} of {total}
       </span>

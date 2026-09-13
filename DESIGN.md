@@ -209,7 +209,7 @@ components:
 
 CareFlow reads like finished hospital software on a well-lit desk: a cool near-white canvas, white cards sitting on hairline borders with soft shadows, and a deep teal-ink sidebar that anchors the page. One teal accent carries action and selection. Everything else is quiet neutrals, so that the only loud thing on a screen is the thing that needs a clinician's attention.
 
-Density is moderate and operational. A signed-in screen leads with what needs attention (a rose attention panel, shown only when there is something to act on), then summary figures, then lists of patients a user opens by clicking a row. Headings and figures are set in Hanken Grotesk, text and tables in Inter, all in sentence case. Motion is small and earned: rows and cards lift on hover, an arrow slides a few pixels, and sections rise once on first load.
+Density is moderate and operational. A signed-in screen leads with what needs attention (a rose attention panel, shown only when there is something to act on), then summary figures, then lists of patients a user opens by clicking a row. Headings and figures are set in Hanken Grotesk, text and tables in Inter, all in sentence case. Motion is small and earned: rows and cards lift on hover, an arrow slides a few pixels, sections rise once on first load, and selection indicators slide rather than jump. The one authored moment belongs to the assistant: an answer unfolds, its source markers arrive in reading order, and opening a source sweeps a highlighter through the exact passage.
 
 This world replaces a dark "bedside monitor" treatment (matte black, condensed uppercase labels, channel colours, sweep and alarm-lamp motion) that the user rejected as too technical. Do not reintroduce the instrument costume.
 
@@ -219,7 +219,7 @@ This world replaces a dark "bedside monitor" treatment (matte black, condensed u
 - One teal accent for primary actions, selection, links and focus.
 - Status lives in pill chips: a pale tint, a readable ink, and a matching inset ring.
 - Sentence case everywhere; Hanken Grotesk for headings and figures, Inter for text and tables.
-- Hover lift, sliding row arrows, and a one-time staggered rise; nothing flashes.
+- Hover lift, sliding row arrows, sliding tab and filter indicators, and a one-time staggered rise; nothing flashes.
 
 ## Colors
 
@@ -328,7 +328,8 @@ Quiet, compact and firm.
 
 ### Navigation
 - **Sidebar:** teal-ink rail with the wordmark at top, sentence-case group names in 11px Rail Muted, items at 13.5px medium with an 18px icon. Hover gives a 6% white wash; the active item takes Rail Active with white text and a mint icon. The signed-in user sits at the bottom in a translucent card with a round initials avatar and a sign-out icon button.
-- **Tabs:** underlined on the card edge; the selected tab gets a 2px teal underline and ink text, with a teal-tint count pill.
+- **Tabs:** underlined on a hairline; one 2px teal indicator slides to the selected tab (ink text, teal-tint count pill), and arrow keys move between tabs. On a patient record the tab bar stays pinned under the app header.
+- **Filters:** a segmented control on a raised well; a white selection pill with the resting shadow slides between options.
 
 ### Patient Row
 The signature list item. A 36px round initials avatar (teal tint, or rose tint with a rose ring when the patient has a critical result), a name in 14px medium ink, a 13px muted second line, optional right-aligned context such as ward and day of stay in tabular figures, and a chevron in the strong hairline colour. On hover the row fills with the well colour and the chevron slides 2px and turns teal.
@@ -353,7 +354,8 @@ Errors are 8px-rounded rose-tint blocks with an alert icon, the message in ink a
 - **Do** write user-facing copy in task language ("Here is what needs your attention today", "Review readmission risk").
 - **Do** fold engineering provenance into a collapsed "Model details" disclosure.
 - **Do** keep the synthetic-data advisory visible on every signed-in screen.
-- **Do** limit motion to hover lift, a 2px arrow slide, and the one-time staggered rise (0.5s, 60ms steps), all removed under reduced motion.
+- **Do** limit motion to hover lift, a 2px arrow slide, the one-time staggered rise (0.5s, 60ms steps), sliding selection indicators, notes and lists that open in place, the risk marker travelling to its estimate and factor bars growing from the centre line, and the assistant's evidence sequence (answer unfold, source markers in reading order, highlighter sweep on the cited passage). All of it is reduced under reduced motion.
+- **Do** fill entrance animations on wrappers backwards only; a held transform or opacity animation traps fixed dialogs beneath the sticky header.
 
 ### Don't:
 - **Don't** bring back the dark bedside-monitor world: matte black fields, condensed uppercase labels, channel colours, sweep or alarm-lamp motion.

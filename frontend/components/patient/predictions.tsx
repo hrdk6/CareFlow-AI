@@ -41,8 +41,8 @@ export function RiskCard({ patientId, compact }: { patientId: number; compact?: 
         <>
           <div className="flex items-end justify-between">
             <div>
-              <div className="font-display text-3xl font-semibold tabular-nums text-ink">{pct(p.value)}</div>
-              <div className="text-xs text-muted">{(p.value / p.context.base_rate).toFixed(1)}× the training base rate ({pct(p.context.base_rate)})</div>
+              <div className="font-display text-[34px] font-semibold leading-none tracking-[-0.02em] tabular-nums text-ink">{pct(p.value)}</div>
+              <div className="mt-1.5 text-xs text-muted">{(p.value / p.context.base_rate).toFixed(1)}× the training base rate ({pct(p.context.base_rate)})</div>
             </div>
             <div className="text-right">
               <Badge tone={BAND_TONE[p.label as keyof typeof BAND_TONE] ?? "neutral"}>{p.label} risk</Badge>
@@ -82,8 +82,8 @@ export function LosCard({ patientId, compact }: { patientId: number; compact?: b
         <>
           <div className="flex items-end justify-between">
             <div>
-              <div className="font-display text-3xl font-semibold tabular-nums text-ink">{p.value.toFixed(1)} <span className="text-base font-normal text-muted">days</span></div>
-              <div className="text-xs text-muted">80% interval {p.interval?.[0]}–{p.interval?.[1]} days</div>
+              <div className="font-display text-[34px] font-semibold leading-none tracking-[-0.02em] tabular-nums text-ink">{p.value.toFixed(1)} <span className="text-base font-normal tracking-normal text-muted">days</span></div>
+              <div className="mt-1.5 text-xs text-muted">80% interval {p.interval?.[0]}–{p.interval?.[1]} days</div>
             </div>
             {p.reference?.actual_length_of_stay_days != null && (
               <div className="text-right text-xs text-muted">Actual stay<div className="text-lg font-semibold tabular-nums text-ink">{p.reference.actual_length_of_stay_days} d</div></div>

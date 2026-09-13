@@ -44,21 +44,25 @@ export function RecordsTab({ patientId }: { patientId: number }) {
       <ul className="divide-y divide-line">
         {data.map((r) => (
           <li key={r.id}>
-            <button onClick={() => setOpen(open === r.id ? null : r.id)} className="flex w-full items-center gap-3 px-4 py-2.5 text-left hover:bg-sunken">
+            <button onClick={() => setOpen(open === r.id ? null : r.id)} aria-expanded={open === r.id}
+              className="flex w-full items-center gap-3 px-5 py-3 text-left transition-colors duration-150 hover:bg-sunken">
               <span className="w-24 shrink-0 text-xs tabular-nums text-muted">{fmtDate(r.visit_date)}</span>
               <Badge tone={r.record_type === "emergency" ? "danger" : r.record_type === "discharge_summary" ? "info" : "neutral"}>{titleCase(r.record_type)}</Badge>
               <span className="min-w-0 flex-1 truncate text-sm text-ink">{r.chief_complaint}</span>
               <span className="hidden text-xs text-faint sm:inline">{r.doctor_name}</span>
-              <ChevronDown className={cn("h-4 w-4 text-faint transition-transform", open === r.id && "rotate-180")} />
+              <ChevronDown className={cn("h-4 w-4 text-faint transition-transform duration-300 ease-out-expo", open === r.id && "rotate-180 text-accent")} aria-hidden />
             </button>
-            {open === r.id && (
-              <div className="grid gap-3 bg-sunken/60 px-4 pb-4 pt-1 text-sm sm:grid-cols-2">
-                {([["Symptoms", r.symptoms], ["Assessment", r.diagnosis_summary], ["Notes", r.notes], ["Plan", r.treatment_plan]] as const).map(([k, v]) => (
-                  <div key={k}><div className="text-xs font-medium text-muted">{k}</div><p className="text-ink-2">{v || "—"}</p></div>
-                ))}
-                <div className="text-[11px] text-faint sm:col-span-2">Record #{r.id}{r.admission_id ? ` · admission #${r.admission_id}` : ""}</div>
+            {/* The note opens in place: rows below slide down rather than jumping. */}
+            <div className={cn("grid transition-[grid-template-rows] duration-300 ease-out-expo", open === r.id ? "grid-rows-[1fr]" : "grid-rows-[0fr]")} inert={open !== r.id}>
+              <div className="overflow-hidden">
+                <div className="grid gap-3 bg-sunken/60 px-5 pb-4 pt-2 text-sm sm:grid-cols-2">
+                  {([["Symptoms", r.symptoms], ["Assessment", r.diagnosis_summary], ["Notes", r.notes], ["Plan", r.treatment_plan]] as const).map(([k, v]) => (
+                    <div key={k}><div className="text-xs font-medium text-muted">{k}</div><p className="text-ink-2">{v || "—"}</p></div>
+                  ))}
+                  <div className="text-[11px] text-faint sm:col-span-2">Record #{r.id}{r.admission_id ? ` · admission #${r.admission_id}` : ""}</div>
+                </div>
               </div>
-            )}
+            </div>
           </li>
         ))}
       </ul>

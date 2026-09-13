@@ -1,3 +1,5 @@
+import { ArrowRight } from "lucide-react";
+
 import { cn } from "@/lib/format";
 
 /** A white card on a hairline border with a soft resting shadow. */
@@ -71,5 +73,15 @@ export function KeyValue({ items, columns = 2 }: { items: [string, React.ReactNo
         </div>
       ))}
     </dl>
+  );
+}
+
+/** A quiet text action in a card header: "All prescriptions ->". */
+export function CardLink({ children, onClick }: { children: React.ReactNode; onClick: () => void }) {
+  return (
+    <button type="button" onClick={onClick} className="group flex items-center gap-1 rounded-md text-[13px] font-medium text-accent hover:text-accent-strong">
+      {children}
+      <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" aria-hidden />
+    </button>
   );
 }

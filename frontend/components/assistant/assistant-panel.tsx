@@ -1,6 +1,9 @@
 "use client";
 
-import { AlertTriangle, Bot, ChevronDown, Clock, CornerDownLeft, Cpu, Database, FileSearch, Info, Wrench } from "lucide-react";
+import {
+  AlertTriangle, ArrowRight, ArrowUp, BookOpen, Bot, CalendarDays, ChevronDown, ClipboardCheck, Clock, Cpu, Database, FileSearch, Gauge,
+  History, Info, Pill, Users, Wrench,
+} from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
@@ -16,28 +19,44 @@ import { SourceDrawer } from "./source-drawer";
 
 interface Turn { id: number; query: string; response?: AIResponse; error?: unknown; startedAt: number }
 
-const PATIENT_PROMPTS = [
-  "Summarize this patient's medical history.",
-  "Why is this patient's readmission risk high?",
-  "Compare this patient's treatment with our diabetes guideline.",
-  "Find similar historical patients and summarize relevant patterns.",
-  "What were the major treatment changes?",
+type Prompt = [text: string, icon: React.ElementType];
+
+const PATIENT_PROMPTS: Prompt[] = [
+  ["Summarize this patient's medical history.", History],
+  ["Why is this patient's readmission risk high?", Gauge],
+  ["Compare this patient's treatment with our diabetes guideline.", BookOpen],
+  ["Find similar historical patients and summarize relevant patterns.", Users],
+  ["What were the major treatment changes?", Pill],
 ];
-const GLOBAL_PROMPTS = [
-  "What does our diabetes guideline say about monitoring?",
-  "Which medications are high-alert under MED-POL-004?",
-  "What appointments does Dr. Rao have?",
-  "What must happen for high-risk patients at discharge?",
+const GLOBAL_PROMPTS: Prompt[] = [
+  ["What does our diabetes guideline say about monitoring?", BookOpen],
+  ["Which medications are high-alert under MED-POL-004?", Pill],
+  ["What appointments does Dr. Rao have?", CalendarDays],
+  ["What must happen for high-risk patients at discharge?", ClipboardCheck],
 ];
 
-export function AssistantPanel({ patientId, patientLabel, compact }: { patientId?: number; patientLabel?: string; compact?: boolean }) {
+function AssistantMark() {
+  return (
+    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-ai-tint text-ai ring-1 ring-inset ring-ai-edge" aria-hidden>
+      <Bot className="h-4 w-4" />
+    </span>
+  );
+}
+
+export function AssistantPanel({ patientId, patientLabel, patientName, className }: {
+  patientId?: number; patientLabel?: string; patientName?: string; className?: string;
+}) {
   const [turns, setTurns] = useState<Turn[]>([]);
   const [query, setQuery] = useState("");
   const [busy, setBusy] = useState(false);
   const [citation, setCitation] = useState<Citation | null>(null);
-  const bottom = useRef<HTMLDivElement>(null);
+  const latest = useRef<HTMLDivElement>(null);
+  const input = useRef<HTMLTextAreaElement>(null);
 
-  useEffect(() => { bottom.current?.scrollIntoView({ behavior: "smooth", block: "end" }); }, [turns]);
+  // Bring a newly asked question to the top of the view; its answer then grows beneath it.
+  useEffect(() => {
+    if (turns.length) latest.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [turns.length]);
 
   async function ask(text: string) {
     const q = text.trim();
@@ -45,6 +64,7 @@ export function AssistantPanel({ patientId, patientLabel, compact }: { patientId
     const id = Date.now();
     setTurns((t) => [...t, { id, query: q, startedAt: id }]);
     setQuery("");
+    if (input.current) input.current.style.height = "";
     setBusy(true);
     try {
       const response = await api<AIResponse>("/ai/query", { method: "POST", json: { query: q, patient_id: patientId ?? null } });
@@ -58,41 +78,68 @@ export function AssistantPanel({ patientId, patientLabel, compact }: { patientId
 
   const prompts = patientId ? PATIENT_PROMPTS : GLOBAL_PROMPTS;
   return (
-    <div className="flex flex-col">
-      <div className={cn("space-y-4", compact ? "" : "min-h-[200px]")}>
+    <div className={cn("flex min-h-[520px] flex-col", className)}>
+      <div className="flex flex-1 flex-col gap-6 px-4 py-6 sm:px-6">
         {turns.length === 0 && (
-          <div className="rounded-lg border border-dashed border-line-strong bg-sunken/60 p-4">
-            <div className="flex items-center gap-2 text-sm font-medium text-ink-2">
-              <Bot className="h-4 w-4 text-accent" />
-              {patientLabel ? `Ask about ${patientLabel}` : "Ask about patients, schedules or hospital documents"}
-            </div>
-            <p className="mt-1 text-xs text-muted">Answers come from the hospital&apos;s own records and documents, and every answer shows the sources it used.</p>
-            <div className="mt-3 flex flex-wrap gap-1.5">
-              {prompts.map((p) => (
-                <button key={p} onClick={() => ask(p)} className="rounded-full border border-line bg-panel px-3 py-1.5 text-xs text-ink-2 shadow-e1 transition-all duration-150 hover:-translate-y-px hover:border-accent-edge hover:bg-accent-tint/60 hover:text-accent">{p}</button>
+          <div className="flex flex-1 flex-col items-center justify-center py-6 text-center">
+            <span className="rise flex h-12 w-12 items-center justify-center rounded-2xl bg-ai-tint text-ai ring-1 ring-inset ring-ai-edge" aria-hidden>
+              <Bot className="h-6 w-6" />
+            </span>
+            <h2 className="rise mt-4 text-[20px] font-semibold text-ink" style={{ "--i": 1 } as React.CSSProperties}>
+              {patientName ? `What would you like to know about ${patientName}?` : "What would you like to know?"}
+            </h2>
+            <p className="rise mt-1.5 max-w-md text-sm leading-relaxed text-muted" style={{ "--i": 2 } as React.CSSProperties}>
+              {patientLabel
+                ? "Answers draw on this patient's records, labs, medicines and the hospital's documents, with a source for each claim."
+                : "Answers draw on the hospital's own records and documents, with a source for each claim."}
+            </p>
+            <ul className="mt-7 grid w-full max-w-2xl gap-2 text-left sm:grid-cols-2">
+              {prompts.map(([text, Icon], i) => (
+                <li key={text} className="rise sm:[&:last-child:nth-child(odd)]:col-span-2" style={{ "--i": i + 3 } as React.CSSProperties}>
+                  <button type="button" onClick={() => ask(text)}
+                    className="group flex h-full w-full items-center gap-3 rounded-xl border border-line bg-panel px-4 py-3 text-left text-[13.5px] leading-snug text-ink-2 shadow-e1 transition-[border-color,box-shadow,transform,color] duration-200 hover:-translate-y-0.5 hover:border-accent-edge hover:text-ink hover:shadow-e2">
+                    <Icon className="h-4 w-4 shrink-0 text-faint transition-colors group-hover:text-accent" aria-hidden />
+                    <span className="flex-1">{text}</span>
+                    <ArrowRight className="h-4 w-4 shrink-0 text-line-strong transition-[color,transform] duration-200 group-hover:translate-x-0.5 group-hover:text-accent" aria-hidden />
+                  </button>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
         )}
-        {turns.map((t) => (
-          <div key={t.id} className="space-y-2">
+        {turns.map((t, i) => (
+          <div key={t.id} ref={i === turns.length - 1 ? latest : undefined} className="scroll-mt-32 space-y-3">
             <div className="flex justify-end">
-              <div className="max-w-[85%] rounded-2xl rounded-br-md bg-accent px-3.5 py-2 text-sm leading-relaxed text-white shadow-e1">{t.query}</div>
+              <p className="animate-pop-in max-w-[85%] rounded-2xl rounded-br-md bg-accent px-4 py-2.5 text-sm leading-relaxed text-white shadow-e1">{t.query}</p>
             </div>
-            {!t.response && !t.error && <Pending startedAt={t.startedAt} />}
-            {t.error ? <ErrorState error={t.error} /> : null}
-            {t.response && <ResponseCard r={t.response} onCite={(c) => setCitation(c)} />}
+            <div className="flex items-start gap-3">
+              <AssistantMark />
+              <div className="min-w-0 flex-1">
+                {!t.response && !t.error && <Pending startedAt={t.startedAt} />}
+                {t.error ? <ErrorState error={t.error} /> : null}
+                {t.response && <ResponseCard r={t.response} onCite={(c) => setCitation(c)} />}
+              </div>
+            </div>
           </div>
         ))}
-        <div ref={bottom} />
       </div>
       <form onSubmit={(e) => { e.preventDefault(); ask(query); }}
-        className="sticky bottom-0 mt-4 flex items-end gap-2 rounded-xl border border-line-strong bg-panel p-2 shadow-e2 transition-[border-color,box-shadow] focus-within:border-accent focus-within:ring-4 focus-within:ring-accent/12">
-        <textarea value={query} onChange={(e) => setQuery(e.target.value)} rows={2} maxLength={2000}
-          onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); ask(query); } }}
-          placeholder={patientLabel ? `Question about ${patientLabel}…` : "Ask a question… (mention an MRN such as P1024 for patient questions)"}
-          aria-label="Question" className="max-h-40 min-h-[40px] flex-1 resize-y border-0 bg-transparent px-1 py-1 text-sm focus:outline-none" />
-        <Button type="submit" loading={busy} disabled={!query.trim()}><CornerDownLeft className="h-4 w-4" /> Ask</Button>
+        className="sticky bottom-0 z-10 rounded-b-xl border-t border-line bg-panel/95 px-4 pb-3 pt-3 backdrop-blur-sm sm:px-6">
+        <div className="flex items-end gap-2 rounded-xl border border-line-strong bg-panel p-1.5 pl-3.5 shadow-e1 transition-[border-color,box-shadow] duration-150 focus-within:border-accent focus-within:ring-3 focus-within:ring-accent/15">
+          <textarea ref={input} value={query} rows={1} maxLength={2000}
+            onChange={(e) => setQuery(e.target.value)}
+            // Grows with the question up to about six lines, then scrolls.
+            onInput={(e) => { const el = e.currentTarget; el.style.height = "auto"; el.style.height = `${Math.min(el.scrollHeight, 160)}px`; }}
+            onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); ask(query); } }}
+            placeholder={patientName ? `Ask about ${patientName}` : "Ask a question"}
+            aria-label="Question" className="scroll-thin min-h-9 flex-1 resize-none bg-transparent py-2 text-sm leading-5 text-ink placeholder:text-faint focus:outline-none" />
+          <Button type="submit" loading={busy} disabled={!query.trim()}>
+            {!busy && <ArrowUp className="h-4 w-4" aria-hidden />} Ask
+          </Button>
+        </div>
+        <p className="mt-1.5 px-1 text-[12px] text-faint">
+          {patientLabel ? "" : "Mention an MRN such as P1024 to ask about one patient. "}Enter to ask, Shift + Enter for a new line.
+        </p>
       </form>
       <SourceDrawer citation={citation} onClose={() => setCitation(null)} />
     </div>
@@ -108,9 +155,14 @@ function Pending({ startedAt }: { startedAt: number }) {
   const s = Math.round((now - startedAt) / 1000);
   const stage = s < 2 ? "Understanding the question" : s < 5 ? "Looking through records and documents" : "Writing the answer";
   return (
-    <div className="flex items-center gap-3 rounded-lg border border-line bg-panel p-3 text-sm text-muted">
-      <span className="dot-pulse flex gap-1"><span className="h-1.5 w-1.5 rounded-full bg-accent" /><span className="h-1.5 w-1.5 rounded-full bg-accent" /><span className="h-1.5 w-1.5 rounded-full bg-accent" /></span>
-      {stage}… <span className="ml-auto font-mono text-xs tabular-nums">{s}s</span>
+    <div role="status" className="animate-fade-in overflow-hidden rounded-xl border border-line bg-panel">
+      <div className="flex items-center gap-3 px-4 py-3 text-sm text-ink-2">
+        <span key={stage} className="animate-fade-in">{stage}…</span>
+        <span className="ml-auto font-mono text-xs tabular-nums text-faint">{s}s</span>
+      </div>
+      <div className="h-0.5 overflow-hidden bg-raised" aria-hidden>
+        <div className="progress-sweep h-full w-2/5 bg-gradient-to-r from-transparent via-accent to-transparent" />
+      </div>
     </div>
   );
 }
@@ -134,15 +186,16 @@ function ResponseCard({ r, onCite }: { r: AIResponse; onCite: (c: Citation) => v
   ];
   const origins = [...new Set(r.route.map((x) => ORIGIN_LABEL[x]).filter(Boolean))];
   return (
-    <article className="rounded-lg border border-line bg-panel">
-      <div className="flex flex-wrap items-center gap-1.5 border-b border-line px-4 py-2">
-        <span className="text-xs text-muted">Answered from</span>
+    <article className="answer-reveal rounded-xl border border-line bg-panel shadow-e1">
+      <div className="flex flex-wrap items-center gap-1.5 border-b border-line px-4 py-2.5">
+        <span className="mr-1 text-xs font-medium text-ai">Assistant</span>
+        <span className="text-xs text-muted">answered from</span>
         {origins.map((o) => <Badge key={o}>{o}</Badge>)}
         <span className="ml-auto flex items-center gap-1 text-xs text-muted">
           <Clock className="h-3 w-3" aria-hidden /> {(r.stage_ms.total / 1000).toFixed(1)} s
         </span>
       </div>
-      <div className="px-4 py-3">
+      <div className="px-4 py-3.5">
         {r.insufficient_context && <div className="mb-2"><Notice tone="warning" icon={<Info className="h-3.5 w-3.5" />}>No record or document answered this question.</Notice></div>}
         <Answer text={r.answer} onCite={cite} labels={labels} />
         {r.warnings.length > 0 && (
@@ -151,21 +204,24 @@ function ResponseCard({ r, onCite }: { r: AIResponse; onCite: (c: Citation) => v
           </div>
         )}
       </div>
-      <div className="flex flex-wrap gap-1 border-t border-line px-3 py-1.5">
+      <div className="flex flex-wrap gap-1 border-t border-line px-2.5 py-2">
         {tabs.map((t) => (
-          <button key={t.id} onClick={() => setTab(tab === t.id ? null : t.id)} disabled={t.count === 0 && t.id !== "trace"}
-            className={cn("flex items-center gap-1 rounded px-2 py-1 text-xs disabled:opacity-40", tab === t.id ? "bg-raised text-ink" : "text-muted hover:bg-sunken")}>
-            <t.icon className="h-3.5 w-3.5" /> {t.label} <span className="tabular-nums text-faint">{t.count}</span>
-            <ChevronDown className={cn("h-3 w-3 transition-transform", tab === t.id && "rotate-180")} />
+          <button key={t.id} type="button" onClick={() => setTab(tab === t.id ? null : t.id)} disabled={t.count === 0 && t.id !== "trace"}
+            aria-expanded={tab === t.id}
+            className={cn("flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors duration-150 disabled:opacity-40",
+              tab === t.id ? "bg-raised text-ink" : "text-muted hover:bg-sunken hover:text-ink")}>
+            <t.icon className="h-3.5 w-3.5" aria-hidden /> {t.label}
+            <span className={cn("tabular rounded-full px-1.5 text-[11px] leading-[18px]", tab === t.id ? "bg-panel text-ink-2" : "bg-raised text-muted")}>{t.count}</span>
+            <ChevronDown className={cn("h-3 w-3 transition-transform duration-200", tab === t.id && "rotate-180")} aria-hidden />
           </button>
         ))}
       </div>
-      {tab && <div className="border-t border-line bg-sunken/50 px-4 py-3 text-xs">{
+      {tab && <div key={tab} className="animate-fade-in border-t border-line bg-sunken/50 px-4 py-3 text-xs">{
         tab === "sources" ? <SourcesList r={r} onCite={onCite} /> :
           tab === "records" ? <RecordsList r={r} /> :
             tab === "model" ? <ModelOutput r={r} /> : <Trace r={r} />
       }</div>}
-      <div className="border-t border-line px-4 py-2 text-[11px] leading-snug text-faint">
+      <div className="space-y-0.5 rounded-b-xl border-t border-line px-4 py-2.5 text-[11px] leading-snug text-faint">
         {r.limitations.map((l) => <p key={l}>{l}</p>)}
         <p>{r.disclaimer}</p>
       </div>
@@ -178,7 +234,7 @@ function SourcesList({ r, onCite }: { r: AIResponse; onCite: (c: Citation) => vo
     <ul className="space-y-2">
       {r.citations.map((c) => (
         <li key={c.id}>
-          <button onClick={() => onCite(c)} className="w-full rounded border border-line bg-panel p-2 text-left hover:border-ai-edge">
+          <button type="button" onClick={() => onCite(c)} className="w-full rounded-lg border border-line bg-panel p-2.5 text-left shadow-e1 transition-[border-color,box-shadow] duration-150 hover:border-ai-edge hover:shadow-e2">
             <div className="flex items-center gap-2">
               <Badge tone="violet">{c.id}</Badge>
               <span className="font-medium text-ink">{c.document_title}</span>

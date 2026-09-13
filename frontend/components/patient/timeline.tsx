@@ -5,22 +5,30 @@ import { useState } from "react";
 
 import { Card } from "@/components/ui/card";
 import { EmptyState, ErrorState, Skeleton } from "@/components/ui/feedback";
-import { cn, fmtDate } from "@/lib/format";
+import { Select } from "@/components/ui/form";
+import { Segmented } from "@/components/ui/tabs";
+import { cn, titleCase } from "@/lib/format";
 import { useApi } from "@/lib/hooks";
 import type { TimelineEvent } from "@/lib/types";
 
+const NEUTRAL = "bg-raised text-ink-2 ring-line";
+
 const META: Record<string, { icon: React.ElementType; label: string; color: string }> = {
-  admission: { icon: LogIn, label: "Admission", color: "bg-warn-tint text-warn" },
-  discharge: { icon: LogOut, label: "Discharge", color: "bg-info-tint text-info" },
-  visit: { icon: Stethoscope, label: "Visit", color: "bg-raised text-ink-2" },
-  emergency: { icon: Siren, label: "Emergency", color: "bg-high-tint text-high" },
-  diagnosis: { icon: Tag, label: "Diagnosis", color: "bg-ai-tint text-ai" },
-  medication_start: { icon: Pill, label: "Medication started", color: "bg-ok-tint text-ok" },
-  medication_change: { icon: Pill, label: "Medication changed", color: "bg-accent-tint text-accent" },
-  medication_stop: { icon: Pill, label: "Medication stopped", color: "bg-raised-2 text-ink-2" },
-  lab_abnormal: { icon: FlaskConical, label: "Abnormal lab", color: "bg-warn-tint text-warn" },
-  appointment: { icon: CalendarClock, label: "Upcoming", color: "bg-info-tint text-info" },
+  admission: { icon: LogIn, label: "Admission", color: "bg-warn-tint text-warn ring-warn-edge" },
+  discharge: { icon: LogOut, label: "Discharge", color: "bg-info-tint text-info ring-info-edge" },
+  visit: { icon: Stethoscope, label: "Visit", color: NEUTRAL },
+  emergency: { icon: Siren, label: "Emergency", color: "bg-high-tint text-high ring-high-edge" },
+  diagnosis: { icon: Tag, label: "Diagnosis", color: "bg-ai-tint text-ai ring-ai-edge" },
+  medication_start: { icon: Pill, label: "Medication started", color: "bg-ok-tint text-ok ring-ok-edge" },
+  medication_change: { icon: Pill, label: "Medication changed", color: "bg-accent-tint text-accent ring-accent-edge" },
+  medication_stop: { icon: Pill, label: "Medication stopped", color: NEUTRAL },
+  lab_abnormal: { icon: FlaskConical, label: "Abnormal lab", color: "bg-warn-tint text-warn ring-warn-edge" },
+  appointment: { icon: CalendarClock, label: "Upcoming", color: "bg-info-tint text-info ring-info-edge" },
 };
+
+function dayMonth(iso: string) {
+  return new Date(iso).toLocaleDateString("en-GB", { day: "2-digit", month: "short", timeZone: "UTC" });
+}
 
 export function TimelineList({ patientId, months = 36, limit, filter }: {
   patientId: number; months?: number; limit?: number; filter?: Set<string>;
@@ -33,27 +41,38 @@ export function TimelineList({ patientId, months = 36, limit, filter }: {
   if (limit) events = events.slice(0, limit);
   if (!events.length) return <EmptyState title="No events in this period" />;
   return (
-    <ol className="relative space-y-0">
+    // Keyed by the filter so a new filter replays the list entrance instead of swapping rows in place.
+    <ol key={filter ? [...filter].join() : "all"} className={cn("transition-opacity duration-200", loading && "opacity-50")}>
       {events.map((e, i) => {
-        const meta = META[e.category] ?? { icon: Activity, label: e.category, color: "bg-raised text-ink-2" };
+        const meta = META[e.category] ?? { icon: Activity, label: titleCase(e.category), color: NEUTRAL };
         const Icon = meta.icon;
-        const year = e.at.slice(0, 4);
-        const showYear = !limit && (i === 0 || events[i - 1].at.slice(0, 4) !== year);
+        const last = i === events.length - 1;
         return (
-          <li key={e.id}>
-            {showYear && <div className="mb-1 mt-3 text-xs font-semibold text-faint">{year}</div>}
-            <div className="flex gap-3 border-l border-line pb-5 pl-4 last:pb-0">
-              <span className={cn("-ml-[29px] mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full ring-4 ring-line", meta.color)}>
-                <Icon className="h-3.5 w-3.5" />
+          <li key={e.id} className="stagger-in grid grid-cols-[28px_minmax(0,1fr)] gap-x-3 pb-5 last:pb-0 sm:grid-cols-[64px_28px_minmax(0,1fr)]"
+            style={{ "--i": Math.min(i, 10) } as React.CSSProperties}>
+            <time dateTime={e.at} className="hidden pt-1 text-right text-[12px] leading-tight text-ink-2 sm:block">
+              {dayMonth(e.at)}
+              <span className="block text-faint">{e.at.slice(0, 4)}</span>
+            </time>
+            <span className="relative flex justify-center">
+              {!last && <span className="absolute -bottom-4 left-1/2 top-8 w-px -translate-x-1/2 bg-line" aria-hidden />}
+              <span className={cn("relative flex h-7 w-7 items-center justify-center rounded-full ring-1 ring-inset", meta.color)}>
+                <Icon className="h-3.5 w-3.5" aria-hidden />
               </span>
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-baseline gap-x-2">
-                  <span className={cn("text-sm", e.severity === "critical" ? "font-semibold text-high" : "text-ink")}>{e.title}</span>
-                  {e.severity !== "info" && <AlertTriangle className={cn("h-3.5 w-3.5", e.severity === "critical" ? "text-high" : "text-warn")} />}
-                </div>
-                {e.detail && <p className="text-xs text-muted">{e.detail}</p>}
-                <p className="text-[11px] text-faint">{fmtDate(e.at)} · {meta.label} · {e.source_type.replace(/_/g, " ")} #{e.source_id}</p>
-              </div>
+            </span>
+            <div className="min-w-0 pt-0.5">
+              <p className="flex flex-wrap items-center gap-x-1.5">
+                <span className={cn("text-sm", e.severity === "critical" ? "font-semibold text-high" : "font-medium text-ink")}>{e.title}</span>
+                {e.severity !== "info" && (
+                  <AlertTriangle className={cn("h-3.5 w-3.5", e.severity === "critical" ? "text-high" : "text-warn")}
+                    aria-label={e.severity === "critical" ? "Critical" : "Needs attention"} />
+                )}
+              </p>
+              {e.detail && <p className="mt-0.5 text-[13px] leading-snug text-muted">{e.detail}</p>}
+              <p className="mt-0.5 text-[12px] text-faint">
+                <span className="sm:hidden">{dayMonth(e.at)} {e.at.slice(0, 4)} · </span>
+                {meta.label} · {titleCase(e.source_type)} #{e.source_id}
+              </p>
             </div>
           </li>
         );
@@ -68,22 +87,17 @@ const FILTERS: [string, string[]][] = [
 ];
 
 export function TimelineTab({ patientId }: { patientId: number }) {
-  const [active, setActive] = useState<string | null>(null);
+  const [active, setActive] = useState("");
   const [months, setMonths] = useState(36);
   const filter = active ? new Set(FILTERS.find(([l]) => l === active)![1]) : undefined;
   return (
-    <Card title="Patient timeline" subtitle="Generated chronologically from structured records; every event links to its source row."
+    <Card title="Patient timeline" subtitle="Built in date order from the patient's records. Each event names the record it came from."
       actions={
-        <select value={months} onChange={(e) => setMonths(Number(e.target.value))} className="rounded-lg border border-line-strong bg-panel px-2 py-1 text-xs" aria-label="Period">
-          <option value={12}>12 months</option><option value={36}>3 years</option><option value={120}>10 years</option>
-        </select>
+        <Select value={months} onChange={(e) => setMonths(Number(e.target.value))} className="w-32" aria-label="Period"
+          options={[{ value: 12, label: "12 months" }, { value: 36, label: "3 years" }, { value: 120, label: "10 years" }]} />
       }>
-      <div className="mb-3 flex flex-wrap gap-1.5">
-        <button onClick={() => setActive(null)} className={cn("rounded-full px-2.5 py-1 text-xs font-medium transition-colors", !active ? "bg-accent text-white" : "bg-panel text-ink-2 ring-1 ring-inset ring-line hover:bg-sunken")}>All</button>
-        {FILTERS.map(([label]) => (
-          <button key={label} onClick={() => setActive(label)} className={cn("rounded-full px-2.5 py-1 text-xs font-medium transition-colors", active === label ? "bg-accent text-white" : "bg-panel text-ink-2 ring-1 ring-inset ring-line hover:bg-sunken")}>{label}</button>
-        ))}
-      </div>
+      <Segmented label="Event type" className="mb-5 w-fit" value={active} onChange={setActive}
+        options={[{ value: "", label: "All" }, ...FILTERS.map(([label]) => ({ value: label, label }))]} />
       <TimelineList patientId={patientId} months={months} filter={filter} />
     </Card>
   );

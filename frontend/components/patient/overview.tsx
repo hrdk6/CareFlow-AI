@@ -1,11 +1,12 @@
 "use client";
 
-import { BedDouble, Plus, UserMinus } from "lucide-react";
+import { AlertTriangle, BedDouble, Plus, UserMinus } from "lucide-react";
 import { useState } from "react";
 
+import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Card, CardLink } from "@/components/ui/card";
 import { EmptyState, ErrorState } from "@/components/ui/feedback";
 import { Field, Input, Select } from "@/components/ui/form";
 import { Modal } from "@/components/ui/overlay";
@@ -20,6 +21,10 @@ import { TimelineList } from "./timeline";
 
 const DISPOSITIONS = ["home", "home_health", "skilled_nursing", "rehab", "transfer", "ama", "expired"];
 
+function dayOfStay(admittedAt: string): number {
+  return Math.max(1, Math.floor((Date.now() - new Date(admittedAt).getTime()) / 86_400_000) + 1);
+}
+
 export function OverviewTab({ patient, clinical, onOpen, onChanged }: { patient: PatientClinical; clinical: boolean; onOpen: (tab: string) => void; onChanged: () => void }) {
   const { can } = useAuth();
   const [admitting, setAdmitting] = useState(false);
@@ -33,74 +38,94 @@ export function OverviewTab({ patient, clinical, onOpen, onChanged }: { patient:
     );
   }
   const adm = patient.current_admission;
+  const earlier = patient.admission_count - (adm ? 1 : 0);
   return (
     <div className="grid gap-4 xl:grid-cols-3">
       <div className="min-w-0 space-y-4 xl:col-span-2">
         {adm ? (
-          <div className="flex items-start gap-3 rounded-lg border border-warn-edge bg-warn-tint p-3 text-sm text-warn">
-            <BedDouble className="mt-0.5 h-4 w-4" />
-            <div className="min-w-0 flex-1">Currently admitted to <b>{adm.department}</b>{adm.ward ? ` (${adm.ward})` : ""} since {fmtDate(adm.admitted_at)} — {adm.reason}. Attending: {adm.attending_doctor ?? "—"}.</div>
-            {can(PERMS.admit) && <Button size="sm" variant="secondary" onClick={() => setDischarging(true)}>Discharge</Button>}
-          </div>
-        ) : can(PERMS.admit) ? (
-          <div className="flex items-center justify-between gap-3 rounded-lg border border-line bg-sunken p-3 text-sm text-ink-2">
-            <span>Not currently admitted.</span>
-            <Button size="sm" variant="secondary" onClick={() => setAdmitting(true)}><Plus className="h-3.5 w-3.5" /> Admit</Button>
-          </div>
-        ) : null}
+          <section aria-label="Current admission" className="flex flex-wrap items-center gap-x-4 gap-y-3 rounded-xl border border-warn-edge bg-warn-tint px-5 py-3.5">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-panel text-warn ring-1 ring-inset ring-warn-edge">
+              <BedDouble className="h-[18px] w-[18px]" aria-hidden />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium text-ink">
+                Admitted to {adm.department}{adm.ward ? ` · Ward ${adm.ward}` : ""} · <span className="tabular">Day {dayOfStay(adm.admitted_at)}</span>
+              </p>
+              <p className="mt-0.5 text-[13px] text-warn">
+                Since {fmtDate(adm.admitted_at)} · {adm.reason}{adm.attending_doctor ? ` · Attending ${adm.attending_doctor}` : ""}
+              </p>
+            </div>
+            {can(PERMS.admit) && <Button size="sm" variant="secondary" onClick={() => setDischarging(true)}><UserMinus className="h-3.5 w-3.5" /> Discharge</Button>}
+          </section>
+        ) : (
+          <section aria-label="Admission" className="flex flex-wrap items-center gap-x-4 gap-y-3 rounded-xl border border-line bg-panel px-5 py-3 shadow-e1">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-raised text-faint">
+              <BedDouble className="h-[18px] w-[18px]" aria-hidden />
+            </span>
+            <p className="min-w-0 flex-1 text-sm text-ink-2">
+              Not currently admitted
+              <span className="text-muted"> · {earlier === 0 ? "no earlier admissions" : `${earlier} earlier ${earlier === 1 ? "admission" : "admissions"}`}</span>
+            </p>
+            {can(PERMS.admit) && <Button size="sm" variant="secondary" onClick={() => setAdmitting(true)}><Plus className="h-3.5 w-3.5" /> Admit</Button>}
+          </section>
+        )}
         {admitting && <AdmitModal patientId={patient.id} onClose={() => setAdmitting(false)} onDone={() => { setAdmitting(false); onChanged(); }} />}
         {discharging && adm && <DischargeModal admissionId={adm.id} onClose={() => setDischarging(false)} onDone={() => { setDischarging(false); onChanged(); }} />}
         {careTeam && <CareTeamModal patientId={patient.id} onClose={() => setCareTeam(false)} onDone={onChanged} />}
         <div className="grid gap-4 md:grid-cols-2">
-          <Card title="Active problems" subtitle={`${patient.admission_count} admissions on record`}>
+          <Card title="Active problems" subtitle={`${patient.active_diagnoses.length} on the problem list`} bodyClassName="px-5 py-1">
             {patient.active_diagnoses.length === 0 ? <EmptyState title="No active problems" /> : (
-              <ul className="space-y-2">
+              <ul className="divide-y divide-line">
                 {patient.active_diagnoses.map((d) => (
-                  <li key={d.id} className="flex items-start justify-between gap-2 text-sm">
-                    <span className="text-ink">{d.description}</span>
-                    <span className="shrink-0 text-right">
-                      <span className="font-mono text-[11px] text-muted">{d.icd10_code}</span>
-                      <span className="block text-[11px] text-faint">since {d.diagnosed_on.slice(0, 4)}</span>
+                  <li key={d.id} className="flex items-start justify-between gap-3 py-3">
+                    <span className="min-w-0">
+                      <span className="block text-sm text-ink">{d.description}</span>
+                      <span className="block text-[12px] text-muted">Since {d.diagnosed_on.slice(0, 4)}{d.is_chronic ? " · Chronic" : ""}</span>
                     </span>
+                    <span className="mt-0.5 shrink-0 rounded-md bg-raised px-1.5 font-mono text-[11px] leading-5 text-ink-2" title="ICD-10 code">{d.icd10_code}</span>
                   </li>
                 ))}
               </ul>
             )}
           </Card>
-          <Card title="Current medications" actions={<button onClick={() => onOpen("prescriptions")} className="text-xs text-accent hover:underline">All</button>}>
+          <Card title="Current medications" subtitle={`${patient.current_medications.length} active`} bodyClassName="px-5 py-1"
+            actions={<CardLink onClick={() => onOpen("prescriptions")}>All</CardLink>}>
             {patient.current_medications.length === 0 ? <EmptyState title="No active prescriptions" /> : (
-              <ul className="space-y-2">
+              <ul className="divide-y divide-line">
                 {patient.current_medications.map((m) => (
-                  <li key={m.id} className="text-sm">
-                    <div className="flex items-center gap-1.5">
-                      <span className="font-medium text-ink">{m.medication}</span>
-                      {m.is_high_alert && <Badge tone="danger">High-alert</Badge>}
+                  <li key={m.id} className="py-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-ink">{m.medication}</span>
+                      {m.is_high_alert && <Badge tone="danger"><AlertTriangle className="h-3 w-3" aria-hidden /> High-alert</Badge>}
                     </div>
-                    <div className="text-xs text-muted">{m.dosage} · {m.frequency} · {titleCase(m.drug_class)}</div>
+                    <div className="text-[12px] text-muted">{m.dosage} · {m.frequency} · {titleCase(m.drug_class)}</div>
                   </li>
                 ))}
               </ul>
             )}
           </Card>
         </div>
-        <Card title="Care team" subtitle="Clinicians with an explicit assignment to this patient"
+        <Card title="Care team" subtitle="Clinicians assigned to this patient"
           actions={can(PERMS.users) ? <Button size="sm" variant="secondary" onClick={() => setCareTeam(true)}>Manage</Button> : null}>
           {patient.care_team.length === 0 ? <EmptyState title="Nobody is assigned" /> : (
             <ul className="flex flex-wrap gap-2">
               {patient.care_team.map((m) => (
-                <li key={m.user_id} className="rounded border border-line px-2 py-1 text-sm text-ink-2">
-                  {m.name} <span className="text-xs text-muted">· {titleCase(m.care_role)}</span>
+                <li key={m.user_id} className="flex items-center gap-2.5 rounded-full border border-line bg-panel py-1 pl-1 pr-3.5">
+                  <Avatar name={m.name} size="sm" />
+                  <span className="text-sm text-ink">{m.name}</span>
+                  <span className="text-[12px] text-muted">{titleCase(m.care_role)}</span>
                 </li>
               ))}
             </ul>
           )}
         </Card>
-        <Card title="Recent timeline" actions={<button onClick={() => onOpen("timeline")} className="text-xs text-accent hover:underline">Full timeline</button>}>
+        <Card title="Recent timeline" subtitle="The last 12 months" actions={<CardLink onClick={() => onOpen("timeline")}>Full timeline</CardLink>}>
           <TimelineList patientId={patient.id} months={12} limit={8} />
         </Card>
       </div>
       {can(PERMS.ml) && (
-        <div className="min-w-0 space-y-4">
+        // The estimates stay beside the record while its lists scroll.
+        <div className="min-w-0 space-y-4 xl:sticky xl:top-[132px] xl:self-start">
           <RiskCard patientId={patient.id} compact />
           <LosCard patientId={patient.id} compact />
         </div>

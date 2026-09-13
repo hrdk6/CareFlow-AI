@@ -102,18 +102,18 @@ export function DivergingBars({ items, format = (v) => (v >= 0 ? "+" : "") + v.t
   const max = Math.max(...items.map((i) => Math.abs(i.value)), 1e-9);
   return (
     <ul className="space-y-2">
-      {items.map((i) => (
-        <li key={i.label} className="text-xs">
+      {items.map((i, n) => (
+        <li key={i.label} className="text-xs" style={{ "--i": n } as React.CSSProperties}>
           <div className="mb-0.5 flex justify-between gap-2">
             <span className="truncate text-ink-2">{i.label}{i.detail && <span className="text-faint">{plain ? `: ${i.detail}` : ` = ${i.detail}`}</span>}</span>
             <span className={cn("shrink-0 tabular-nums", plain ? "font-medium" : "font-mono", i.value >= 0 ? "text-high" : "text-ok")}>{format(i.value)}</span>
           </div>
           <div className="grid grid-cols-2 gap-px">
             <div className="flex h-2 justify-end rounded-l-sm bg-raised">
-              {i.value < 0 && <div className="h-full rounded-l-sm bg-ok" style={{ width: `${(Math.abs(i.value) / max) * 100}%` }} />}
+              {i.value < 0 && <div className="bar-grow h-full origin-right rounded-l-sm bg-ok" style={{ width: `${(Math.abs(i.value) / max) * 100}%` }} />}
             </div>
             <div className="h-2 rounded-r-sm bg-raised">
-              {i.value > 0 && <div className="h-full rounded-r-sm bg-high" style={{ width: `${(i.value / max) * 100}%` }} />}
+              {i.value > 0 && <div className="bar-grow h-full origin-left rounded-r-sm bg-high" style={{ width: `${(i.value / max) * 100}%` }} />}
             </div>
           </div>
         </li>
@@ -145,18 +145,30 @@ export function ConfusionMatrix({ tn, fp, fn, tp }: { tn: number; fp: number; fn
 export function Gauge({ value, markers }: { value: number; markers: { at: number; label: string }[] }) {
   const clamp = Math.min(1, Math.max(0, value));
   const scale = (v: number) => Math.min(100, (v / 0.6) * 100); // readmission probabilities rarely exceed 60%
+  // The marker travels from the low end to the estimate once, so its position reads as a distance along the scale.
+  const [settled, setSettled] = useState(false);
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => setSettled(true));
+    return () => cancelAnimationFrame(frame);
+  }, []);
   return (
     // Markers alternate above and below the scale so neighbouring labels never collide.
     <div className="relative mb-1 mt-5 h-10">
-      <div className="absolute inset-x-0 top-4 h-2 rounded-sm bg-gradient-to-r from-ok via-warn to-high" />
+      <div className="absolute inset-x-0 top-4 h-2 rounded-full bg-gradient-to-r from-ok via-warn to-high" />
       {markers.map((m, i) => (
-        <div key={m.label} className="absolute top-2.5 h-5 w-px bg-ink-2" style={{ left: `${scale(m.at)}%` }}>
+        <div key={m.label} className="absolute top-2.5 h-5 w-px bg-ink-2/70" style={{ left: `${scale(m.at)}%` }}>
           <span className={cn("absolute left-1/2 -translate-x-1/2 whitespace-nowrap text-[11px] text-muted", i % 2 ? "top-5" : "-top-4")}>
             {m.label}
           </span>
         </div>
       ))}
-      <div className="absolute top-3 h-4 w-1.5 -translate-x-1/2 rounded-sm bg-ink" style={{ left: `${scale(clamp)}%` }} aria-hidden />
+      <div
+        className="absolute inset-x-0 top-2.5 h-5 transition-transform duration-[1000ms] ease-out-expo"
+        style={{ transform: `translateX(${settled ? scale(clamp) : 0}%)` }}
+        aria-hidden
+      >
+        <div className="h-5 w-2 -translate-x-1/2 rounded-full bg-ink shadow-[0_1px_3px_rgba(16,34,42,0.35)] ring-2 ring-panel" />
+      </div>
     </div>
   );
 }

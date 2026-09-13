@@ -8,6 +8,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 
+import { initials } from "@/components/ui/avatar";
 import { IconButton } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/feedback";
 import { PERMS, useAuth } from "@/lib/auth";
@@ -49,10 +50,6 @@ const NAV: { section: string; items: NavItem[] }[] = [
 ];
 
 const ROLE_LABEL = { ADMIN: "Administrator", DOCTOR: "Doctor", NURSE: "Nurse", RECEPTIONIST: "Reception" } as const;
-
-export function initials(name: string): string {
-  return name.replace(/^Dr\.\s*/, "").split(/[\s,]+/).filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase() ?? "").join("");
-}
 
 export function Wordmark({ tone = "dark", size = "md" }: { tone?: "dark" | "light"; size?: "md" | "lg" }) {
   return (

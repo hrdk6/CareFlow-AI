@@ -184,6 +184,68 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 .animate-pop-in { animation: pop-in 0.24s var(--ease-out-expo) both; }
 .animate-slide-in { animation: slide-in-right 0.26s var(--ease-out-expo) both; }
 
+/* Entrances on wrappers fill backwards only. A held transform would become the containing block for the
+   fixed-position dialogs rendered inside, and a held opacity animation keeps a stacking context that
+   traps a dialog's z-index beneath the sticky header. */
+.animate-route-in { animation: fade-in 0.2s var(--ease-out-quart) backwards; }
+.animate-panel-in { animation: rise-in 0.28s var(--ease-out-expo) backwards; }
+
+/* List items that arrive as a list: a short step, capped by the --i the component passes. */
+.stagger-in {
+  animation: rise-in 0.38s var(--ease-out-expo) backwards;
+  animation-delay: calc(var(--i, 0) * 35ms);
+}
+
+/* Model factor bars grow out from the centre line, so their length reads as the size of the push. */
+@keyframes bar-grow {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+.bar-grow {
+  animation: bar-grow 0.7s var(--ease-out-expo) backwards;
+  animation-delay: calc(120ms + var(--i, 0) * 50ms);
+}
+
+/* ---- assistant: evidence arriving ------------------------------------------------------------ */
+/* The answer unfolds from its top edge, then its source markers arrive in reading order. */
+@keyframes answer-reveal {
+  from { opacity: 0; clip-path: inset(0 0 100% 0 round 14px); transform: translateY(6px); }
+  to { opacity: 1; clip-path: inset(0 0 0 0 round 14px); transform: translateY(0); }
+}
+.answer-reveal { animation: answer-reveal 0.6s var(--ease-out-expo) backwards; }
+
+@keyframes cite-in {
+  from { opacity: 0; transform: scale(0.6); }
+  60% { opacity: 1; transform: scale(1.08); }
+  to { opacity: 1; transform: scale(1); }
+}
+.cite-in {
+  animation: cite-in 0.36s var(--ease-out-quart) backwards;
+  animation-delay: calc(380ms + var(--i, 0) * 45ms);
+}
+
+/* Opening a source sweeps a highlighter through the passage in reading order: this is the text the
+   answer stood on. An inline background without box-decoration-break flows line by line. */
+@keyframes evidence-sweep {
+  from { background-size: 0% 100%; }
+  to { background-size: 100% 100%; }
+}
+.evidence-mark {
+  background-image: linear-gradient(#e9e1fd, #e9e1fd);
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  border-radius: 3px;
+  padding: 1px 0;
+  animation: evidence-sweep 1.2s var(--ease-out-quart) 0.25s backwards;
+}
+
+/* The assistant is working: an honest indeterminate bar, not a fake percentage. */
+@keyframes progress-sweep {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(260%); }
+}
+.progress-sweep { animation: progress-sweep 1.5s var(--ease-out-quart) infinite; }
+
 /* First-load entrance for the dashboard: sections rise once, staggered by --i. */
 .rise {
   animation: rise-in 0.5s var(--ease-out-expo) backwards; /* backwards: hover transforms still apply afterwards */
