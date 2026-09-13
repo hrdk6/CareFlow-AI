@@ -215,7 +215,7 @@ This world replaces a dark "bedside monitor" treatment (matte black, condensed u
 
 **Key Characteristics:**
 - Light, cool canvas with white cards on 1px hairline borders and soft, ink-tinted shadows.
-- A deep teal-ink sidebar is the only dark surface in the app shell.
+- A deep teal-ink gradient sidebar (from the owner's Stitch design) is the only dark surface in the app shell.
 - One teal accent for primary actions, selection, links and focus.
 - Status lives in pill chips: a pale tint, a readable ink, and a matching inset ring.
 - Sentence case everywhere; Hanken Grotesk for headings and figures, Inter for text and tables.
@@ -271,7 +271,7 @@ A cool, low-chroma neutral family around one clinical teal, with five quiet stat
 - **Label** (500, 11-13px, normal tracking, sentence case): field labels, table headings, chip text, sidebar group names.
 
 ### Named Rules
-**The Sentence Case Rule.** All labels, headings, chips, table headings, nav groups and buttons are sentence case with normal tracking. No uppercase tracked labels, and no eyebrow line above a heading; the only line above the greeting is the date.
+**The Sentence Case Rule.** All labels, headings, chips, table headings and buttons are sentence case with normal tracking. The one exception is the sidebar's group names, which follow the Stitch design: 11px semibold uppercase with wider tracking. No uppercase tracked labels, and no eyebrow line above a heading; the only line above the greeting is the date.
 
 **The Tabular Figures Rule.** Numbers that are compared or scanned (tables, times, counts, figures) use tabular numerals.
 
@@ -327,7 +327,7 @@ Quiet, compact and firm.
 - **Error / Disabled:** the label stays; a 12px rose message appears beneath. Disabled fields take the well colour at 60% opacity.
 
 ### Navigation
-- **Sidebar:** teal-ink rail with the wordmark at top, sentence-case group names in 11px Rail Muted, items at 13.5px medium with an 18px icon. Hover gives a 6% white wash; the active item takes Rail Active with white text and a mint icon. The signed-in user sits at the bottom in a translucent card with a round initials avatar and a sign-out icon button.
+- **Sidebar (Stitch design):** a vertical gradient from #07191c through #0a2529 to #051518 with a #0e2a2e right edge. Behind the menu, thin emerald lines drift slowly downward, breathe in brightness and tilt slightly toward the pointer (a 2D canvas reproduction of the Stitch Three.js scene; a still frame under reduced motion). The header holds a #11998e pulse tile and "CareFlow" in Inter bold with "AI" in #2dd4bf, above a hairline. Group names are 11px semibold uppercase, tracking-wider, teal-200 at 60% (the Stitch 50% raised to clear 4.5:1). Items are 14px medium slate-300 with a 20px icon at 75% opacity, rounded-xl, with a #0c2b30 wash on hover; the active item takes #0f343a, a teal-500/20 border, a soft shadow, white text and a #2dd4bf icon. The signed-in user sits in a #051518 panel under a hairline: an emerald-950 avatar with an emerald ring and emerald-400 initials, name in white semibold, role in slate-400, and a sign-out icon button.
 - **Tabs:** underlined on a hairline; one 2px teal indicator slides to the selected tab (ink text, teal-tint count pill), and arrow keys move between tabs. On a patient record the tab bar stays pinned under the app header.
 - **Filters:** a segmented control on a raised well; a white selection pill with the resting shadow slides between options.
 
@@ -359,7 +359,7 @@ Errors are 8px-rounded rose-tint blocks with an alert icon, the message in ink a
 
 ### Don't:
 - **Don't** bring back the dark bedside-monitor world: matte black fields, condensed uppercase labels, channel colours, sweep or alarm-lamp motion.
-- **Don't** use uppercase tracked labels or put an eyebrow or kicker line above a heading.
+- **Don't** use uppercase tracked labels outside the sidebar group names, or put an eyebrow or kicker line above a heading.
 - **Don't** let colour be the only signal for a status or a result.
 - **Don't** narrate the access model or the engineering in user-facing copy (no "authorization-aware", "RAG" or permission talk outside administration and Model details).
 - **Don't** colour summary figures for decoration; only a status figure such as a non-zero critical count turns rose.

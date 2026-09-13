@@ -15,6 +15,7 @@ import { PERMS, useAuth } from "@/lib/auth";
 import { cn } from "@/lib/format";
 
 import { PatientSearch } from "./patient-search";
+import { RailStreams } from "./rail-streams";
 
 interface NavItem { href: string; label: string; icon: React.ElementType; perms?: string[]; anyOf?: string[] }
 
@@ -51,25 +52,15 @@ const NAV: { section: string; items: NavItem[] }[] = [
 
 const ROLE_LABEL = { ADMIN: "Administrator", DOCTOR: "Doctor", NURSE: "Nurse", RECEPTIONIST: "Reception" } as const;
 
-export function Wordmark({ tone = "dark", size = "md" }: { tone?: "dark" | "light"; size?: "md" | "lg" }) {
+/** The sidebar wordmark from the Stitch design: a teal pulse tile beside "CareFlow AI" in Inter. */
+function RailWordmark() {
   return (
-    <span className="flex items-center gap-2.5">
-      <span
-        className={cn(
-          "flex shrink-0 items-center justify-center rounded-[10px] bg-accent text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.18)]",
-          size === "lg" ? "h-9 w-9" : "h-8 w-8",
-        )}
-      >
-        <Activity className={size === "lg" ? "h-5 w-5" : "h-[18px] w-[18px]"} strokeWidth={2.25} aria-hidden />
+    <span className="flex items-center gap-3">
+      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#11998e] text-white shadow-sm shadow-teal-900/40 transition-transform duration-200 group-hover:scale-105">
+        <Activity className="h-5 w-5" strokeWidth={2.5} aria-hidden />
       </span>
-      <span
-        className={cn(
-          "font-display font-semibold tracking-[-0.01em]",
-          size === "lg" ? "text-[20px]" : "text-[17px]",
-          tone === "light" ? "text-white" : "text-ink",
-        )}
-      >
-        CareFlow <span className={tone === "light" ? "text-[#7fd8c8]" : "text-accent"}>AI</span>
+      <span className="font-sans text-lg font-bold tracking-tight text-white">
+        CareFlow <span className="ml-0.5 text-base font-medium text-[#2dd4bf]">AI</span>
       </span>
     </span>
   );
@@ -82,57 +73,73 @@ function Rail({ onNavigate }: { onNavigate?: () => void }) {
     (!item.perms || can(...item.perms)) && (!item.anyOf || item.anyOf.some((p) => can(p)));
 
   return (
-    <div className="flex h-full flex-col bg-rail text-rail-ink">
-      <Link href="/" onClick={onNavigate} className="flex h-16 items-center px-5">
-        <Wordmark tone="light" />
+    <div className="relative flex h-full select-none flex-col overflow-hidden border-r border-[#0e2a2e] bg-gradient-to-b from-[#07191c] via-[#0a2529] to-[#051518] font-sans text-slate-300">
+      <RailStreams />
+
+      <Link href="/" onClick={onNavigate} className="group relative z-10 flex h-16 shrink-0 items-center border-b border-[#0d2e33]/60 px-6">
+        <RailWordmark />
       </Link>
 
-      <nav className="scroll-rail flex-1 overflow-y-auto px-3 pb-4" aria-label="Primary">
+      <nav className="scroll-rail relative z-10 flex-1 space-y-6 overflow-y-auto px-3 py-4" aria-label="Primary">
         {NAV.map((group) => {
           const items = group.items.filter(visible);
           if (!items.length) return null;
           return (
-            <div key={group.section} className="mt-5 first:mt-2">
-              <div className="px-3 pb-1.5 text-[11px] font-medium text-rail-muted">{group.section}</div>
-              {items.map((item) => {
-                const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={onNavigate}
-                    aria-current={active ? "page" : undefined}
-                    className={cn(
-                      "group mt-0.5 flex items-center gap-3 rounded-lg px-3 py-2 text-[13.5px] font-medium transition-colors duration-150",
-                      active ? "bg-rail-2 text-white" : "text-[#bcd0d1] hover:bg-white/[0.06] hover:text-white",
-                    )}
-                  >
-                    <Icon
-                      className={cn("h-[18px] w-[18px] shrink-0 transition-colors", active ? "text-[#7fd8c8]" : "text-rail-muted group-hover:text-[#d6e6e5]")}
-                      aria-hidden
-                    />
-                    {item.label}
-                  </Link>
-                );
-              })}
+            <div key={group.section}>
+              {/* Uppercase group labels are the Stitch sidebar's own voice; the rest of the app stays sentence case. */}
+              <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-teal-200/60">{group.section}</p>
+              <div className="space-y-1">
+                {items.map((item) => {
+                  const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={onNavigate}
+                      aria-current={active ? "page" : undefined}
+                      className={cn(
+                        "group flex items-center gap-3 rounded-xl border px-3 py-2 text-sm font-medium transition-all duration-200",
+                        active
+                          ? "border-teal-500/20 bg-[#0f343a]/90 text-white shadow-sm shadow-teal-950/40 hover:bg-[#133f47]"
+                          : "border-transparent text-slate-300 hover:bg-[#0c2b30]/70 hover:text-white",
+                      )}
+                    >
+                      <Icon
+                        className={cn(
+                          "h-5 w-5 shrink-0 transition-[color,opacity] duration-150",
+                          active ? "text-[#2dd4bf]" : "opacity-75 group-hover:opacity-100",
+                        )}
+                        strokeWidth={1.8}
+                        aria-hidden
+                      />
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
           );
         })}
       </nav>
 
       {user && (
-        <div className="m-3 flex items-center gap-3 rounded-xl bg-white/[0.05] px-3 py-2.5">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#1f4a4a] text-[12px] font-semibold text-[#c9efe7]">
-            {initials(user.full_name)}
-          </span>
-          <div className="min-w-0 flex-1">
-            <div className="truncate text-[13px] font-medium text-white">{user.full_name}</div>
-            <div className="truncate text-[12px] text-rail-muted">{ROLE_LABEL[user.role]}</div>
+        <div className="relative z-10 border-t border-[#0e2a2e] bg-[#051518]/90 p-3 backdrop-blur-sm">
+          <div className="flex items-center justify-between gap-2 rounded-xl p-2 transition-colors duration-150 hover:bg-[#0c2b30]/70">
+            <div className="flex min-w-0 items-center gap-3">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-emerald-700/50 bg-emerald-950/80 text-sm font-semibold text-emerald-400">
+                {initials(user.full_name)}
+              </span>
+              <div className="flex min-w-0 flex-col">
+                <span className="truncate text-sm font-semibold leading-tight text-white">{user.full_name}</span>
+                <span className="truncate text-xs text-slate-400">{ROLE_LABEL[user.role]}</span>
+              </div>
+            </div>
+            <button type="button" onClick={logout} aria-label="Sign out" title="Sign out"
+              className="shrink-0 rounded-lg p-1 text-slate-400 transition-colors hover:bg-white/5 hover:text-white">
+              <LogOut className="h-5 w-5" strokeWidth={1.8} aria-hidden />
+            </button>
           </div>
-          <IconButton size="sm" label="Sign out" onClick={logout} className="text-rail-muted hover:bg-white/10 hover:text-white">
-            <LogOut className="h-4 w-4" />
-          </IconButton>
         </div>
       )}
     </div>
@@ -146,6 +153,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   if (loading && !user) {
     return <div className="flex min-h-screen items-center justify-center"><Spinner label="Loading your workspace" /></div>;
   }
+
 
   return (
     <div className="flex min-h-screen">
