@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "gray-on-color",
+        "value": "*",
+        "files": [
+          "frontend/app/login/page.tsx"
+        ],
+        "createdAt": "2026-09-13T09:00:50.435Z",
+        "reason": "Claude triage: flagged text-slate-100 (near-white) on bg-black, ~17:1 contrast; styling copied from the user's Stitch login design"
+      }
+    ]
+  }
+}

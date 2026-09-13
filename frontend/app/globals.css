@@ -90,12 +90,15 @@ body {
   caret-color: var(--color-accent);
 }
 
-h1,
-h2,
-h3 {
-  font-family: var(--font-display);
-  letter-spacing: -0.015em;
-  text-wrap: balance;
+/* In the base layer so a page's own utilities (font, tracking) can override the defaults. */
+@layer base {
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
 }
 
 .tabular,
@@ -211,6 +214,45 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 }
 .dot-pulse span:nth-child(2) { animation-delay: 0.15s; }
 .dot-pulse span:nth-child(3) { animation-delay: 0.3s; }
+
+/* ---- sign-in hero: the glowing care core (from the Stitch design) ------------------------- */
+@keyframes core-pulse-glow {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.85;
+    filter: drop-shadow(0 0 35px rgba(16, 185, 129, 0.55));
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 1;
+    filter: drop-shadow(0 0 60px rgba(52, 211, 153, 0.85));
+  }
+}
+@keyframes spin-clockwise {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes spin-counter-clockwise {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+@keyframes float-wave {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes ecg-scan {
+  0% { stroke-dashoffset: 600; opacity: 0.3; }
+  50% { stroke-dashoffset: 0; opacity: 1; }
+  100% { stroke-dashoffset: -600; opacity: 0.3; }
+}
+.animate-core-pulse { animation: core-pulse-glow 4s ease-in-out infinite; }
+.animate-spin-slow { animation: spin-clockwise 26s linear infinite; }
+.animate-spin-reverse-slow { animation: spin-counter-clockwise 32s linear infinite; }
+.animate-floating { animation: float-wave 5s ease-in-out infinite; }
+.ecg-path {
+  stroke-dasharray: 200 400;
+  animation: ecg-scan 4s linear infinite;
+}
 
 @media (prefers-reduced-motion: reduce) {
   *,
