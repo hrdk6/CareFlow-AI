@@ -53,24 +53,24 @@ export function PatientSearch() {
         }}
         placeholder="Find patient by MRN or name…"
         aria-label="Find patient"
-        className="h-9 w-full rounded-md border border-line-strong bg-sunken pl-9 pr-10 text-sm text-ink transition-colors duration-150 placeholder:text-faint hover:border-[#3d3d41] focus:border-accent focus:bg-panel focus:outline-none focus:ring-2 focus:ring-accent/25"
+        className="h-10 w-full rounded-xl border border-line bg-sunken pl-9 pr-10 text-sm text-ink transition-[border-color,box-shadow,background] duration-150 placeholder:text-faint hover:border-line-strong focus:border-accent focus:bg-panel focus:outline-none focus:ring-3 focus:ring-accent/15"
       />
       {!term && (
-        <kbd className="pointer-events-none absolute right-2.5 top-1/2 hidden -translate-y-1/2 rounded-sm border border-line-strong bg-raised px-1.5 py-0.5 font-mono text-[10px] text-muted sm:block">
+        <kbd className="pointer-events-none absolute right-2.5 top-1/2 hidden -translate-y-1/2 rounded-md border border-line bg-panel px-1.5 py-0.5 font-mono text-[10px] text-muted sm:block">
           /
         </kbd>
       )}
       {open && q.length >= 2 && (
-        <div className="animate-pop-in absolute left-0 right-0 top-11 z-40 overflow-hidden rounded-lg border border-line-strong bg-panel shadow-e3">
+        <div className="animate-pop-in absolute left-0 right-0 top-12 z-40 overflow-hidden rounded-xl border border-line bg-panel py-1 shadow-e3">
           {loading && !data && <div className="px-3 py-2.5 text-xs text-muted">Searching…</div>}
           {data && data.items.length === 0 && (
-            <div className="px-3 py-2.5 text-xs text-muted">No accessible patients match.</div>
+            <div className="px-3 py-2.5 text-xs text-muted">No patients match.</div>
           )}
           {data?.items.map((p) => (
             <button
               key={p.id}
               onMouseDown={() => go(p.id)}
-              className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-sm transition-colors hover:bg-raised"
+              className="flex w-full items-center justify-between gap-3 px-3.5 py-2 text-left text-sm transition-colors hover:bg-sunken"
             >
               <span className="min-w-0 truncate">
                 <span className="font-medium text-ink">{p.full_name}</span>{" "}

@@ -94,8 +94,10 @@ export function BarList({ items, format = (v) => v.toFixed(3), color = "bg-accen
 }
 
 /** Signed contributions (e.g. SHAP): bars grow right for "increases", left for "decreases". */
-export function DivergingBars({ items, format = (v) => (v >= 0 ? "+" : "") + v.toFixed(3) }: {
+export function DivergingBars({ items, format = (v) => (v >= 0 ? "+" : "") + v.toFixed(3), plain }: {
   items: { label: string; value: number; detail?: string }[]; format?: (v: number) => string;
+  /** Sentence-case direction words instead of monospace signed values. */
+  plain?: boolean;
 }) {
   const max = Math.max(...items.map((i) => Math.abs(i.value)), 1e-9);
   return (
@@ -103,8 +105,8 @@ export function DivergingBars({ items, format = (v) => (v >= 0 ? "+" : "") + v.t
       {items.map((i) => (
         <li key={i.label} className="text-xs">
           <div className="mb-0.5 flex justify-between gap-2">
-            <span className="truncate text-ink-2">{i.label}{i.detail && <span className="text-faint"> = {i.detail}</span>}</span>
-            <span className={cn("font-mono tabular-nums", i.value >= 0 ? "text-high" : "text-ok")}>{format(i.value)}</span>
+            <span className="truncate text-ink-2">{i.label}{i.detail && <span className="text-faint">{plain ? `: ${i.detail}` : ` = ${i.detail}`}</span>}</span>
+            <span className={cn("shrink-0 tabular-nums", plain ? "font-medium" : "font-mono", i.value >= 0 ? "text-high" : "text-ok")}>{format(i.value)}</span>
           </div>
           <div className="grid grid-cols-2 gap-px">
             <div className="flex h-2 justify-end rounded-l-sm bg-raised">

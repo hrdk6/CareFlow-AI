@@ -2,9 +2,8 @@ import { cn } from "@/lib/format";
 
 export type Tone = "neutral" | "brand" | "success" | "warning" | "danger" | "info" | "violet";
 
-/* Status tags on a monitor are rectangular and lettered, never soft pills; the lamp is square. */
 const TONES: Record<Tone, string> = {
-  neutral: "bg-raised text-ink-2 ring-line-strong",
+  neutral: "bg-raised text-ink-2 ring-line",
   brand: "bg-accent-tint text-accent ring-accent-edge",
   success: "bg-ok-tint text-ok ring-ok-edge",
   warning: "bg-warn-tint text-warn ring-warn-edge",
@@ -13,7 +12,7 @@ const TONES: Record<Tone, string> = {
   violet: "bg-ai-tint text-ai ring-ai-edge",
 };
 
-const LAMPS: Record<Tone, string> = {
+const DOTS: Record<Tone, string> = {
   neutral: "bg-faint", brand: "bg-accent", success: "bg-ok", warning: "bg-warn",
   danger: "bg-high", info: "bg-info", violet: "bg-ai",
 };
@@ -25,13 +24,13 @@ export function Badge({ tone = "neutral", children, className, title, dot }: {
     <span
       title={title}
       className={cn(
-        "inline-flex items-center gap-1.5 whitespace-nowrap rounded-sm px-1.5 py-px font-display text-[11px] font-semibold",
-        "uppercase leading-[18px] tracking-[0.06em] ring-1 ring-inset",
+        "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2 py-px text-[11px] font-medium leading-5",
+        "ring-1 ring-inset",
         TONES[tone],
         className,
       )}
     >
-      {dot && <span className={cn("h-1.5 w-1.5 shrink-0", LAMPS[tone])} aria-hidden />}
+      {dot && <span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", DOTS[tone])} aria-hidden />}
       {children}
     </span>
   );
@@ -47,11 +46,12 @@ const STATUS_TONES: Record<string, Tone> = {
 
 export function StatusBadge({ status }: { status: string }) {
   const tone = STATUS_TONES[status] ?? "neutral";
-  return <Badge tone={tone} dot={tone !== "neutral"}>{status.replace(/_/g, " ")}</Badge>;
+  const label = status.replace(/_/g, " ");
+  return <Badge tone={tone} dot={tone !== "neutral"}>{label.charAt(0).toUpperCase() + label.slice(1)}</Badge>;
 }
 
 const ROUTE_TONES: Record<string, Tone> = { SQL: "info", RAG: "violet", ML: "warning", SIMILARITY: "brand", LLM: "neutral" };
 
 export function RouteBadge({ route }: { route: string }) {
-  return <Badge tone={ROUTE_TONES[route] ?? "neutral"} className="font-mono text-[10px] normal-case tracking-normal">{route}</Badge>;
+  return <Badge tone={ROUTE_TONES[route] ?? "neutral"} className="font-mono text-[10px]">{route}</Badge>;
 }

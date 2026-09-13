@@ -66,7 +66,7 @@ export function AssistantPanel({ patientId, patientLabel, compact }: { patientId
               <Bot className="h-4 w-4 text-accent" />
               {patientLabel ? `Ask about ${patientLabel}` : "Ask about patients, schedules or hospital documents"}
             </div>
-            <p className="mt-1 text-xs text-muted">Answers use only records and documents you are authorized to access, cite their sources, and separate database facts, document passages and model predictions.</p>
+            <p className="mt-1 text-xs text-muted">Answers come from the hospital&apos;s own records and documents, and every answer shows the sources it used.</p>
             <div className="mt-3 flex flex-wrap gap-1.5">
               {prompts.map((p) => (
                 <button key={p} onClick={() => ask(p)} className="rounded-full border border-line bg-panel px-3 py-1.5 text-xs text-ink-2 shadow-e1 transition-all duration-150 hover:-translate-y-px hover:border-accent-edge hover:bg-accent-tint/60 hover:text-accent">{p}</button>
@@ -77,7 +77,7 @@ export function AssistantPanel({ patientId, patientLabel, compact }: { patientId
         {turns.map((t) => (
           <div key={t.id} className="space-y-2">
             <div className="flex justify-end">
-              <div className="max-w-[85%] rounded-2xl rounded-br-md bg-raised-2 px-3.5 py-2 text-sm leading-relaxed text-ink shadow-e1">{t.query}</div>
+              <div className="max-w-[85%] rounded-2xl rounded-br-md bg-accent px-3.5 py-2 text-sm leading-relaxed text-white shadow-e1">{t.query}</div>
             </div>
             {!t.response && !t.error && <Pending startedAt={t.startedAt} />}
             {t.error ? <ErrorState error={t.error} /> : null}
@@ -106,7 +106,7 @@ function Pending({ startedAt }: { startedAt: number }) {
     return () => clearInterval(id);
   }, []);
   const s = Math.round((now - startedAt) / 1000);
-  const stage = s < 2 ? "Routing question and checking access" : s < 5 ? "Retrieving authorized records and documents" : "Composing a grounded answer";
+  const stage = s < 2 ? "Understanding the question" : s < 5 ? "Looking through records and documents" : "Writing the answer";
   return (
     <div className="flex items-center gap-3 rounded-lg border border-line bg-panel p-3 text-sm text-muted">
       <span className="dot-pulse flex gap-1"><span className="h-1.5 w-1.5 rounded-full bg-accent" /><span className="h-1.5 w-1.5 rounded-full bg-accent" /><span className="h-1.5 w-1.5 rounded-full bg-accent" /></span>

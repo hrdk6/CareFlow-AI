@@ -61,7 +61,7 @@ export function Answer({ text, onCite, labels }: { text: string; onCite?: (id: s
       }
       flush();
       if (heading) {
-        out.push(<h3 key={`h${out.length}`} className="mb-1 mt-3 text-[13px] font-semibold uppercase tracking-wide text-ink-2">{inline(heading[1], onCite, labels)}</h3>);
+        out.push(<h3 key={`h${out.length}`} className="mb-1 mt-3 text-[14px] font-semibold text-ink">{inline(heading[1], onCite, labels)}</h3>);
       } else {
         out.push(<p key={`p${out.length}`} className="my-1.5">{inline(trimmed, onCite, labels)}</p>);
       }

@@ -73,13 +73,15 @@ patient similarity; AI assistant with cited answers; audit log; AI query traces;
 department, route (SQL / RAG / ML / SIMILARITY / LLM), citation markers `[S#]` (document passage)
 and `[R#]` (database record).
 
-**Undecided:** production hosting provider for the backend; whether a dark theme ships.
+**Undecided:** production hosting provider for the backend.
 
 ## Brand Commitments
 
 - Name: **CareFlow AI**.
 - Voice: plain, factual, calm. States reasons next to refusals. No hype, no exclamation marks.
 - Honesty about limits is part of the brand: the product names what it cannot do.
+- Light, calm interface in the original CareFlow teal (chosen 2026-09-13 after a dark monitor-style
+  version read as too technical). User-facing copy describes tasks, not the access model or the engineering.
 
 ## Evidence on Hand
 

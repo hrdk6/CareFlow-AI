@@ -20,7 +20,7 @@ export default function AnalyticsPage() {
   const los = cards?.find((c) => c.model_name === "length_of_stay" && c.is_active);
   return (
     <>
-      <PageHeader title="ML analytics" subtitle="Model cards, held-out evaluation and retrieval quality. All numbers are produced by the training and evaluation scripts, not entered by hand." />
+      <PageHeader title="Model performance" subtitle="How well the prediction models and the assistant's search perform on held-out data. Every figure comes from the evaluation scripts." />
       <Tabs active={tab} onChange={setTab} tabs={[
         { id: "readmission", label: "Readmission model" }, { id: "los", label: "Length-of-stay model" },
         { id: "rag", label: "RAG evaluation" }, { id: "similarity", label: "Patient similarity" },
@@ -141,7 +141,7 @@ function CandidatesTable({ rows, kind }: { rows: Record<string, unknown>[]; kind
   const cols = kind === "classification" ? ["roc_auc", "pr_auc", "f1"] : ["mae", "rmse", "r2"];
   return (
     <table className="w-full text-sm">
-      <thead><tr className="border-b border-line text-left text-[11px] uppercase text-muted"><th className="px-3 py-2">Candidate</th>{cols.map((c) => <th key={c} className="px-2">val {c}</th>)}<th className="px-2">test {cols[kind === "classification" ? 1 : 0]}</th></tr></thead>
+      <thead><tr className="border-b border-line text-left text-xs font-medium text-muted"><th className="px-3 py-2">Candidate</th>{cols.map((c) => <th key={c} className="px-2">Validation {c.replace(/_/g, "-").toUpperCase()}</th>)}<th className="px-2">Test {cols[kind === "classification" ? 1 : 0].replace(/_/g, "-").toUpperCase()}</th></tr></thead>
       <tbody className="divide-y divide-line">
         {rows.map((r) => {
           const v = r.validation as Record<string, number>, te = r.test as Record<string, number>;
@@ -176,7 +176,7 @@ function RagEval() {
       <Card title="Vector vs keyword vs hybrid vs hybrid + reranking" subtitle={`${data.questions} benchmark questions (${data.answerable} answerable) · top-k ${data.k} · generated ${data.generated_at}`} bodyClassName="p-0">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead><tr className="border-b border-line text-left text-[11px] uppercase text-muted"><th className="px-3 py-2">Metric</th>{modes.map((m) => <th key={m} className="px-3">{m}</th>)}</tr></thead>
+            <thead><tr className="border-b border-line text-left text-xs font-medium text-muted"><th className="px-3 py-2">Metric</th>{modes.map((m) => <th key={m} className="px-3">{m}</th>)}</tr></thead>
             <tbody className="divide-y divide-line">
               {metrics.map(([k, label]) => {
                 const values = modes.map((m) => data.modes[m][k] as number | null);
@@ -192,7 +192,7 @@ function RagEval() {
       </Card>
       <Card title="Recall@5 by question category" bodyClassName="p-0">
         <table className="w-full text-sm">
-          <thead><tr className="border-b border-line text-left text-[11px] uppercase text-muted"><th className="px-3 py-2">Category</th>{modes.map((m) => <th key={m} className="px-3">{m}</th>)}</tr></thead>
+          <thead><tr className="border-b border-line text-left text-xs font-medium text-muted"><th className="px-3 py-2">Category</th>{modes.map((m) => <th key={m} className="px-3">{m}</th>)}</tr></thead>
           <tbody className="divide-y divide-line">
             {cats.map((c) => <tr key={c}><td className="px-3 py-1.5">{c.replace("_", " ")} <span className="text-xs text-faint">n={(data.modes[modes[0]].by_category as Record<string, { n: number }>)[c].n}</span></td>
               {modes.map((m) => <td key={m} className="px-3 tabular-nums">{(data.modes[m].by_category as Record<string, { "recall@5": number }>)[c]["recall@5"].toFixed(2)}</td>)}</tr>)}
@@ -214,7 +214,7 @@ function SimilarityEval() {
   return (
     <Card title="Similarity validation (proxy metrics)" subtitle={`${data.patients} synthetic patients · k=${data.k} · overall 30-day readmission rate ${(data.overall_readmission_rate * 100).toFixed(1)}%`} bodyClassName="p-0">
       <table className="w-full text-sm">
-        <thead><tr className="border-b border-line text-left text-[11px] uppercase text-muted"><th className="px-3 py-2">Variant</th><th>Dept agreement@k</th><th>Diagnosis Jaccard</th><th>Neighbour readmit (readmitted)</th><th>(not readmitted)</th></tr></thead>
+        <thead><tr className="border-b border-line text-left text-xs font-medium text-muted"><th className="px-3 py-2">Variant</th><th>Dept agreement@k</th><th>Diagnosis Jaccard</th><th>Neighbour readmit (readmitted)</th><th>(not readmitted)</th></tr></thead>
         <tbody className="divide-y divide-line">
           {Object.entries(data.variants).map(([name, v]) => (
             <tr key={name}><td className="px-3 py-1.5">{name}</td><td className="tabular-nums">{num(v.department_agreement, 3)}</td><td className="tabular-nums">{num(v.diagnosis_jaccard, 3)}</td>

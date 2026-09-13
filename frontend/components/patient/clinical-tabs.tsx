@@ -54,7 +54,7 @@ export function RecordsTab({ patientId }: { patientId: number }) {
             {open === r.id && (
               <div className="grid gap-3 bg-sunken/60 px-4 pb-4 pt-1 text-sm sm:grid-cols-2">
                 {([["Symptoms", r.symptoms], ["Assessment", r.diagnosis_summary], ["Notes", r.notes], ["Plan", r.treatment_plan]] as const).map(([k, v]) => (
-                  <div key={k}><div className="text-[11px] font-semibold uppercase text-muted">{k}</div><p className="text-ink-2">{v || "—"}</p></div>
+                  <div key={k}><div className="text-xs font-medium text-muted">{k}</div><p className="text-ink-2">{v || "—"}</p></div>
                 ))}
                 <div className="text-[11px] text-faint sm:col-span-2">Record #{r.id}{r.admission_id ? ` · admission #${r.admission_id}` : ""}</div>
               </div>

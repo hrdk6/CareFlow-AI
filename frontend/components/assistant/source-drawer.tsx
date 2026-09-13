@@ -29,14 +29,14 @@ export function SourceDrawer({ citation, onClose }: { citation: Citation | null;
             {Boolean(data.flags?.injection_suspected) && <Badge tone="danger"><ShieldAlert className="h-3 w-3" /> Instruction-like content</Badge>}
           </div>
           <div>
-            <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-muted">Retrieved passage</div>
+            <div className="mb-1 text-xs font-medium text-muted">Retrieved passage</div>
             <blockquote className="whitespace-pre-wrap rounded-md border-l-4 border-ai bg-ai-tint/50 p-3 text-sm leading-relaxed text-ink">
               {data.text}
             </blockquote>
           </div>
           {citation && (
             <div>
-              <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-muted">Why it was retrieved</div>
+              <div className="mb-1 text-xs font-medium text-muted">Why it was retrieved</div>
               <dl className="grid grid-cols-2 gap-2 text-xs">
                 {Object.entries(citation.retrieval).map(([k, v]) => (
                   <div key={k} className="rounded bg-sunken px-2 py-1.5">

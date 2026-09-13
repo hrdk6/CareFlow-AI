@@ -50,7 +50,7 @@ function AppointmentsView() {
 
   return (
     <>
-      <PageHeader title="Appointments" subtitle="Daily schedule across the clinicians and patients you can access."
+      <PageHeader title="Appointments" subtitle="The daily clinic schedule. Book, check in and complete visits."
         actions={can(PERMS.appointmentsWrite) && <Button onClick={() => setBooking(true)}><CalendarPlus className="h-4 w-4" /> Book appointment</Button>} />
       <Card bodyClassName="p-0">
         <div className="flex flex-wrap items-center gap-2 border-b border-line p-3">
@@ -123,7 +123,7 @@ function BookModal({ initialPatient, doctors, onClose, onBooked }: {
         <Field label="Type"><Select value={type} onChange={(e) => setType(e.target.value)} options={["outpatient", "follow_up", "telehealth"].map((t) => ({ value: t, label: titleCase(t) }))} /></Field>
       </div>
       <div className="mt-3">
-        <div className="mb-1 text-xs font-medium text-ink-2">Available 30-minute slots (UTC)</div>
+        <div className="mb-1 text-xs font-medium text-ink-2">Available 30-minute slots</div>
         {!doctorId ? <p className="text-xs text-faint">Choose a clinician to see availability.</p> : loading ? <p className="text-xs text-faint">Loading…</p> :
           slots?.length ? (
             <div className="flex flex-wrap gap-1.5">

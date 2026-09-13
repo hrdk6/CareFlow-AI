@@ -1,6 +1,6 @@
 "use client";
 
-import { Gauge as GaugeIcon, Hourglass, Info } from "lucide-react";
+import { ChevronRight, Gauge as GaugeIcon, Hourglass, Info } from "lucide-react";
 
 import { DivergingBars, Gauge } from "@/components/charts";
 import { Badge } from "@/components/ui/badge";
@@ -12,16 +12,23 @@ import type { Prediction } from "@/lib/types";
 
 const BAND_TONE = { low: "success", moderate: "warning", high: "danger" } as const;
 
-function ModelMeta({ p }: { p: Prediction }) {
+/** Engineering provenance, folded away so the card reads as a clinical estimate first. */
+function ModelMeta({ p, children }: { p: Prediction; children?: React.ReactNode }) {
   return (
-    <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 border-t border-line pt-2 text-[11px] text-muted">
-      <span>Model <span className="font-mono text-ink-2">{p.model_name}@{p.model_version}</span></span>
-      <span>{p.model_algorithm}</span>
-      <span>trained {p.trained_at?.slice(0, 10)}</span>
-      <span>predicted {fmtDateTime(p.predicted_at)}</span>
-    </div>
+    <details className="group mt-4 border-t border-line pt-3 text-xs text-muted">
+      <summary className="flex cursor-pointer list-none items-center gap-1 font-medium text-ink-2 hover:text-ink [&::-webkit-details-marker]:hidden">
+        <ChevronRight className="h-3.5 w-3.5 transition-transform group-open:rotate-90" aria-hidden /> Model details
+      </summary>
+      <div className="mt-2 space-y-1.5 pl-[18px] leading-relaxed">
+        {children}
+        <p>Model <span className="font-mono text-ink-2">{p.model_name}@{p.model_version}</span> · {p.model_algorithm}</p>
+        <p>Trained {p.trained_at?.slice(0, 10)} · predicted {fmtDateTime(p.predicted_at)}</p>
+      </div>
+    </details>
   );
 }
+
+const riskWords = (v: number) => (v >= 0 ? "Raises risk" : "Lowers risk");
 
 export function RiskCard({ patientId, compact }: { patientId: number; compact?: boolean }) {
   const { data: p, error, loading, reload } = useApi<Prediction>(`/patients/${patientId}/risk`);
@@ -45,13 +52,15 @@ export function RiskCard({ patientId, compact }: { patientId: number; compact?: 
           <Gauge value={p.value} markers={[{ at: p.context.base_rate, label: "base" }, { at: p.threshold ?? 0, label: "alert" }, { at: p.context.high_risk_cutoff, label: "high" }]} />
           <p className="mt-4 text-[11px] text-muted">Scored for the admission of {fmtDate(p.reference?.admitted_at)} ({p.reference?.reason}).</p>
           <div className="mt-3">
-            <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted">Model factors contributing to this prediction</div>
-            <DivergingBars items={p.factors.slice(0, compact ? 4 : 8).map((f) => ({ label: f.label, detail: f.value, value: f.contribution }))} />
-            <p className="mt-2 text-[11px] text-faint">Red bars pushed the model&apos;s estimate up, green bars down (SHAP, {p.explanation_space?.replace("_", " ")} scale). They describe the model, not causes.</p>
+            <div className="mb-1.5 text-xs font-medium text-muted">What moved this estimate</div>
+            <DivergingBars plain format={riskWords} items={p.factors.slice(0, compact ? 4 : 8).map((f) => ({ label: f.label, detail: f.value, value: f.contribution }))} />
+            <p className="mt-2 text-xs text-muted">These describe how the model reached its estimate, not what caused the risk.</p>
           </div>
           {!p.in_training_population && <div className="mt-2"><Notice tone="warning">Outside the model&apos;s training population (diabetic inpatients).</Notice></div>}
           {!compact && p.notes.map((n) => <div key={n} className="mt-2"><Notice tone="info" icon={<Info className="h-3.5 w-3.5" />}>{n}</Notice></div>)}
-          <ModelMeta p={p} />
+          <ModelMeta p={p}>
+            <p>Factor sizes are SHAP contributions on the {p.explanation_space?.replace("_", " ")} scale.</p>
+          </ModelMeta>
         </>
       )}
     </Card>
@@ -78,12 +87,14 @@ export function LosCard({ patientId, compact }: { patientId: number; compact?: b
           </div>
           {!compact && (
             <div className="mt-3">
-              <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted">Model factors (days)</div>
-              <DivergingBars items={p.factors.map((f) => ({ label: f.label, detail: f.value, value: f.contribution }))} format={(v) => `${v >= 0 ? "+" : ""}${v.toFixed(2)} d`} />
+              <div className="mb-1.5 text-xs font-medium text-muted">What moved this estimate</div>
+              <DivergingBars plain items={p.factors.map((f) => ({ label: f.label, detail: f.value, value: f.contribution }))} format={(v) => `${v >= 0 ? "Adds" : "Shortens by"} ${Math.abs(v).toFixed(1)} d`} />
             </div>
           )}
-          <p className="mt-3 text-[11px] text-muted">Typical error ±{p.context.test_mae_days?.toFixed(1)} days (test MAE); admission-time features explain little of the variance (R² {p.context.test_r2?.toFixed(2)}).</p>
-          <ModelMeta p={p} />
+          <p className="mt-3 text-xs text-muted">Usually within ±{p.context.test_mae_days?.toFixed(1)} days. Details known at admission explain only a small part of how long stays last.</p>
+          <ModelMeta p={p}>
+            <p>Test MAE {p.context.test_mae_days?.toFixed(2)} days · R² {p.context.test_r2?.toFixed(2)}</p>
+          </ModelMeta>
         </>
       )}
     </Card>

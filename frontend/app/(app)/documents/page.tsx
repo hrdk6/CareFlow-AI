@@ -45,7 +45,7 @@ export default function DocumentsPage() {
 
   return (
     <>
-      <PageHeader title="Knowledge base" subtitle="Hospital guidelines, policies and authorized reports used by retrieval. Visibility follows each document's access scope."
+      <PageHeader title="Knowledge base" subtitle="Hospital guidelines, policies and reports the assistant can answer from."
         actions={manage && <>
           <Button variant="secondary" onClick={loadDemo}><Library className="h-4 w-4" /> Load demo corpus</Button>
           <Button onClick={() => setUploading(true)}><FileUp className="h-4 w-4" /> Upload</Button>
@@ -145,7 +145,7 @@ function DocumentDrawer({ id, onClose, canManage, onDeleted }: { id: number | nu
             {canManage && <Button size="sm" variant="danger" onClick={remove}><Trash2 className="h-3.5 w-3.5" /> Delete</Button>}
           </div>
           <div>
-            <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-muted">Chunks ({data.chunks.length})</div>
+            <div className="mb-2 text-xs font-medium text-muted">Chunks ({data.chunks.length})</div>
             <ol className="space-y-2">
               {data.chunks.map((c) => (
                 <li key={c.id} className={`rounded border p-2 text-xs ${c.flags?.injection_suspected ? "border-high-edge bg-high-tint" : "border-line"}`}>

@@ -18,20 +18,20 @@ export function Skeleton({ lines = 3, className }: { lines?: number; className?:
   return (
     <div className={cn("space-y-2.5", className)} aria-hidden>
       {Array.from({ length: lines }).map((_, i) => (
-        <div key={i} className="shimmer h-3 rounded-sm" style={{ width: `${92 - (i % 3) * 16}%` }} />
+        <div key={i} className="shimmer h-3 rounded-full" style={{ width: `${92 - (i % 3) * 16}%` }} />
       ))}
     </div>
   );
 }
 
-/** An empty channel: a quiet mark, a factual line, and at most one action. */
+/** An empty state: a quiet mark, a factual line, and at most one action. */
 export function EmptyState({ title, message, icon, action }: {
   title: string; message?: string; icon?: React.ReactNode; action?: React.ReactNode;
 }) {
   return (
     <div className="flex flex-col items-center justify-center px-4 py-10 text-center">
-      <div className="mb-2.5 text-faint">{icon ?? <Inbox className="h-5 w-5" />}</div>
-      <p className="font-display text-[13px] font-semibold uppercase tracking-[0.08em] text-muted">{title}</p>
+      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-raised text-faint">{icon ?? <Inbox className="h-5 w-5" />}</div>
+      <p className="text-sm font-medium text-ink-2">{title}</p>
       {message && <p className="mt-1 max-w-sm text-xs leading-relaxed text-muted">{message}</p>}
       {action && <div className="mt-4">{action}</div>}
     </div>
@@ -44,7 +44,7 @@ export function ErrorState({ error, onRetry, compact }: { error: unknown; onRetr
     <div
       role="alert"
       className={cn(
-        "flex items-start gap-3 rounded-md border border-high-edge bg-high-tint text-ink",
+        "flex items-start gap-3 rounded-lg border border-high-edge bg-high-tint text-ink",
         compact ? "p-2.5 text-xs" : "p-3.5 text-sm",
       )}
     >
@@ -72,7 +72,7 @@ export function Notice({ tone = "info", children, icon }: {
     danger: "border-high-edge bg-high-tint [&>svg]:text-high",
   };
   return (
-    <div className={cn("flex items-start gap-2 rounded-md border px-3 py-2 text-xs leading-relaxed text-ink", tones[tone])}>
+    <div className={cn("flex items-start gap-2 rounded-lg border px-3 py-2 text-xs leading-relaxed text-ink", tones[tone])}>
       {icon}
       <div className="min-w-0">{children}</div>
     </div>

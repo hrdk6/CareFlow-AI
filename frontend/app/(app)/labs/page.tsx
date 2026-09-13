@@ -23,7 +23,7 @@ export default function LabsPage() {
   const { data, error, loading, reload } = useApi<Page<LabReport>>(`/labs${qs({ flag, test_code: test, limit: LIMIT, offset })}`);
   return (
     <>
-      <PageHeader title="Laboratory reports" subtitle="Results with reference ranges; critical values follow policy CF-LAB-02." />
+      <PageHeader title="Laboratory reports" subtitle="Lab results with their normal ranges. Critical values are highlighted." />
       <Card bodyClassName="p-0">
         <div className="flex flex-wrap gap-2 border-b border-line p-3">
           <Select value={flag} onChange={(e) => { setFlag(e.target.value); setOffset(0); }} placeholder="Any flag" className="max-w-[160px]" aria-label="Flag"

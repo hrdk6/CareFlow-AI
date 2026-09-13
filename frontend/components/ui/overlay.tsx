@@ -36,7 +36,7 @@ export function Modal({ open, onClose, title, children, footer, wide }: {
   if (!open) return null;
   return (
     <div
-      className="animate-fade-in fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/70 p-4 pt-[7vh]"
+      className="animate-fade-in fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-[#0e2326]/40 p-4 pt-[7vh]"
       onMouseDown={onClose}
     >
       <div
@@ -45,16 +45,16 @@ export function Modal({ open, onClose, title, children, footer, wide }: {
         aria-label={title}
         onMouseDown={(e) => e.stopPropagation()}
         className={cn(
-          "animate-pop-in w-full rounded-lg border border-line-strong bg-panel shadow-e3",
+          "animate-pop-in w-full rounded-2xl border border-line bg-panel shadow-e3",
           wide ? "max-w-3xl" : "max-w-lg",
         )}
       >
-        <div className="flex items-center justify-between gap-3 border-b border-line px-5 py-3">
-          <h2 className="font-display text-[15px] font-semibold uppercase tracking-[0.06em] text-ink">{title}</h2>
+        <div className="flex items-center justify-between gap-3 border-b border-line px-6 py-4">
+          <h2 className="text-[17px] font-semibold text-ink">{title}</h2>
           <IconButton size="sm" label="Close" onClick={onClose}><X className="h-4 w-4" /></IconButton>
         </div>
-        <div className="px-5 py-4">{children}</div>
-        {footer && <div className="flex justify-end gap-2 rounded-b-lg border-t border-line bg-sunken px-5 py-3">{footer}</div>}
+        <div className="px-6 py-5">{children}</div>
+        {footer && <div className="flex justify-end gap-2 rounded-b-2xl border-t border-line bg-sunken px-6 py-3.5">{footer}</div>}
       </div>
     </div>
   );
@@ -67,22 +67,22 @@ export function Drawer({ open, onClose, title, subtitle, children }: {
   useScrollLock(open);
   if (!open) return null;
   return (
-    <div className="animate-fade-in fixed inset-0 z-50 flex justify-end bg-black/60" onMouseDown={onClose}>
+    <div className="animate-fade-in fixed inset-0 z-50 flex justify-end bg-[#0e2326]/35" onMouseDown={onClose}>
       <aside
         role="dialog"
         aria-modal="true"
         aria-label={title}
         onMouseDown={(e) => e.stopPropagation()}
-        className="animate-slide-in flex h-full w-full max-w-xl flex-col border-l border-line-strong bg-panel shadow-e3"
+        className="animate-slide-in flex h-full w-full max-w-xl flex-col border-l border-line bg-panel shadow-e3"
       >
-        <div className="flex items-start justify-between gap-3 border-b border-line px-5 py-4">
+        <div className="flex items-start justify-between gap-3 border-b border-line px-6 py-4">
           <div className="min-w-0">
-            <h2 className="font-display text-[15px] font-semibold uppercase tracking-[0.06em] text-ink">{title}</h2>
+            <h2 className="text-[17px] font-semibold text-ink">{title}</h2>
             {subtitle && <div className="mt-1 text-xs text-muted">{subtitle}</div>}
           </div>
           <IconButton size="sm" label="Close" onClick={onClose}><X className="h-4 w-4" /></IconButton>
         </div>
-        <div className="scroll-thin flex-1 overflow-y-auto px-5 py-4">{children}</div>
+        <div className="scroll-thin flex-1 overflow-y-auto px-6 py-5">{children}</div>
       </aside>
     </div>
   );

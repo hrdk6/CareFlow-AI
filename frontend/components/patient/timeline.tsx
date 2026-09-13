@@ -42,7 +42,7 @@ export function TimelineList({ patientId, months = 36, limit, filter }: {
         return (
           <li key={e.id}>
             {showYear && <div className="mb-1 mt-3 text-xs font-semibold text-faint">{year}</div>}
-            <div className="flex gap-3 border-l border-line pb-3 pl-4 last:pb-0">
+            <div className="flex gap-3 border-l border-line pb-5 pl-4 last:pb-0">
               <span className={cn("-ml-[29px] mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full ring-4 ring-line", meta.color)}>
                 <Icon className="h-3.5 w-3.5" />
               </span>
@@ -74,14 +74,14 @@ export function TimelineTab({ patientId }: { patientId: number }) {
   return (
     <Card title="Patient timeline" subtitle="Generated chronologically from structured records; every event links to its source row."
       actions={
-        <select value={months} onChange={(e) => setMonths(Number(e.target.value))} className="rounded border border-line-strong px-2 py-1 text-xs" aria-label="Period">
+        <select value={months} onChange={(e) => setMonths(Number(e.target.value))} className="rounded-lg border border-line-strong bg-panel px-2 py-1 text-xs" aria-label="Period">
           <option value={12}>12 months</option><option value={36}>3 years</option><option value={120}>10 years</option>
         </select>
       }>
       <div className="mb-3 flex flex-wrap gap-1.5">
-        <button onClick={() => setActive(null)} className={cn("rounded-full px-2.5 py-1 text-xs", !active ? "bg-raised-2 text-ink" : "bg-raised text-ink-2")}>All</button>
+        <button onClick={() => setActive(null)} className={cn("rounded-full px-2.5 py-1 text-xs font-medium transition-colors", !active ? "bg-accent text-white" : "bg-panel text-ink-2 ring-1 ring-inset ring-line hover:bg-sunken")}>All</button>
         {FILTERS.map(([label]) => (
-          <button key={label} onClick={() => setActive(label)} className={cn("rounded-full px-2.5 py-1 text-xs", active === label ? "bg-raised-2 text-ink" : "bg-raised text-ink-2")}>{label}</button>
+          <button key={label} onClick={() => setActive(label)} className={cn("rounded-full px-2.5 py-1 text-xs font-medium transition-colors", active === label ? "bg-accent text-white" : "bg-panel text-ink-2 ring-1 ring-inset ring-line hover:bg-sunken")}>{label}</button>
         ))}
       </div>
       <TimelineList patientId={patientId} months={months} filter={filter} />

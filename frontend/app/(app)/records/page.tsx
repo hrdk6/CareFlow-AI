@@ -21,7 +21,7 @@ export default function RecordsPage() {
   const { data, error, loading, reload } = useApi<Page<MedicalRecord>>(`/records${qs({ record_type: type, limit: LIMIT, offset })}`);
   return (
     <>
-      <PageHeader title="Medical records" subtitle="Clinical notes for patients within your care relationship. Access is audited." />
+      <PageHeader title="Medical records" subtitle="Visit notes, diagnoses and treatment plans." />
       <Card bodyClassName="p-0">
         <div className="border-b border-line p-3">
           <Select value={type} onChange={(e) => { setType(e.target.value); setOffset(0); }} placeholder="All record types" className="max-w-[220px]" aria-label="Record type"

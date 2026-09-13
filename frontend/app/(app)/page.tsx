@@ -1,12 +1,14 @@
 "use client";
 
-import { ArrowUpRight, Bot } from "lucide-react";
+import {
+  AlertCircle, ArrowRight, BedDouble, Bot, CalendarClock, ChevronRight, DoorOpen, FileText, FlaskConical,
+  MessageSquareText, ShieldOff, Users,
+} from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { PageHeader } from "@/components/ui/card";
 import { EmptyState, ErrorState, Skeleton } from "@/components/ui/feedback";
 import { PERMS, useAuth } from "@/lib/auth";
 import { cn, fmtDate, fmtTime, titleCase } from "@/lib/format";
@@ -17,7 +19,7 @@ interface CriticalResult {
   value_text: string | null; unit: string | null; reference_low: number | null; reference_high: number | null; collected_at: string;
 }
 
-interface Station {
+interface Dashboard {
   role: string; role_label: string; patients_visible: number; generated_at?: string;
   appointments_today?: { id: number; time: string; patient: string; patient_id: number; mrn: string; doctor: string; reason: string; status: string }[];
   appointments_today_count?: number; inpatients?: number; discharges_7d?: number; discharges_30d?: number;
@@ -27,37 +29,15 @@ interface Station {
   recent_discharges?: { patient_id: number; mrn: string; name: string; reason: string; discharged_at: string; disposition: string }[];
 }
 
-type Channel = "ok" | "info" | "warn" | "high" | "ai" | "accent";
-type ReadingState = "live" | "stale" | "untimed" | "restricted";
-
-/* The channel table, read once: label colour, the top rule and the sweep all come from here. */
-const CHANNEL: Record<Channel, { text: string; rule: string; varName: string }> = {
-  ok: { text: "text-ok", rule: "bg-ok", varName: "var(--color-ok)" },
-  info: { text: "text-info", rule: "bg-info", varName: "var(--color-info)" },
-  warn: { text: "text-warn", rule: "bg-warn", varName: "var(--color-warn)" },
-  high: { text: "text-high", rule: "bg-high", varName: "var(--color-high)" },
-  ai: { text: "text-ai", rule: "bg-ai", varName: "var(--color-ai)" },
-  accent: { text: "text-accent", rule: "bg-accent", varName: "var(--color-accent)" },
-};
-
-const STATE_LABEL: Record<ReadingState, { label: string; tone: string; lamp: string }> = {
-  live: { label: "Live", tone: "text-muted", lamp: "bg-ok" },
-  stale: { label: "Stale", tone: "text-warn", lamp: "bg-warn" },
-  untimed: { label: "No timestamp", tone: "text-muted", lamp: "bg-faint" },
-  restricted: { label: "Not permitted", tone: "text-faint", lamp: "bg-line-strong" },
-};
-
 const REFRESH_MS = 60_000;
-const STALE_MS = 3 * 60_000;
-const ALARMS_ON_MOBILE = 3;
 
 function ago(iso: string, now: number): string {
   const minutes = Math.max(0, Math.round((now - new Date(iso).getTime()) / 60_000));
   if (minutes < 1) return "just now";
   if (minutes < 60) return `${minutes} min ago`;
   const hours = Math.round(minutes / 60);
-  if (hours < 48) return `${hours} h ago`;
-  return `${Math.round(hours / 24)} d ago`;
+  if (hours < 48) return `${hours} ${hours === 1 ? "hour" : "hours"} ago`;
+  return `${Math.round(hours / 24)} days ago`;
 }
 
 function dayOfStay(admittedAt: string, now: number): number {
@@ -68,363 +48,326 @@ function resultValue(r: CriticalResult): string {
   return r.value !== null ? `${r.value}${r.unit ? ` ${r.unit}` : ""}` : r.value_text ?? "—";
 }
 
-/** How far a result sits outside its reference range, in range-widths. Drives alarm ordering. */
+/** How far a result sits outside its reference range, in range-widths. Orders the attention list. */
 function severity(r: CriticalResult): number {
   if (r.value === null || r.reference_low === null || r.reference_high === null) return 0;
   const width = r.reference_high - r.reference_low || 1;
   return Math.max((r.reference_low - r.value) / width, (r.value - r.reference_high) / width, 0);
 }
 
-function readingState(generatedAt: string | undefined, now: number): ReadingState {
-  if (!generatedAt) return "untimed";
-  return now - new Date(generatedAt).getTime() > STALE_MS ? "stale" : "live";
+function greeting(now: number): string {
+  const hour = new Date(now).getHours();
+  return hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 }
 
-function StateTag({ state, compact }: { state: ReadingState; compact?: boolean }) {
-  const s = STATE_LABEL[state];
+function firstName(fullName: string | undefined): string {
+  if (!fullName) return "";
+  const trimmed = fullName.trim();
+  const parts = trimmed.split(/\s+/);
+  if (/^Dr\.?$/i.test(parts[0])) return `Dr. ${parts[parts.length - 1]}`;
+  return parts[0];
+}
+
+function Avatar({ name, tone = "neutral" }: { name: string; tone?: "neutral" | "alert" }) {
+  const letters = name.replace(/^Dr\.\s*/, "").split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase()).join("");
   return (
-    <span className={cn("flex shrink-0 items-center gap-1.5 font-display text-[11px] font-semibold uppercase tracking-[0.12em]", s.tone)}
-      title={s.label}>
-      <span className={cn("h-1.5 w-1.5", s.lamp)} aria-hidden />
-      <span className={compact ? "sr-only sm:not-sr-only" : undefined}>{s.label}</span>
+    <span
+      className={cn(
+        "flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[12px] font-semibold",
+        tone === "alert" ? "bg-high-tint text-high ring-1 ring-inset ring-high-edge" : "bg-accent-tint text-accent",
+      )}
+      aria-hidden
+    >
+      {letters}
     </span>
   );
 }
 
-/** A channel cell inside the strip. Its position never changes; a refresh sweeps across it and a
- *  changed value settles in place from the channel colour. */
-function ChannelCell({ label, value, unit, context, contextShort, channel, sweepKey, href, state }: {
-  label: string; value: number | undefined; unit: string; context?: React.ReactNode; contextShort?: React.ReactNode;
-  channel: Channel; sweepKey: string; href?: string; state: ReadingState;
-}) {
-  const ch = CHANNEL[channel];
-  const restricted = state === "restricted";
-  const body = (
-    <>
-      <span className={cn("absolute inset-x-0 top-0 h-px", restricted ? "bg-line-strong" : ch.rule)} aria-hidden />
-      {!restricted && <span key={sweepKey} className="sweep-line" style={{ "--sweep-color": ch.varName } as React.CSSProperties} aria-hidden />}
-      {/* One fixed-height label row, so every numeric in the strip shares a baseline. */}
-      <div className="flex h-5 items-center justify-between gap-2">
-        <span className={cn("min-w-0 truncate font-display text-[12px] font-semibold uppercase tracking-[0.1em] sm:text-[13px]", restricted ? "text-faint" : ch.text)}>
-          {label}
-        </span>
-        <StateTag state={state} compact />
-      </div>
-      <div className="mt-2 flex items-end gap-2">
-        {restricted || value === undefined ? (
-          <span className="font-display text-[44px] font-semibold leading-[0.85] text-faint sm:text-[60px]" aria-label="No data for your role">—</span>
-        ) : (
-          <span
-            key={`${label}-${value}`}
-            className="value-settle tabular font-display text-[44px] font-semibold leading-[0.85] text-ink sm:text-[60px]"
-            style={{ "--settle-color": ch.varName } as React.CSSProperties}
-          >
-            {value}
-          </span>
-        )}
-        <span className="mb-0.5 font-display text-[12px] font-semibold uppercase tracking-[0.08em] text-muted sm:text-[13px]">{unit}</span>
-        {href && !restricted && <ArrowUpRight className="mb-1 ml-auto h-4 w-4 text-faint transition-colors group-hover:text-ink" aria-hidden />}
-      </div>
-      <div className="mt-2.5 min-h-[18px] text-xs text-muted">
-        {restricted ? (
-          <><span className="sm:hidden">Clinical only</span><span className="hidden sm:inline">Requires clinical access</span></>
-        ) : (
-          <>
-            <span className="block truncate sm:hidden">{contextShort ?? context}</span>
-            <span className="hidden truncate sm:block">{context}</span>
-          </>
-        )}
-      </div>
-    </>
-  );
-  const cell = "group relative block min-w-0 overflow-hidden bg-panel px-3.5 pb-3 pt-3.5 sm:px-4";
-  return href && !restricted
-    ? <Link href={href} className={cn(cell, "transition-colors duration-150 hover:bg-raised")}>{body}</Link>
-    : <div className={cell}>{body}</div>;
-}
-
-/** A panel section of the instrument: a channel-labelled header over flush content. */
-function Section({ title, meta, action, className, children, id }: {
-  title: React.ReactNode; meta?: React.ReactNode; action?: React.ReactNode; className?: string; children: React.ReactNode; id?: string;
+/** A card section with a title row and an optional link out. */
+function Panel({ title, count, description, href, linkLabel, className, children, id, style }: {
+  title: string; count?: number; description?: string; href?: string; linkLabel?: string; className?: string;
+  children: React.ReactNode; id?: string; style?: React.CSSProperties;
 }) {
   return (
-    <section id={id} className={cn("min-w-0 bg-panel", className)}>
-      <header className="flex items-center justify-between gap-3 border-b border-line px-4 py-2.5">
+    <section id={id} style={style} className={cn("rise min-w-0 overflow-hidden rounded-xl border border-line bg-panel shadow-e1", className)}>
+      <header className="flex items-center justify-between gap-3 px-5 pb-3 pt-4">
         <div className="min-w-0">
-          <h2 className="truncate font-display text-[13px] font-semibold uppercase tracking-[0.1em] text-ink-2">{title}</h2>
-          {meta && <p className="truncate text-xs text-muted">{meta}</p>}
+          <h2 className="flex items-center gap-2 text-[16px] font-semibold text-ink">
+            {title}
+            {count !== undefined && (
+              <span className="tabular rounded-full bg-raised px-2 text-[12px] font-medium leading-5 text-muted">{count}</span>
+            )}
+          </h2>
+          {description && <p className="mt-0.5 truncate text-[13px] text-muted">{description}</p>}
         </div>
-        {action}
+        {href && (
+          <Link href={href} className="group flex shrink-0 items-center gap-1 rounded-md text-[13px] font-medium text-accent hover:text-accent-strong">
+            {linkLabel ?? "View all"}
+            <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" aria-hidden />
+          </Link>
+        )}
       </header>
       {children}
     </section>
   );
 }
 
-/** The priority alarm bar: every critical result, ordered by how far it sits outside its reference
- *  range. The lamp flashes at the high-priority rate; entries never clip. */
-function AlarmBar({ data, now, clinical }: { data: Station; now: number; clinical: boolean }) {
-  if (!clinical) {
-    return (
-      <div className="flex items-center gap-3 rounded-sm border border-line bg-panel px-4 py-2.5">
-        <span className="h-2.5 w-2.5 shrink-0 bg-faint" aria-hidden />
-        <span className="font-display text-[13px] font-semibold uppercase tracking-[0.1em] text-muted">Alarm feed</span>
-        <span className="text-xs text-muted">Critical results are shown to clinical roles only.</span>
+/** A summary figure. Colour is spent only when the figure itself is a status. */
+function Summary({ label, value, context, icon: Icon, href, tone, i }: {
+  label: string; value: number | undefined; context: React.ReactNode; icon: React.ElementType; href?: string;
+  tone?: "high"; i: number;
+}) {
+  const alert = tone === "high" && (value ?? 0) > 0;
+  const body = (
+    <>
+      <div className="flex items-center justify-between gap-2">
+        <span className="flex min-w-0 items-start gap-2 text-[12px] font-medium text-muted sm:items-center sm:text-[13px]">
+          <Icon className={cn("h-4 w-4 shrink-0", alert ? "text-high" : "text-faint")} aria-hidden />
+          <span className="leading-tight sm:truncate">{label}</span>
+        </span>
+        {href && <ChevronRight className="hidden h-4 w-4 shrink-0 sm:block text-line-strong transition-[color,transform] duration-200 group-hover:translate-x-0.5 group-hover:text-accent" aria-hidden />}
       </div>
-    );
-  }
+      <div className={cn("tabular mt-3 font-display text-[28px] font-semibold leading-none tracking-[-0.02em] sm:text-[34px]", alert ? "text-high" : "text-ink")}>
+        {value ?? "—"}
+      </div>
+      <div className="mt-2 line-clamp-2 text-[12px] text-muted sm:truncate sm:text-[13px]">{context}</div>
+    </>
+  );
+  const cls = "rise group block min-w-0 rounded-xl border border-line bg-panel px-4 py-4 shadow-e1 sm:px-5";
+  const style = { "--i": i } as React.CSSProperties;
+  return href ? (
+    <Link href={href} style={style} className={cn(cls, "transition-[box-shadow,border-color,transform] duration-200 hover:-translate-y-0.5 hover:border-line-strong hover:shadow-e2")}>
+      {body}
+    </Link>
+  ) : (
+    <div style={style} className={cls}>{body}</div>
+  );
+}
+
+/** Critical lab results, most out-of-range first. Shown only when there is something to act on. */
+function Attention({ data, now }: { data: Dashboard; now: number }) {
   const results = [...(data.critical_results ?? [])].sort(
     (a, b) => severity(b) - severity(a) || new Date(b.collected_at).getTime() - new Date(a.collected_at).getTime(),
   );
-  const abnormal = (
-    <span className="tabular font-display text-[12px] font-semibold uppercase tracking-[0.08em] text-warn">
-      {data.abnormal_results_7d ?? 0} abnormal · 7 d
-    </span>
-  );
-  if (results.length === 0) {
-    return (
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-sm border border-ok-edge bg-ok-tint px-4 py-2.5">
-        <span className="h-2.5 w-2.5 shrink-0 bg-ok" aria-hidden />
-        <span className="font-display text-[13px] font-semibold uppercase tracking-[0.1em] text-ok">No critical results</span>
-        <span className="text-xs text-ink-2">Last 7 days, patients within your access.</span>
-        <span className="ml-auto">{abnormal}</span>
-      </div>
-    );
-  }
-  const hiddenOnMobile = Math.max(0, results.length - ALARMS_ON_MOBILE);
+  if (results.length === 0) return null;
+  const total = data.critical_results_7d ?? results.length;
   return (
-    <section aria-label="Critical results" className="overflow-hidden rounded-sm border border-high-edge bg-high-tint">
-      <header className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-high-edge px-4 py-2">
-        <span className="alarm-lamp h-2.5 w-2.5 shrink-0 bg-high" aria-hidden />
-        <span className="font-display text-[14px] font-bold uppercase tracking-[0.12em] text-high">Critical</span>
-        <span className="tabular font-display text-[14px] font-bold text-ink">{data.critical_results_7d}</span>
-        <span className="hidden text-xs text-ink-2 md:inline">Last 7 days · ordered by distance outside the reference range</span>
-        <span className="ml-auto flex items-center gap-4">
-          {abnormal}
-          <Link href="/labs" className="font-display text-[12px] font-semibold uppercase tracking-[0.1em] text-ink hover:underline">All results</Link>
-        </span>
+    <section aria-label="Critical results" className="rise overflow-hidden rounded-xl border border-high-edge bg-panel shadow-e1" style={{ "--i": 0 } as React.CSSProperties}>
+      <header className="flex flex-wrap items-center gap-x-3 gap-y-1 bg-high-tint px-5 py-3">
+        <span className="attention-dot h-2 w-2 shrink-0 rounded-full bg-high text-high" aria-hidden />
+        <h2 className="text-[15px] font-semibold text-ink">
+          {total} critical lab {total === 1 ? "result needs" : "results need"} review
+        </h2>
+        <span className="text-[13px] text-[#9e3049]">from the last 7 days</span>
+        <Link href="/labs" className="group ml-auto flex items-center gap-1 text-[13px] font-medium text-high hover:underline">
+          All lab results <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden />
+        </Link>
       </header>
-      <ul className="grid gap-px bg-high-edge/70 sm:grid-cols-2 xl:grid-cols-4">
-        {results.map((r, i) => (
-          <li key={r.id} className={cn("bg-high-tint", i >= ALARMS_ON_MOBILE && "hidden sm:block")}>
-            <Link href={`/patients/${r.patient_id}?tab=labs`} className="flex h-full items-start gap-3 px-4 py-2.5 transition-colors hover:bg-[#3b2224]">
-              <span className="tabular shrink-0 font-display text-[18px] font-bold uppercase leading-tight text-high">
-                {r.code} {resultValue(r)}
+      <ul className="grid grid-cols-1 divide-y divide-line md:grid-cols-2 md:divide-y-0">
+        {results.map((r, idx) => (
+          <li key={r.id} className={cn("min-w-0 md:border-t md:border-line", idx < 2 && "md:border-t-0", idx % 2 === 0 && "md:border-r")}>
+            <Link href={`/patients/${r.patient_id}?tab=labs`} className="group flex items-center gap-3 px-4 py-3 transition-colors hover:bg-sunken sm:px-5">
+              <Avatar name={r.name} tone="alert" />
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-sm font-medium text-ink">{r.name}</span>
+                <span className="block truncate text-[13px] text-muted">
+                  {r.test}
+                  {r.reference_low !== null && r.reference_high !== null && (
+                    <span className="hidden sm:inline"> · normal {r.reference_low}–{r.reference_high}</span>
+                  )}
+                  {" · "}{ago(r.collected_at, now)}
+                </span>
               </span>
-              <span className="min-w-0 leading-tight">
-                <span className="block truncate text-[13px] font-medium text-ink">
-                  {r.name} <span className="font-mono text-[11px] text-muted">{r.mrn}</span>
-                </span>
-                <span className="block truncate text-[11px] text-ink-2">
-                  {r.reference_low !== null && r.reference_high !== null ? `ref ${r.reference_low}–${r.reference_high} · ` : ""}{ago(r.collected_at, now)}
-                </span>
+              <span className="tabular shrink-0 rounded-lg bg-high-tint px-2.5 py-1 text-[13px] font-semibold text-high ring-1 ring-inset ring-high-edge">
+                {resultValue(r)}
               </span>
             </Link>
           </li>
         ))}
       </ul>
-      {hiddenOnMobile > 0 && (
-        <Link href="/labs" className="block border-t border-high-edge px-4 py-2 font-display text-[12px] font-semibold uppercase tracking-[0.1em] text-high sm:hidden">
-          + {hiddenOnMobile} more critical
-        </Link>
-      )}
     </section>
   );
 }
 
-function LiveStamp({ generatedAt, now }: { generatedAt?: string; now: number }) {
-  const state = readingState(generatedAt, now);
+function Row({ href, children, className }: { href: string; children: React.ReactNode; className?: string }) {
   return (
-    <span className="flex items-center gap-2" role="status">
-      <StateTag state={state} />
-      {generatedAt && <span className="tabular text-xs text-muted">updated {fmtTime(generatedAt)} UTC</span>}
-    </span>
+    <li className="border-t border-line first:border-t-0">
+      <Link href={href} className={cn("group flex items-center gap-3 px-5 py-3 transition-colors duration-150 hover:bg-sunken", className)}>
+        {children}
+        <ChevronRight className="h-4 w-4 shrink-0 text-line-strong transition-[color,transform] duration-200 group-hover:translate-x-0.5 group-hover:text-accent" aria-hidden />
+      </Link>
+    </li>
   );
 }
 
-export default function CentralStationPage() {
+export default function DashboardPage() {
   const { user, can } = useAuth();
-  const { data, error, loading, reload } = useApi<Station>("/dashboard");
+  const { data, error, loading, reload } = useApi<Dashboard>("/dashboard");
   const [now, setNow] = useState(() => Date.now());
 
-  // A monitor never goes quiet: refetch on a fixed cadence and keep the clock that ages each value.
+  // Keep the figures current during a shift without a manual reload.
   useEffect(() => {
     const refresh = setInterval(reload, REFRESH_MS);
-    const clock = setInterval(() => setNow(Date.now()), 20_000);
+    const clock = setInterval(() => setNow(Date.now()), 30_000);
     return () => { clearInterval(refresh); clearInterval(clock); };
   }, [reload]);
 
   const clinical = can(PERMS.clinical);
   const riskTab = can(PERMS.ml) ? "predictions" : "overview";
-  const sweepKey = data?.generated_at ?? "initial";
-  const reading = readingState(data?.generated_at, now);
-  const stateFor = (value: number | undefined): ReadingState => (value === undefined ? "restricted" : reading);
-  const alarmByPatient = new Map<number, CriticalResult>();
+  const flagged = new Map<number, CriticalResult>();
   for (const r of data?.critical_results ?? []) {
-    const known = alarmByPatient.get(r.patient_id);
-    if (!known || severity(r) > severity(known)) alarmByPatient.set(r.patient_id, r);
+    const known = flagged.get(r.patient_id);
+    if (!known || severity(r) > severity(known)) flagged.set(r.patient_id, r);
   }
+  const today = new Date(now).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+
+  const summaries = data ? [
+    !clinical && { label: "Registered patients", value: data.patients_visible, icon: Users, href: "/patients",
+      context: "Search or register from Patients" },
+    clinical && { label: "Admitted patients", value: data.inpatients, icon: BedDouble, href: "#admitted",
+      context: `${data.discharges_7d ?? 0} discharged this week` },
+    data.appointments_today_count !== undefined && { label: "Appointments today", value: data.appointments_today_count, icon: CalendarClock, href: "/appointments",
+      context: data.appointments_today?.[0] ? `Next at ${fmtTime(data.appointments_today[0].time)} · ${data.appointments_today[0].patient}` : "No more appointments today" },
+    clinical && { label: "Critical results", value: data.critical_results_7d, icon: FlaskConical, href: "/labs", tone: "high" as const,
+      context: `${data.abnormal_results_7d ?? 0} abnormal in the last 7 days` },
+    clinical && { label: "Recently discharged", value: data.discharges_30d, icon: DoorOpen, href: "#discharged",
+      context: "Last 30 days" },
+    data.ai_queries_24h !== undefined && { label: "AI questions today", value: data.ai_queries_24h, icon: MessageSquareText, href: "/admin",
+      context: "Every answer is traced" },
+    data.denied_events_24h !== undefined && { label: "Blocked access attempts", value: data.denied_events_24h, icon: ShieldOff, href: "/admin",
+      context: "Last 24 hours" },
+    data.documents_indexed !== undefined && (!clinical || data.ai_queries_24h !== undefined) && { label: "Knowledge documents", value: data.documents_indexed, icon: FileText, href: "/documents",
+      context: "Available to the assistant" },
+  ].filter(Boolean) as { label: string; value: number | undefined; icon: React.ElementType; href?: string; context: string; tone?: "high" }[] : [];
 
   return (
     <>
-      <PageHeader
-        title="Central station"
-        subtitle={`${user?.full_name ?? ""}${data ? ` · ${data.role_label}` : ""} · every channel is limited to the ${data?.patients_visible ?? "…"} patients you are authorised to see.`}
-        actions={
-          <>
-            {data && <LiveStamp generatedAt={data.generated_at} now={now} />}
-            {can(PERMS.ai) && (
-              <Link href="/assistant"><Button variant="secondary"><Bot className="h-4 w-4" /> Ask the assistant</Button></Link>
-            )}
-          </>
-        }
-      />
+      <div className="mb-7 flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
+        <div className="min-w-0">
+          <p className="text-sm text-muted">{today}</p>
+          <h1 className="mt-1 text-[30px] font-semibold leading-tight text-ink">
+            {greeting(now)}{user ? `, ${firstName(user.full_name)}` : ""}
+          </h1>
+          <p className="mt-1 text-[15px] text-muted">
+            {clinical ? "Here is what needs your attention today." : "Here is today at the front desk."}
+          </p>
+        </div>
+        {can(PERMS.ai) && (
+          <Link href="/assistant" tabIndex={-1}>
+            <Button><Bot className="h-4 w-4" /> Ask the assistant</Button>
+          </Link>
+        )}
+      </div>
+
       {error && <ErrorState error={error} onRetry={reload} />}
-      {loading && !data && <Skeleton lines={6} />}
+      {loading && !data && (
+        <div className="space-y-4">
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {[0, 1, 2, 3].map((i) => <div key={i} className="h-[118px] rounded-xl border border-line bg-panel p-5"><Skeleton lines={3} /></div>)}
+          </div>
+          <div className="h-72 rounded-xl border border-line bg-panel p-5"><Skeleton lines={7} /></div>
+        </div>
+      )}
 
       {data && (
-        <div className="space-y-4">
-          <AlarmBar data={data} now={now} clinical={clinical} />
+        <div className="space-y-6">
+          <Attention data={data} now={now} />
 
-          {/* One instrument: channel cells share their rules instead of floating as separate cards. */}
-          <div className="grid grid-cols-2 gap-px overflow-hidden rounded-sm border border-line bg-line xl:grid-cols-4">
-            <ChannelCell label="Inpatients" unit="patients" channel="ok" sweepKey={sweepKey} value={data.inpatients}
-              state={stateFor(data.inpatients)} href="#census"
-              context={`${data.discharges_7d ?? 0} discharged in the last 7 days`}
-              contextShort={`${data.discharges_7d ?? 0} out · 7 d`} />
-            <ChannelCell label="Outpatients today" unit="appts" channel="info" sweepKey={sweepKey} value={data.appointments_today_count}
-              state={stateFor(data.appointments_today_count)} href="/appointments"
-              context={data.appointments_today?.[0] ? `Next at ${fmtTime(data.appointments_today[0].time)} UTC · ${data.appointments_today[0].patient}` : "None remaining today"}
-              contextShort={data.appointments_today?.[0] ? `Next ${fmtTime(data.appointments_today[0].time)} UTC` : "None today"} />
-            <ChannelCell label="Critical results" unit="results" channel="high" sweepKey={sweepKey} value={data.critical_results_7d}
-              state={stateFor(data.critical_results_7d)} href="/labs"
-              context={`Last 7 days · ${data.abnormal_results_7d ?? 0} abnormal`}
-              contextShort={`7 d · ${data.abnormal_results_7d ?? 0} abnormal`} />
-            <ChannelCell label="Recent discharges" unit="patients" channel="warn" sweepKey={sweepKey} value={data.discharges_30d}
-              state={stateFor(data.discharges_30d)} href="#discharges"
-              context="Last 30 days · readmission-risk review"
-              contextShort="30 d · risk review" />
+          <div className={cn("grid grid-cols-2 gap-3 sm:gap-4", summaries.length === 3 ? "lg:grid-cols-3" : "xl:grid-cols-4")}>
+            {summaries.map((s, i) => <Summary key={s.label} {...s} i={i + 1} />)}
           </div>
 
-          {data.ai_queries_24h !== undefined && (
-            <div className="grid gap-px overflow-hidden rounded-sm border border-line bg-line sm:grid-cols-3">
-              <ChannelCell label="AI queries · 24 h" unit="queries" channel="ai" sweepKey={sweepKey} value={data.ai_queries_24h}
-                state={reading} href="/admin" context="Traced with route, sources and latency" />
-              <ChannelCell label="Denied access · 24 h" unit="events" channel="high" sweepKey={sweepKey} value={data.denied_events_24h}
-                state={reading} href="/admin" context="Blocked attempts recorded in the audit log" />
-              <ChannelCell label="Indexed documents" unit="docs" channel="accent" sweepKey={sweepKey} value={data.documents_indexed}
-                state={reading} href="/documents" context="Searchable by the assistant" />
-            </div>
-          )}
-
           {(data.census || data.recent_discharges) && (
-            <div className="grid gap-px overflow-hidden rounded-sm border border-line bg-line xl:grid-cols-3">
+            <div className="grid gap-6 xl:grid-cols-3">
               {data.census && (
-                <Section id="census" title={`Census · ${data.inpatients ?? data.census.length} admitted`} className="xl:col-span-2"
-                  action={<span className="font-display text-[11px] font-semibold uppercase tracking-[0.12em] text-faint">Day of stay</span>}>
-                  {data.census.length === 0 ? <EmptyState title="No current inpatients" /> : (
+                <Panel id="admitted" title="Admitted patients" count={data.inpatients ?? data.census.length}
+                  description="Most recent admissions first" href="/patients" linkLabel="All patients"
+                  className="xl:col-span-2" style={{ "--i": 5 } as React.CSSProperties}>
+                  {data.census.length === 0 ? <EmptyState title="No patients are admitted right now" /> : (
                     <ul>
                       {data.census.map((c) => {
-                        const alarm = alarmByPatient.get(c.patient_id);
+                        const alert = flagged.get(c.patient_id);
+                        const day = dayOfStay(c.admitted_at, now);
                         return (
-                          <li key={c.patient_id} className="border-b border-line last:border-b-0">
-                            <Link href={`/patients/${c.patient_id}${alarm ? "?tab=labs" : ""}`}
-                              className={cn("grid grid-cols-[64px_1fr_auto] items-center gap-3 px-4 py-2.5 transition-colors hover:bg-raised sm:grid-cols-[76px_1fr_170px_56px] sm:gap-4",
-                                alarm && "bg-high-tint/40")}>
-                              <span className={cn("rounded-sm border px-1.5 py-1 text-center font-mono text-[11px] font-medium",
-                                alarm ? "border-high-edge bg-high-tint text-high" : "border-ok-edge bg-ok-tint text-ok")}>
-                                {c.ward ?? "—"}
+                          <Row key={c.patient_id} href={`/patients/${c.patient_id}${alert ? "?tab=labs" : ""}`}>
+                            <Avatar name={c.name} tone={alert ? "alert" : "neutral"} />
+                            <span className="min-w-0 flex-1">
+                              <span className="flex min-w-0 items-center gap-2">
+                                <span className="truncate text-sm font-medium text-ink">{c.name}</span>
+                                <span className="hidden shrink-0 font-mono text-[11px] text-faint sm:inline">{c.mrn}</span>
+                                {alert && (
+                                  <span className="hidden shrink-0 items-center gap-1 rounded-full bg-high-tint px-2 text-[12px] font-medium leading-5 text-high ring-1 ring-inset ring-high-edge sm:flex">
+                                    <AlertCircle className="h-3.5 w-3.5" aria-hidden />{alert.test} {resultValue(alert)}
+                                  </span>
+                                )}
                               </span>
-                              <span className="min-w-0">
-                                <span className="block truncate text-sm font-medium text-ink">
-                                  {c.name} <span className="font-mono text-[11px] font-normal text-muted">{c.mrn}</span>
+                              <span className="block truncate text-[13px] text-muted">{c.reason}</span>
+                              {alert && (
+                                <span className="mt-1 flex w-fit items-center gap-1 rounded-full bg-high-tint px-2 text-[12px] font-medium leading-5 text-high ring-1 ring-inset ring-high-edge sm:hidden">
+                                  <AlertCircle className="h-3.5 w-3.5" aria-hidden />{alert.test} {resultValue(alert)}
                                 </span>
-                                <span className="block truncate text-xs text-muted">{c.reason}</span>
-                                {alarm && (
-                                  <span className="mt-0.5 flex items-center gap-1.5 font-display text-[12px] font-bold uppercase text-high sm:hidden">
-                                    <span className="alarm-lamp h-1.5 w-1.5 bg-high" aria-hidden />{alarm.code} {resultValue(alarm)}
-                                  </span>
-                                )}
-                              </span>
-                              {/* The bed row carries its own alarm, as a central station would. */}
-                              <span className="hidden min-w-0 sm:block">
-                                {alarm ? (
-                                  <span className="flex items-center gap-2">
-                                    <span className="alarm-lamp h-2 w-2 shrink-0 bg-high" aria-hidden />
-                                    <span className="tabular truncate font-display text-[15px] font-bold uppercase text-high">{alarm.code} {resultValue(alarm)}</span>
-                                  </span>
-                                ) : (
-                                  <span className="block truncate text-xs text-muted">{c.department}</span>
-                                )}
-                              </span>
-                              <span className="tabular text-right font-display text-[26px] font-semibold leading-none text-ink">
-                                {dayOfStay(c.admitted_at, now)}
-                              </span>
-                            </Link>
-                          </li>
+                              )}
+                            </span>
+                            <span className="hidden w-32 shrink-0 truncate text-[13px] text-muted lg:block">
+                              {c.ward ? `Ward ${c.ward}` : c.department}
+                            </span>
+                            <span className="tabular w-14 shrink-0 text-right text-[13px] text-ink-2">Day {day}</span>
+                          </Row>
                         );
                       })}
                     </ul>
                   )}
-                </Section>
+                </Panel>
               )}
 
               {data.recent_discharges && (
-                <Section id="discharges" title={`Recent discharges · ${data.discharges_30d ?? data.recent_discharges.length}`}
-                  meta="Last 30 days · check readmission risk">
-                  {data.recent_discharges.length === 0 ? <EmptyState title="No recent discharges" /> : (
+                <Panel id="discharged" title="Recently discharged" count={data.discharges_30d ?? data.recent_discharges.length}
+                  description={riskTab === "predictions" ? "Review readmission risk" : "Last 30 days"}
+                  className="self-start" style={{ "--i": 6 } as React.CSSProperties}>
+                  {data.recent_discharges.length === 0 ? <EmptyState title="No discharges in the last 30 days" /> : (
                     <ul>
                       {data.recent_discharges.map((d) => (
-                        <li key={`${d.patient_id}-${d.discharged_at}`} className="border-b border-line last:border-b-0">
-                          <Link href={`/patients/${d.patient_id}?tab=${riskTab}`}
-                            className="group flex items-start gap-3 px-4 py-2.5 transition-colors hover:bg-raised">
-                            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 bg-warn" aria-hidden />
-                            <span className="min-w-0 flex-1">
-                              <span className="block truncate text-sm font-medium text-ink">
-                                {d.name} <span className="font-mono text-[11px] font-normal text-muted">{d.mrn}</span>
-                              </span>
-                              <span className="block truncate text-xs text-muted">{d.reason}</span>
-                              <span className="tabular block text-[11px] text-ink-2">{fmtDate(d.discharged_at)} · to {titleCase(d.disposition)}</span>
+                        <Row key={`${d.patient_id}-${d.discharged_at}`} href={`/patients/${d.patient_id}?tab=${riskTab}`}>
+                          <Avatar name={d.name} />
+                          <span className="min-w-0 flex-1">
+                            <span className="block truncate text-sm font-medium text-ink">{d.name}</span>
+                            <span className="block truncate text-[13px] text-muted">
+                              {fmtDate(d.discharged_at)} · {titleCase(d.disposition)}
                             </span>
-                            <span className="mt-0.5 flex shrink-0 items-center gap-1 font-display text-[11px] font-semibold uppercase tracking-[0.1em] text-faint transition-colors group-hover:text-accent">
-                              {riskTab === "predictions" ? "Risk" : "Open"} <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
-                            </span>
-                          </Link>
-                        </li>
+                          </span>
+                        </Row>
                       ))}
                     </ul>
                   )}
-                </Section>
+                </Panel>
               )}
             </div>
           )}
 
           {data.appointments_today && (
-            <div className="overflow-hidden rounded-sm border border-line">
-              <Section title={`Outpatients today · ${data.appointments_today_count ?? 0}`}
-                action={<Link href="/appointments" className="font-display text-[12px] font-semibold uppercase tracking-[0.1em] text-accent hover:underline">Full schedule</Link>}>
-                {data.appointments_today.length === 0 ? (
-                  <p className="px-4 py-3 text-sm text-muted">No outpatient appointments are scheduled for today.</p>
-                ) : (
-                  <ul className="grid lg:grid-cols-2">
-                    {data.appointments_today.map((a) => (
-                      <li key={a.id} className="border-b border-line lg:odd:border-r">
-                        <Link href={`/patients/${a.patient_id}`} className="flex items-center gap-4 px-4 py-2.5 transition-colors hover:bg-raised">
-                          <span className="tabular w-12 font-display text-[18px] font-semibold text-info">{fmtTime(a.time)}</span>
-                          <span className="min-w-0 flex-1">
-                            <span className="block truncate text-sm font-medium text-ink">
-                              {a.patient} <span className="font-mono text-[11px] font-normal text-muted">{a.mrn}</span>
-                            </span>
-                            <span className="block truncate text-xs text-muted">{a.reason} · {a.doctor}</span>
-                          </span>
-                          <StatusBadge status={a.status} />
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </Section>
-            </div>
+            <Panel title="Today's appointments" count={data.appointments_today_count ?? 0} href="/appointments" linkLabel="Full schedule"
+              style={{ "--i": 7 } as React.CSSProperties}>
+              {data.appointments_today.length === 0 ? (
+                <p className="border-t border-line px-5 py-4 text-sm text-muted">No appointments are scheduled for today.</p>
+              ) : (
+                <ul className="grid lg:grid-cols-2">
+                  {data.appointments_today.map((a) => (
+                    <li key={a.id} className="border-t border-line lg:[&:nth-child(even)]:border-l">
+                      <Link href={`/patients/${a.patient_id}`} className="group flex items-center gap-4 px-5 py-3 transition-colors hover:bg-sunken">
+                        <span className="tabular w-14 shrink-0 rounded-lg bg-info-tint py-1.5 text-center text-[13px] font-semibold text-info">
+                          {fmtTime(a.time)}
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-sm font-medium text-ink">{a.patient}</span>
+                          <span className="block truncate text-[13px] text-muted">{a.reason} · {a.doctor}</span>
+                        </span>
+                        <StatusBadge status={a.status} />
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Panel>
           )}
         </div>
       )}

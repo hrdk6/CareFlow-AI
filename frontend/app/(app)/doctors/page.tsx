@@ -26,7 +26,7 @@ export default function DoctorsPage() {
   const { data: departments } = useApi<Department[]>("/departments");
   return (
     <>
-      <PageHeader title="Doctors" subtitle="Clinician directory and weekly availability templates (hospital time, UTC)."
+      <PageHeader title="Doctors" subtitle="Clinician directory and weekly clinic hours."
         actions={can(PERMS.users) ? <Button size="sm" onClick={() => setCreating(true)}><UserPlus className="h-3.5 w-3.5" /> New doctor</Button> : null} />
       {creating && <CreateDoctor departments={departments ?? []} onClose={() => setCreating(false)} onDone={() => { setCreating(false); reload(); }} />}
       <div className="mb-4 flex flex-wrap gap-2">

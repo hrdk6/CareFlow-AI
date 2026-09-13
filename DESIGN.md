@@ -1,324 +1,366 @@
 ---
 name: CareFlow AI
-description: A hospital information platform drawn as a bedside monitor - matte black field, hairline-ruled panels, and one channel table that gives every hue a single clinical meaning.
+description: A calm, light clinical workspace in CareFlow teal - white cards on a cool near-white canvas, a deep teal-ink sidebar, and quiet tinted status chips.
 colors:
-  field: "#070707"
-  rail: "#040404"
-  panel: "#0f0f10"
-  sunken: "#0a0a0b"
-  raised: "#171718"
-  raised-2: "#202022"
-  line: "#1f1f21"
-  line-strong: "#2e2e31"
-  ink: "#ededee"
-  ink-2: "#cbcbcf"
-  muted: "#a3a3a8"
-  faint: "#85858b"
-  on-signal: "#041014"
-  accent: "#38d5e6"
-  accent-tint: "#14292c"
-  accent-edge: "#1f5a61"
-  info: "#38d5e6"
-  info-tint: "#14292c"
-  info-edge: "#1f5a61"
-  ok: "#43de8c"
-  ok-tint: "#162a20"
-  ok-edge: "#235e3f"
-  warn: "#f4c34a"
-  warn-tint: "#2d2618"
-  warn-edge: "#665326"
-  high: "#ff6b6b"
-  high-tint: "#2e1b1c"
-  high-edge: "#6a3233"
-  ai: "#b79cff"
-  ai-tint: "#25212f"
-  ai-edge: "#4f456b"
+  field: "#f3f6f7"
+  panel: "#ffffff"
+  sunken: "#f7f9fa"
+  raised: "#eff3f5"
+  raised-2: "#e6ecef"
+  line: "#e3e9ec"
+  line-strong: "#cfd8dd"
+  rail: "#0e2326"
+  rail-2: "#16313a"
+  rail-ink: "#e4f1ef"
+  rail-muted: "#93aeb0"
+  ink: "#10222a"
+  ink-2: "#34474f"
+  muted: "#526770"
+  faint: "#5f727a"
+  on-signal: "#ffffff"
+  accent: "#0b7d6e"
+  accent-strong: "#09685c"
+  accent-tint: "#e8f6f3"
+  accent-edge: "#b5e2d8"
+  info: "#0369a1"
+  info-tint: "#eef7fd"
+  info-edge: "#c4e3f6"
+  ok: "#047857"
+  ok-tint: "#ecfaf3"
+  ok-edge: "#bde9d3"
+  warn: "#b45309"
+  warn-tint: "#fff8eb"
+  warn-edge: "#f6dca8"
+  high: "#d61f45"
+  high-tint: "#fff1f3"
+  high-edge: "#fac8d2"
+  ai: "#6d3fd8"
+  ai-tint: "#f4f1fe"
+  ai-edge: "#dcd2fb"
 typography:
   display:
-    fontFamily: "Barlow Semi Condensed, Arial Narrow, Segoe UI, system-ui, sans-serif"
-    fontSize: "60px"
+    fontFamily: "Hanken Grotesk, Inter, Segoe UI, system-ui, sans-serif"
+    fontSize: "44px"
     fontWeight: 600
-    lineHeight: 0.85
-    letterSpacing: "normal"
-    fontFeature: "\"tnum\" 1"
+    lineHeight: 1.08
+    letterSpacing: "-0.025em"
   headline:
-    fontFamily: "Barlow Semi Condensed, Arial Narrow, Segoe UI, system-ui, sans-serif"
-    fontSize: "28px"
-    fontWeight: 600
-    lineHeight: 1
-    letterSpacing: "-0.005em"
-  title:
-    fontFamily: "Barlow Semi Condensed, Arial Narrow, Segoe UI, system-ui, sans-serif"
-    fontSize: "13px"
+    fontFamily: "Hanken Grotesk, Inter, Segoe UI, system-ui, sans-serif"
+    fontSize: "30px"
     fontWeight: 600
     lineHeight: 1.25
-    letterSpacing: "0.1em"
+    letterSpacing: "-0.015em"
+  figure:
+    fontFamily: "Hanken Grotesk, Inter, Segoe UI, system-ui, sans-serif"
+    fontSize: "34px"
+    fontWeight: 600
+    lineHeight: 1
+    letterSpacing: "-0.02em"
+    fontFeature: "tnum"
+  title:
+    fontFamily: "Hanken Grotesk, Inter, Segoe UI, system-ui, sans-serif"
+    fontSize: "16px"
+    fontWeight: 600
+    lineHeight: 1.4
+    letterSpacing: "-0.015em"
   body:
     fontFamily: "Inter, Segoe UI, system-ui, -apple-system, sans-serif"
     fontSize: "14px"
     fontWeight: 400
     lineHeight: 1.5
-    letterSpacing: "normal"
-    fontFeature: "\"cv05\" 1, \"cv11\" 1"
+    fontFeature: "cv05, cv11"
+  body-sm:
+    fontFamily: "Inter, Segoe UI, system-ui, -apple-system, sans-serif"
+    fontSize: "13px"
+    fontWeight: 400
+    lineHeight: 1.45
   label:
-    fontFamily: "Barlow Semi Condensed, Arial Narrow, Segoe UI, system-ui, sans-serif"
-    fontSize: "11px"
-    fontWeight: 600
+    fontFamily: "Inter, Segoe UI, system-ui, -apple-system, sans-serif"
+    fontSize: "12px"
+    fontWeight: 500
     lineHeight: 1.4
-    letterSpacing: "0.1em"
+    letterSpacing: "normal"
   mono:
     fontFamily: "ui-monospace, Cascadia Code, SFMono-Regular, Menlo, monospace"
     fontSize: "11px"
     fontWeight: 400
     lineHeight: 1.4
-    letterSpacing: "normal"
 rounded:
-  sm: "0.25rem"
-  md: "0.375rem"
-  lg: "0.5rem"
-  xl: "0.625rem"
+  sm: "6px"
+  md: "8px"
+  lg: "12px"
+  xl: "14px"
+  2xl: "18px"
+  full: "999px"
 spacing:
-  hairline: "1px"
-  xs: "6px"
-  sm: "10px"
-  md: "16px"
-  lg: "24px"
+  hairline-gap: "4px"
+  row-y: "12px"
+  gutter: "16px"
+  card: "20px"
+  section: "24px"
+  page: "32px"
 components:
   button-primary:
     backgroundColor: "{colors.accent}"
     textColor: "{colors.on-signal}"
+    typography: "{typography.body}"
     rounded: "{rounded.md}"
-    padding: "0 14px"
+    padding: "0 16px"
     height: "36px"
   button-primary-hover:
-    backgroundColor: "#62e0ee"
+    backgroundColor: "{colors.accent-strong}"
+    textColor: "{colors.on-signal}"
   button-secondary:
-    backgroundColor: "{colors.raised}"
+    backgroundColor: "{colors.panel}"
     textColor: "{colors.ink}"
     rounded: "{rounded.md}"
-    padding: "0 14px"
+    padding: "0 16px"
     height: "36px"
   button-secondary-hover:
-    backgroundColor: "{colors.raised-2}"
+    backgroundColor: "{colors.sunken}"
   button-ghost:
+    backgroundColor: "transparent"
     textColor: "{colors.ink-2}"
     rounded: "{rounded.md}"
-    padding: "0 14px"
+    padding: "0 16px"
     height: "36px"
+  button-ghost-hover:
+    backgroundColor: "{colors.raised}"
+    textColor: "{colors.ink}"
   button-danger:
-    backgroundColor: "{colors.high-tint}"
+    backgroundColor: "{colors.panel}"
     textColor: "{colors.high}"
     rounded: "{rounded.md}"
-    padding: "0 14px"
+    padding: "0 16px"
     height: "36px"
+  button-danger-hover:
+    backgroundColor: "{colors.high-tint}"
   input:
-    backgroundColor: "{colors.sunken}"
+    backgroundColor: "{colors.panel}"
     textColor: "{colors.ink}"
     typography: "{typography.body}"
     rounded: "{rounded.md}"
     padding: "6px 12px"
     height: "36px"
-  input-focus:
+  card:
     backgroundColor: "{colors.panel}"
-  status-tag:
+    rounded: "{rounded.xl}"
+    padding: "{spacing.card}"
+  chip-neutral:
     backgroundColor: "{colors.raised}"
     textColor: "{colors.ink-2}"
-    typography: "{typography.label}"
-    rounded: "{rounded.sm}"
-    padding: "1px 6px"
-  status-tag-high:
-    backgroundColor: "{colors.high-tint}"
-    textColor: "{colors.high}"
-    rounded: "{rounded.sm}"
-  panel:
-    backgroundColor: "{colors.panel}"
-    rounded: "{rounded.lg}"
-    padding: "16px"
-  channel-cell:
-    backgroundColor: "{colors.panel}"
-    textColor: "{colors.ink}"
-    typography: "{typography.display}"
-    padding: "14px 16px 12px"
-  tab-key:
-    backgroundColor: "{colors.sunken}"
-    textColor: "{colors.muted}"
-    typography: "{typography.title}"
-    padding: "8px 14px"
-  tab-key-selected:
-    backgroundColor: "{colors.raised}"
-    textColor: "{colors.ink}"
-  advisory-band:
+    rounded: "{rounded.full}"
+    padding: "1px 8px"
+  chip-brand:
+    backgroundColor: "{colors.accent-tint}"
+    textColor: "{colors.accent}"
+    rounded: "{rounded.full}"
+    padding: "1px 8px"
+  chip-success:
+    backgroundColor: "{colors.ok-tint}"
+    textColor: "{colors.ok}"
+    rounded: "{rounded.full}"
+    padding: "1px 8px"
+  chip-warning:
     backgroundColor: "{colors.warn-tint}"
     textColor: "{colors.warn}"
-    typography: "{typography.label}"
-    padding: "6px 24px"
+    rounded: "{rounded.full}"
+    padding: "1px 8px"
+  chip-danger:
+    backgroundColor: "{colors.high-tint}"
+    textColor: "{colors.high}"
+    rounded: "{rounded.full}"
+    padding: "1px 8px"
+  chip-info:
+    backgroundColor: "{colors.info-tint}"
+    textColor: "{colors.info}"
+    rounded: "{rounded.full}"
+    padding: "1px 8px"
+  chip-violet:
+    backgroundColor: "{colors.ai-tint}"
+    textColor: "{colors.ai}"
+    rounded: "{rounded.full}"
+    padding: "1px 8px"
+  nav-item:
+    backgroundColor: "transparent"
+    textColor: "{colors.rail-ink}"
+    rounded: "{rounded.md}"
+    padding: "8px 12px"
+  nav-item-active:
+    backgroundColor: "{colors.rail-2}"
+    textColor: "{colors.on-signal}"
+  avatar:
+    backgroundColor: "{colors.accent-tint}"
+    textColor: "{colors.accent}"
+    rounded: "{rounded.full}"
+    size: "36px"
+  avatar-alert:
+    backgroundColor: "{colors.high-tint}"
+    textColor: "{colors.high}"
+    rounded: "{rounded.full}"
+    size: "36px"
 ---
 
 # Design System: CareFlow AI
 
 ## Overview
 
-**Creative North Star: "The Bedside Monitor"**
+**Creative North Star: "The Calm Ward Desk"**
 
-CareFlow AI is drawn as a central monitoring station. The scene is a clinician glancing between patients beside monitor-adjacent equipment, so the field is matte black, the planes are flat, and nothing on screen is lit unless it means something. Every figure is a channel at a fixed position: a condensed uppercase label in its clinical colour, a near-white monitor-scale numeric in tabular figures, and a quiet line of context beneath. Prose and tables recede into a neutral sans so the channels read first.
+CareFlow reads like finished hospital software on a well-lit desk: a cool near-white canvas, white cards sitting on hairline borders with soft shadows, and a deep teal-ink sidebar that anchors the page. One teal accent carries action and selection. Everything else is quiet neutrals, so that the only loud thing on a screen is the thing that needs a clinician's attention.
 
-Density is high but ordered. Instruments are built from flush cells that share 1px rules rather than floating as separate cards, and the grid never moves: when data refreshes a thin sweep line crosses each channel and changed values settle in place. Colour is never decoration. One channel table supplies every hue on screen, and each hue carries exactly one meaning, so a red lamp is an alarm and nothing else.
+Density is moderate and operational. A signed-in screen leads with what needs attention (a rose attention panel, shown only when there is something to act on), then summary figures, then lists of patients a user opens by clicking a row. Headings and figures are set in Hanken Grotesk, text and tables in Inter, all in sentence case. Motion is small and earned: rows and cards lift on hover, an arrow slides a few pixels, and sections rise once on first load.
 
-The world refuses the SaaS dashboard grammar: same-size KPI cards with icon tiles, gradient text, decorative blur, soft pill tags and card shadows. Honesty about state is part of the surface: every value declares whether it is live, stale, untimed or withheld, and every time is labelled with its zone.
+This world replaces a dark "bedside monitor" treatment (matte black, condensed uppercase labels, channel colours, sweep and alarm-lamp motion) that the user rejected as too technical. Do not reintroduce the instrument costume.
 
 **Key Characteristics:**
-- Matte black field with neutral greys of near-equal RGB, never blue slate; `color-scheme: dark`.
-- One channel table (cyan, green, yellow, red, violet) is the only source of hue.
-- Depth by 1px rules; only floating layers cast a shadow.
-- Barlow Semi Condensed for channel labels, headings and numerics; Inter for prose and tables.
-- Small radii, rectangular tags, square lamps.
-- One authored motion: the monitor sweep with value-settle; a 2 Hz alarm lamp for high priority.
+- Light, cool canvas with white cards on 1px hairline borders and soft, ink-tinted shadows.
+- A deep teal-ink sidebar is the only dark surface in the app shell.
+- One teal accent for primary actions, selection, links and focus.
+- Status lives in pill chips: a pale tint, a readable ink, and a matching inset ring.
+- Sentence case everywhere; Hanken Grotesk for headings and figures, Inter for text and tables.
+- Hover lift, sliding row arrows, and a one-time staggered rise; nothing flashes.
 
 ## Colors
 
-A near-black instrument face with five saturated signal hues, each paired with a dark tint (fill) and a mid edge (rule).
+A cool, low-chroma neutral family around one clinical teal, with five quiet status hues that always come as tint, ink and edge.
 
 ### Primary
-- **Monitor Cyan** (accent): the navigable channel. Primary buttons, links, focus rings, the caret, the lit lamp on the active nav item and the underline on the selected tab. Selection uses its edge.
-- **Advisory Cyan** (info): the same hue in its clinical role - scheduled, advisory, low priority, discharged, outpatient times. Kept as a separate token so role stays legible in code even though the value matches accent.
+- **CareFlow Teal** (accent): primary buttons, the wordmark tile, selected tabs, links, focus outlines, the caret, and selected demo-account tiles. **Deep Teal** (accent-strong) is its hover and pressed state. **Teal Mist** (accent-tint) with **Teal Edge** (accent-edge) fills brand chips, neutral avatars and selected counts.
 
 ### Secondary
-- **Census Green** (ok): census, stable, active, indexed, completed; clinical-access marks on the login role strip; the logo pulse.
-- **Caution Yellow** (warn): medium priority - admitted, abnormal, processing, recent-discharge review; the standing synthetic-data advisory.
-- **Alarm Red** (high): high priority - critical results, failed, denied, no-show, request errors. Never used to mark model error.
+- **Sky Advisory** (info, with info-tint and info-edge): informational notices, scheduled and discharged statuses, appointment time blocks, and correct cells in model charts.
+- **Assistant Violet** (ai, with ai-tint and ai-edge): anything the assistant authored or cited, such as the assistant label and source markers. Not a general decoration colour.
 
-### Tertiary
-- **Retrieval Violet** (ai): retrieval and model output - RAG routes, AI query channels, assistant provenance.
-
-Each signal has a **-tint** (panel fill behind that channel's band or tag) and an **-edge** (its ring or rule). Text on a tint is always the signal colour or ink.
+### Tertiary (status)
+- **Emerald** (ok, ok-tint, ok-edge): completed, active, indexed, and factors that lower risk.
+- **Amber** (warn, warn-tint, warn-edge): admitted status, moderate risk, warnings, and the synthetic-data advisory pill.
+- **Clinical Rose** (high, high-tint, high-edge): critical lab results, errors, denied and failed states, no-shows, high-risk bands and factors that raise risk, and the danger button.
 
 ### Neutral
-- **Field Black** (field): page background and top bar. **Rail Black** (rail) sits one step deeper under the navigation rail.
-- **Panel** (panel): every instrument cell, card and dialog face. **Sunken** (sunken): inputs, table heads, tab strips, modal footers. **Raised / Raised 2** (raised, raised-2): hover and selected rows, secondary buttons, skeleton shimmer.
-- **Rule** (line) and **Strong Rule** (line-strong): hairline dividers between cells and rows; strong rules for control strokes, table heads, overlays and scrollbar thumbs.
-- **Ink ramp**: ink for values and names, ink-2 for panel titles and secondary text, muted for context and field labels, faint for disabled marks, empty values and unlit lamps. **On-signal** is the dark text on a lit cyan key.
+- **Cool Canvas** (field): the page background behind every signed-in screen.
+- **Paper White** (panel): cards, header bar (at 90% with backdrop blur), dialogs, the sign-in form side.
+- **Well** (sunken): table heads, dialog footers, row hover fill, disabled inputs.
+- **Raised / Pressed** (raised, raised-2): hover and pressed fills for ghost controls, neutral chips, count pills, empty-state marks.
+- **Hairline / Strong Hairline** (line, line-strong): card borders and row dividers; input borders, secondary button rings and resting row chevrons.
+- **Teal Ink** (ink), **Slate Ink** (ink-2), **Muted** (muted), **Faint** (faint): primary text, secondary text and table cells, supporting lines and labels, placeholders and MRNs. Faint still clears 4.5:1 on the canvas.
+- **Rail Teal-Ink** (rail) and **Rail Active** (rail-2), with **Rail Ink** (rail-ink) and **Rail Muted** (rail-muted): the sidebar, the sign-in brand panel, and the modal and drawer scrims (rail at 35-45%).
 
 ### Named Rules
-**The Channel Table Rule.** Hue exists only in the channel table, and each hue has one meaning. If a colour is not accent, info, ok, warn, high or ai, it is a neutral.
+**The One Teal Rule.** Teal is the only action and selection colour. Summary figures and headings stay in ink; a figure takes colour only when the figure is itself a status.
 
-**The Near-White Value Rule.** The label and the top rule carry the channel colour; the number stays near-white so it reads first. Colour arrives on a value only while it settles.
+**The Rose Means Danger Rule.** Rose is reserved for critical results, errors, denials and failures, and risk that is going up. Never use it for emphasis, branding, or a merely negative-sounding number.
 
-**The Red Means Alarm Rule.** Red marks a clinical alarm, a failure or a denial. Wrong model predictions render neutral, correct ones advisory cyan.
+**The Tint, Ink, Edge Rule.** Every status colour appears as a three-part set: pale tint fill, full-strength ink text, and a 1px inset ring in the edge tone. Never a saturated fill with white text for status.
 
 ## Typography
 
-**Display Font:** Barlow Semi Condensed 500/600/700 (with Arial Narrow, Segoe UI, system-ui), self-hosted via next/font
-**Body Font:** Inter (with Segoe UI, system-ui, -apple-system), self-hosted via next/font, `cv05` and `cv11` on
-**Label/Mono Font:** ui-monospace stack for MRNs, staff codes, ward codes, request IDs and route tags
+**Display Font:** Hanken Grotesk 500/600/700 (with Inter, Segoe UI, system-ui)
+**Body Font:** Inter (with Segoe UI, system-ui, -apple-system)
+**Label/Mono Font:** ui-monospace stack, only for identifiers such as MRNs, model versions, request IDs and route codes
 
-**Character:** A condensed grotesk in the register of monitor readouts carries every label and numeric; a quiet, even sans carries sentences and table cells so the readouts stay dominant.
+**Character:** A friendly, slightly humanist grotesk for headings and numbers over a highly legible UI sans. The pairing reads as confident software, not as a lab instrument.
 
 ### Hierarchy
-- **Display** (600, 60px desktop / 44px mobile, 0.85): channel numerics in the station strip. Smaller numeric readouts use the same face: 40px on the login role strip, 32px in StatCard, 26px day-of-stay, 18px alarm values and appointment times. The login hero headline runs 48px at 1.02.
-- **Headline** (600, 28px, 1, -0.005em): page titles. Sign-in heading 30px. Modal and drawer titles 15px uppercase 0.06em.
-- **Title** (600, 13px, uppercase, 0.08-0.1em): panel and section headers, channel labels (12px mobile), tab keys (0.06em), empty-state titles.
-- **Body** (400/500, 14px, 1.5): prose, table cells, names. Context lines 12px muted; secondary lines 11px. Subtitles cap at `max-w-3xl`.
-- **Label** (600, 11px, uppercase, 0.1-0.14em): field labels, table column heads, state tags, nav group names, key-value terms.
+- **Display** (600, 44px, 1.08, -0.025em): the sign-in brand panel headline only.
+- **Headline** (600, 30px, tight): the dashboard greeting and the sign-in form heading; ordinary page headers use 26px.
+- **Figure** (600, 34px desktop / 28px mobile, line-height 1, -0.02em, tabular): summary card numbers.
+- **Title** (600, 15-17px): card, panel, dialog and drawer titles.
+- **Body** (400, 14px, 1.5): default text and table cells, tabular numerals in tables and times.
+- **Body small** (400-500, 13px): row secondary lines, panel descriptions, links out of panels.
+- **Label** (500, 11-13px, normal tracking, sentence case): field labels, table headings, chip text, sidebar group names.
 
 ### Named Rules
-**The Readout Face Rule.** Anything a clinician compares or scans - labels, units, counts, times, codes on alarms - is set in Barlow Semi Condensed. Sentences never are.
+**The Sentence Case Rule.** All labels, headings, chips, table headings, nav groups and buttons are sentence case with normal tracking. No uppercase tracked labels, and no eyebrow line above a heading; the only line above the greeting is the date.
 
-**The Tabular Rule.** Tables, `<time>` and every `.tabular` value use tabular figures so digits align down a column and do not jitter on refresh.
+**The Tabular Figures Rule.** Numbers that are compared or scanned (tables, times, counts, figures) use tabular numerals.
 
 ## Layout
 
-A fixed 240px navigation rail on the left (hidden below `md`, replaced by a 256px slide-in drawer) and a sticky 56px top bar holding patient search and the station clock. Directly beneath the top bar sits the standing synthetic-data advisory band, full width. Content is centred to a 1560px maximum with 16px gutters on mobile and 24px from `md`.
+The app shell is a fixed 256px sidebar on large screens beside a fluid content column. The content column has a 64px sticky header (patient search at left, synthetic-data advisory pill at right from the xl breakpoint) and a main area capped at 1440px with 32px padding on desktop, 16px on mobile. Below lg the sidebar becomes a 288px slide-in drawer over a teal-ink scrim; below xl the advisory drops out of the header into its own full-width amber line, so it is visible on every screen.
 
-Instruments stack with 16px between them. Inside an instrument, cells sit flush on a `gap: 1px` grid over the rule colour inside a small-radius border, so the rules are shared rather than doubled. The station strip is 2 columns, 4 from `xl`; the admin strip 3 from `sm`; census and discharges split two thirds and one third from `xl`; alarm entries 2 columns from `sm`, 4 from `xl`, with only the first three shown on mobile and a "+ N more" link.
+The dashboard stacks sections 24px apart: the greeting row (heading left, primary action right), the attention panel, a row of summary cards (2 columns on mobile, 4 at xl, 3 when only three exist, 12-16px gaps), then admitted patients across two thirds with discharges in the right third at xl, then today's appointments in a two-column list. Cards pad 20px; list rows pad 12px by 20px. Wide tables scroll inside their card rather than widening the page.
 
-Rhythm: panel headers 16px x 10px; panel bodies 16px; list rows 16px x 10px; controls 32px (sm) or 36px (md) tall. Every channel cell reserves a fixed 20px label row so numerics share a baseline.
-
-**Every value declares its state.** Channels and the page stamp carry a square lamp and one of: **Live** (green lamp), **Stale** (older than 3 minutes, yellow), **No timestamp** (faint), **Not permitted** (the value becomes an em dash, the rule goes neutral, context reads "Requires clinical access"). The station refreshes every 60 seconds.
-
-**Hospital time.** All clock and schedule times render in hospital time, which is UTC in this demo, and are always labelled "UTC". This is a recorded deferral: showing IST requires a backend timezone change.
+Sign-in is a split screen at lg (1.1fr brand panel, 1fr form); the form column is capped at 420px, and the brand panel is hidden on small screens where the wordmark sits above the form.
 
 ## Elevation & Depth
 
-The system is flat. Depth comes from tonal planes (rail below field below panel below raised) and 1px rules; resting instruments, cards, tags and buttons cast no shadow. Only layers that float over content cast one, and those overlays sit on a 60-70% black scrim with no blur.
+A layered-light system: surfaces are separated first by hairline borders and tonal steps (canvas, white panel, well), then by soft shadows tinted with the ink colour rather than black. Shadows are ambient at rest and grow only in response to hover or when something floats above the page.
 
 ### Shadow Vocabulary
-- **Float** (`box-shadow: 0 18px 44px -12px rgba(0,0,0,0.75), 0 4px 10px -4px rgba(0,0,0,0.6)`): modal, drawer, mobile navigation drawer, patient search results.
-- **e1** (`0 1px 0 rgba(255,255,255,0.02)`) and **e2** (`0 2px 6px -1px rgba(0,0,0,0.45)`) are defined tokens with no sanctioned resting use.
+- **Resting** (`box-shadow: 0 1px 2px rgba(16,34,42,0.05), 0 1px 3px rgba(16,34,42,0.04)`): every card, summary card, panel and secondary button.
+- **Lifted** (`box-shadow: 0 2px 4px -1px rgba(16,34,42,0.06), 0 8px 20px -6px rgba(16,34,42,0.12)`): linked cards on hover, together with a 2px upward move and a stronger border.
+- **Floating** (`box-shadow: 0 24px 48px -12px rgba(16,34,42,0.24), 0 6px 14px -6px rgba(16,34,42,0.12)`): dialogs, drawers and the mobile navigation drawer.
 
 ### Named Rules
-**The Shared Rule Rule.** Instruments are flush cells sharing hairlines, never gapped cards with individual borders or shadows.
-
-**The Only Floaters Cast Rule.** A shadow means the layer is above the page. If it is not a modal, drawer or popover result list, it is flat.
+**The Lift On Intent Rule.** Surfaces rest on the resting shadow. Only something the user can open lifts, and only on hover: a 2px rise, the lifted shadow, and the row arrow sliding 2px toward teal.
 
 ## Shapes
 
-Hard-edged and small. Radii run 0.25rem (sm: status tags, instrument outlines, alarm bar, ward codes, skeleton bars, key hints) to 0.375rem (md: buttons, inputs, notices, avatar) to 0.5rem (lg: panels, tab strips, modals, search results); 0.625rem (xl) is the ceiling. Status tags are rectangular and lettered; lamps are unrounded squares (6px in tags and rows, 8-10px on bands). Channel cells carry a 1px coloured top rule; the selected tab carries a 2px cyan bottom rule. The only gradient in the system is the readmission-risk scale, where the green-yellow-red ramp is the data.
+Softly rounded, never pill-shaped for containers. Controls and small wells use 8px; cards, panels and demo-account tiles use 14px; dialogs and the sign-in product still use 18px. Chips, count pills, avatars and the advisory are full pills or circles. The wordmark tile is a 10px-rounded teal square. Borders are 1px hairlines; status shapes use a 1px inset ring rather than an outer border. Focus is a 2px teal outline offset by 2px.
 
 ## Components
 
 ### Buttons
-Monitor keys: flat, hard-edged, lit only by meaning.
-- **Shape:** gently squared (0.375rem), 36px tall with 14px sides (32px / 10px small), 14px medium Inter.
-- **Primary:** the one lit key - cyan face with dark on-signal text; lightens on hover, deepens on press.
-- **Secondary:** raised plane with an inset strong-rule ring; steps to raised-2 on hover.
-- **Ghost:** ink-2 text, raised plane on hover.
-- **Danger:** high tint with red text and a red-edge inset ring.
-- **Icon key:** square 32/36px, muted glyph, raised on hover; always carries an accessible label.
-- **Hover / Focus:** 150ms colour transition only, no lift. Focus is a 2px cyan outline offset 2px, globally. Disabled at 45% opacity.
+Quiet, compact and firm.
+- **Shape:** gently rounded (8px), 36px tall (32px small), 16px horizontal padding, 500 weight, icon gap 6px.
+- **Primary:** teal fill with white text, a faint teal drop and inner top highlight; hover deepens to Deep Teal, press nudges down 1px.
+- **Secondary:** white with a strong-hairline inset ring and resting shadow; hover to the well colour.
+- **Ghost:** no fill, slate ink; hover raised fill and ink text. Icon buttons are square ghost buttons on the same 32/36px rhythm and always carry an accessible label.
+- **Danger:** white with a rose ring and rose text; hover takes the rose tint. Never a solid red fill.
+- **Loading / Disabled:** a spinning loader inside the button; disabled drops to 50% opacity.
 
-### Status Tags
-- **Style:** 11px uppercase Barlow at 0.06em on the channel tint, signal-colour text, 1px inset edge ring, 0.25rem radius, optional square lamp.
-- **Mapping:** status words resolve through one table (active/completed/indexed green; admitted/processing/abnormal yellow; scheduled/discharged/uploading cyan; critical/failed/denied/no-show red; inactive/cancelled neutral). Route tags use mono at 10px: SQL cyan, RAG violet, ML yellow, SIMILARITY accent, LLM neutral.
+### Chips
+- **Style:** full pill, 11px medium text, 1px vertical and 8px horizontal padding, tint fill, ink text, inset edge ring. Status chips carry a 6px dot in the ink colour.
+- **Critical values:** the value chip in the attention panel is an 8px-rounded rose block with the value in semibold tabular text; inline critical chips in patient rows carry an alert icon plus the test name and value.
 
 ### Cards / Containers
-- **Corner Style:** 0.5rem for standalone panels; 0.25rem for multi-cell instruments.
-- **Background:** panel on field.
-- **Shadow Strategy:** none (see Elevation & Depth).
-- **Border:** 1px rule; header separated by a rule.
-- **Internal Padding:** 16px; header 16px x 10px with a 13px uppercase title in ink-2. Wide content scrolls inside the panel.
+- **Corner Style:** 14px.
+- **Background:** Paper White on the Cool Canvas.
+- **Shadow Strategy:** resting shadow; linked cards lift on hover (see Elevation).
+- **Border:** 1px hairline; the attention panel uses a rose edge with a rose-tint header strip.
+- **Internal Padding:** 20px; card headers 14px by 20px with a hairline beneath and actions on the right.
 
 ### Inputs / Fields
-- **Style:** sunken fill, 1px strong-rule stroke, 0.375rem radius, 36px tall, faint placeholder. Selects are native with a drawn chevron.
-- **Focus:** stroke turns cyan, fill lifts to panel, 2px cyan ring at 25%.
-- **Labels:** 11px uppercase Barlow in muted above; hints 11px muted; errors 11px red.
-- **Native chrome:** date-picker indicators are inverted to read on dark; the caret is cyan; selection is cyan edge with ink text; `.scroll-thin` scrollbars use a strong-rule thumb.
+- **Style:** white, 1px strong-hairline border, 8px radius, 36px tall (44px on sign-in), a barely-there shadow, faint placeholders. Selects use a drawn chevron rather than the OS arrow.
+- **Focus:** border turns teal with a 3px teal ring at 15% opacity.
+- **Error / Disabled:** the label stays; a 12px rose message appears beneath. Disabled fields take the well colour at 60% opacity.
 
 ### Navigation
-- **Rail:** rail-black column, 17px uppercase wordmark (CareFlow in ink, AI in cyan), 11px faint uppercase group names, 13px Inter items with 16px line icons.
-- **States:** muted at rest, panel on hover, raised with ink text and a cyan icon when active, plus a square cyan lamp at the right edge.
-- **Tabs:** a flat strip of labelled keys on sunken, divided by rules; selected key raised, ink, count in cyan, 2px cyan underline.
-- **Mobile:** the rail becomes a slide-in drawer over a 70% scrim.
+- **Sidebar:** teal-ink rail with the wordmark at top, sentence-case group names in 11px Rail Muted, items at 13.5px medium with an 18px icon. Hover gives a 6% white wash; the active item takes Rail Active with white text and a mint icon. The signed-in user sits at the bottom in a translucent card with a round initials avatar and a sign-out icon button.
+- **Tabs:** underlined on the card edge; the selected tab gets a 2px teal underline and ink text, with a teal-tint count pill.
 
-### Channel Cell (signature)
-A fixed-position readout: 1px top rule in the channel colour, a 20px row with the coloured label and state tag, a 60px near-white tabular numeric with a unit beside it, and one muted context line. On each refresh a sweep line in the channel colour crosses the cell left to right (1.1s, ease-out-expo) and a changed value settles from the channel colour to ink (1.2s, ease-out-quart). Linked cells step to raised on hover.
+### Patient Row
+The signature list item. A 36px round initials avatar (teal tint, or rose tint with a rose ring when the patient has a critical result), a name in 14px medium ink, a 13px muted second line, optional right-aligned context such as ward and day of stay in tabular figures, and a chevron in the strong hairline colour. On hover the row fills with the well colour and the chevron slides 2px and turns teal.
 
-### Alarm Bar (signature)
-A red-tint band with a red edge listing every critical result, ordered by distance outside the reference range: code and value in 18px bold red Barlow, patient and MRN, reference range and age. Its lamp flashes at 2 Hz with a 50% duty cycle (0.5s, stepped), inside the IEC 60601-1-8 high-priority band. With no criticals the band turns green-tint "No critical results"; for non-clinical roles it is a neutral "Alarm feed" notice. Census rows with an alarm carry the same flashing lamp and value.
+### Attention Panel
+Shown only when critical results exist. A rose-edged card with a rose-tint header: a rose dot with a slow expanding ring (2.4s, disabled under reduced motion), a sentence such as "3 critical lab results need review", a muted period, and a rose link out. Results lay out as patient rows in two columns at md, most out-of-range first, each ending in its value chip.
 
-### Advisory Band
-The synthetic-data notice under the top bar: warn tint, warn-edge bottom rule, square yellow lamp, 12px uppercase yellow Barlow. Always present on authenticated screens and never dismissible.
+### Model Details Disclosure
+Predictions read as a plain-language clinical estimate first: a large figure, a risk band chip, and factor bars labelled in words ("Raises risk" in rose, "Lowers risk" in emerald). Engineering provenance (model name and version, algorithm, training date, SHAP scale, error metrics) folds into a collapsed "Model details" disclosure with a rotating chevron beneath a hairline.
 
-### Motion
-Motion is limited to the sweep, value-settle, the alarm lamp, overlay entry (fade 160ms, rise 200ms, slide 220ms) and loading (shimmer, spinner, dot pulse). Under `prefers-reduced-motion` every animation and transition collapses to 0.01ms and the alarm lamp stops flashing, holding steady.
+### Feedback
+Errors are 8px-rounded rose-tint blocks with an alert icon, the message in ink and a secondary Retry button. Notices use the same shape in info, warning, success or danger tints. Empty states are a centred quiet mark in a raised circle, one factual line, and at most one action. Loading uses soft shimmer bars.
 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** take every hue from the channel table and use it for its one meaning; pair fills with the matching -tint and rules with the matching -edge.
-- **Do** build instruments from flush cells on a 1px gap over the rule colour inside a 0.25rem border.
-- **Do** keep numerics near-white in Barlow Semi Condensed with tabular figures; put the colour on the label and top rule.
-- **Do** declare each value's state (Live, Stale after 3 minutes, No timestamp, Not permitted) with a square lamp.
-- **Do** label every displayed time "UTC" while hospital time is UTC.
-- **Do** keep the synthetic-data advisory visible and non-dismissible under the top bar.
-- **Do** refresh in place with the sweep and value-settle; never reflow the grid on refresh.
-- **Do** honour reduced motion by stopping the alarm lamp and collapsing all animation.
+- **Do** keep the canvas light (field) with white cards on 1px hairlines and the resting shadow.
+- **Do** spend teal only on actions, selection, links and focus.
+- **Do** reserve rose for critical results, errors, denials and failures, and rising risk.
+- **Do** pair colour with a second signal: status chips carry a dot and a word, critical chips carry an alert icon and the value text, factor bars carry "Raises risk" or "Lowers risk".
+- **Do** write sentence case with normal tracking for every label, heading, chip and button.
+- **Do** write user-facing copy in task language ("Here is what needs your attention today", "Review readmission risk").
+- **Do** fold engineering provenance into a collapsed "Model details" disclosure.
+- **Do** keep the synthetic-data advisory visible on every signed-in screen.
+- **Do** limit motion to hover lift, a 2px arrow slide, and the one-time staggered rise (0.5s, 60ms steps), all removed under reduced motion.
 
 ### Don't:
-- **Don't** add hues outside the channel table or use neutral greys with a blue cast.
-- **Don't** use red for model error, wrong predictions or decoration.
-- **Don't** give resting panels, cards or buttons a shadow; shadows belong to modal, drawer and popover results only.
-- **Don't** build same-size KPI cards with icon tiles.
-- **Don't** place eyebrow labels above headings.
-- **Don't** use gradient text, decorative blur or glow; the risk scale is the only gradient because the ramp is the data.
-- **Don't** use pill-shaped tags or round lamps; tags are rectangular and lamps are square.
-- **Don't** flash anything other than a high-priority alarm lamp.
+- **Don't** bring back the dark bedside-monitor world: matte black fields, condensed uppercase labels, channel colours, sweep or alarm-lamp motion.
+- **Don't** use uppercase tracked labels or put an eyebrow or kicker line above a heading.
+- **Don't** let colour be the only signal for a status or a result.
+- **Don't** narrate the access model or the engineering in user-facing copy (no "authorization-aware", "RAG" or permission talk outside administration and Model details).
+- **Don't** colour summary figures for decoration; only a status figure such as a non-zero critical count turns rose.
+- **Don't** use solid saturated fills for status chips or for the danger button.
+- **Don't** use hard, black or offset shadows; shadows are soft and ink-tinted.
+- **Don't** build an icon-tile KPI grid; summary cards lead with a label, a large figure and a context line.

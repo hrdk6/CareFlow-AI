@@ -3,20 +3,20 @@ import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/format";
 
 const control =
-  "block w-full rounded-md border border-line-strong bg-sunken px-3 py-1.5 text-sm text-ink " +
+  "block w-full rounded-lg border border-line-strong bg-panel px-3 py-1.5 text-sm text-ink shadow-[0_1px_2px_rgba(16,34,42,0.04)] " +
   "transition-[border-color,box-shadow,background] duration-150 placeholder:text-faint " +
-  "hover:border-[#3d3d41] focus:border-accent focus:bg-panel focus:outline-none focus:ring-2 focus:ring-accent/25 " +
-  "disabled:cursor-not-allowed disabled:opacity-50";
+  "hover:border-[#b9c5cb] focus:border-accent focus:outline-none focus:ring-3 focus:ring-accent/15 " +
+  "disabled:cursor-not-allowed disabled:bg-sunken disabled:opacity-60";
 
 export function Field({ label, hint, error, children, className }: {
   label: string; hint?: string; error?: string; children: React.ReactNode; className?: string;
 }) {
   return (
     <label className={cn("block", className)}>
-      <span className="mb-1.5 block font-display text-[11px] font-semibold uppercase tracking-[0.1em] text-muted">{label}</span>
+      <span className="mb-1.5 block text-[13px] font-medium text-ink-2">{label}</span>
       {children}
-      {hint && !error && <span className="mt-1.5 block text-[11px] leading-relaxed text-muted">{hint}</span>}
-      {error && <span className="mt-1.5 block text-[11px] font-medium text-high">{error}</span>}
+      {hint && !error && <span className="mt-1.5 block text-xs leading-relaxed text-muted">{hint}</span>}
+      {error && <span className="mt-1.5 block text-xs font-medium text-high">{error}</span>}
     </label>
   );
 }

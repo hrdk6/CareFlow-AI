@@ -20,7 +20,7 @@ export function SimilarTab({ patientId }: { patientId: number }) {
     <div className="grid gap-4 xl:grid-cols-3">
       <Card title="Most similar patients" className="xl:col-span-2" bodyClassName="p-0"
         subtitle={`${data.metric} over ${data.representation_version} structured representation · ${data.candidate_scope}`}>
-        {data.results.length === 0 ? <EmptyState title="No similar patients within your access" /> : (
+        {data.results.length === 0 ? <EmptyState title="No similar patients found" /> : (
           <ul className="divide-y divide-line">
             {data.results.map((s) => (
               <li key={s.patient_id} className="grid gap-2 px-4 py-3 sm:grid-cols-[1fr_140px]">
@@ -53,11 +53,11 @@ export function SimilarTab({ patientId }: { patientId: number }) {
                 <div className="rounded bg-sunken p-2"><div className="text-xs text-muted">Mean stay</div><div className="font-semibold">{cp.mean_length_of_stay_days ?? "—"} days</div></div>
               </div>
               <div>
-                <div className="mb-1 text-[11px] font-semibold uppercase text-muted">Common diagnoses</div>
+                <div className="mb-1 text-xs font-medium text-muted">Common diagnoses</div>
                 <BarList items={(cp.common_diagnoses ?? []).map((d) => ({ label: d.description, value: d.patients }))} format={(v) => `${v}`} color="bg-ai" />
               </div>
               <div>
-                <div className="mb-1 text-[11px] font-semibold uppercase text-muted">Common active medications</div>
+                <div className="mb-1 text-xs font-medium text-muted">Common active medications</div>
                 <BarList items={(cp.common_active_medications ?? []).map((m) => ({ label: m.medication, value: m.patients }))} format={(v) => `${v}`} color="bg-info" />
               </div>
             </div>

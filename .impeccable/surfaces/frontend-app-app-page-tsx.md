@@ -2,29 +2,30 @@
 version: 1
 slug: "frontend-app-app-page-tsx"
 primary_target: "frontend/app/(app)/page.tsx"
-related_targets: []
+related_targets: ["frontend/app/login/page.tsx"]
 ---
 
-# Dashboard (signed-in home)
+# Dashboard (signed-in home) and sign-in
 
-Scope: the first screen after sign-in, for every role. Visitor mode: Operate.
-Audience and job: a clinician or staff member orienting at the start of a shift, and an interviewer
-judging in seconds whether this is credible clinical software. Everything shown is limited to the
-signed-in user's authority.
-Proof on hand: live census, today's outpatient appointments, recent discharges, critical laboratory
-flags and, for administrators, AI query and denied-access counts. No invented figures.
-Constraints: synthetic-data advisory stays visible; nothing implies diagnosis.
+Scope: the first screen after sign-in for every role, and the sign-in page that precedes it. Visitor mode: Operate.
+Audience and job: a clinician or staff member starting a shift, and an interviewer judging in seconds whether
+this is polished, trustworthy hospital software. Everything shown is limited to the signed-in user's authority,
+but the interface does not narrate the access model.
+Proof on hand: census, today's appointments, recent discharges, critical lab results and, for administrators,
+AI question, blocked-access and document counts. No invented figures.
+Constraints: synthetic-data advisory stays visible; nothing implies diagnosis. The user rejected the dark
+monitor world as too technical and chose the earlier light CareFlow look, refined (2026-09-13).
 
 ## Direction contract
 
-THESIS: The dashboard is a central monitoring station: every figure a live channel in its clinical colour at a fixed position. It refuses the SaaS grid of same-size KPI cards with icon tiles.
+THESIS: A calm, light clinical workspace that reads like finished hospital software: what needs attention first, then today's work. It refuses both the dark instrument costume and the generic icon-tile KPI grid.
 
-OWN-WORLD: Matte black field, channel panels separated by 1px rules with no card shadows or glow. Condensed uppercase channel labels and monitor-scale tabular numerics; a quiet sans for prose and tables. Channel colours carry meaning only: green census/stable, cyan scheduled/advisory, yellow medium alarm, red high alarm, near-white values. A priority alarm bar sits under the top bar.
+OWN-WORLD: Cool near-white canvas, white cards on hairline borders with soft offset shadows, deep teal-ink sidebar. One teal accent for actions and selection; status in quiet tinted chips (emerald, amber, rose, sky, violet). Hanken Grotesk headings and numerals in sentence case, Inter for text and tables. Round avatars, rounded-xl cards, pill status chips.
 
-STORY: In one glance the user sees who is admitted, today's outpatient load, which results are critical and who left recently and needs readmission review, all within their authority. They open a patient from any channel or row.
+STORY: The user is greeted by name, sees any critical results as a clear rose attention panel, then four summary figures, admitted patients, recent discharges and today's appointments, and opens a patient from any row.
 
-FIRST VIEWPORT: Full-width alarm bar listing critical flags by priority with patient and value. Beneath, four equal channel tiles in one strip (inpatients, outpatients today, critical results, discharges to review), each with label, unit, state and a 60px numeric. Below, a central-station grid: bed-row census strips across two thirds, the discharge review queue in the right third. "Ask the assistant" sits top right as a secondary control.
+FIRST VIEWPORT: Greeting heading with date line left, "Ask the assistant" primary button right. Beneath, the attention panel (critical results as patient rows with value chips). Then four summary cards in one row (number 32px, label, context line). Below, admitted patients across two thirds with discharges in the right third.
 
-FORM: Bedside Monitor, position 4 on the ordered grounded list, seed key 47e8aea2. Signature interaction: the monitor sweep, a refresh line crossing each channel while changed values update in place without moving the grid.
+FORM: Earlier CareFlow, refined: the user-chosen standing path (no roll this round; prior seed key 47e8aea2 retired). Signature interaction: cards and rows lift on hover with a soft shadow and the row's arrow slides in; a gentle staggered rise on first load only.
 
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance

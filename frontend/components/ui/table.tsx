@@ -14,7 +14,7 @@ export interface Column<T> {
   className?: string;
 }
 
-/** A trend table in monitor grammar: condensed channel headings, hairline rows, values in tabular figures. */
+/** Hairline rows, quiet sentence-case headings, values in tabular figures. */
 export function DataTable<T extends { id: number | string }>({
   columns, rows, loading, error, onRetry, empty = "No records found", onRowClick, dense,
 }: {
@@ -34,8 +34,8 @@ export function DataTable<T extends { id: number | string }>({
                 key={c.key}
                 scope="col"
                 className={cn(
-                  "sticky top-0 z-10 whitespace-nowrap border-b border-line-strong bg-sunken px-3 py-2",
-                  "font-display text-[11px] font-semibold uppercase tracking-[0.1em] text-muted",
+                  "sticky top-0 z-10 whitespace-nowrap border-b border-line bg-sunken px-3 py-2.5",
+                  "text-xs font-medium text-muted",
                   c.className,
                 )}
               >
@@ -49,7 +49,7 @@ export function DataTable<T extends { id: number | string }>({
             <tr
               key={row.id}
               onClick={onRowClick ? () => onRowClick(row) : undefined}
-              className={cn("transition-colors duration-100", onRowClick && "cursor-pointer hover:bg-raised")}
+              className={cn("transition-colors duration-100", onRowClick && "cursor-pointer hover:bg-sunken")}
             >
               {columns.map((c) => (
                 <td

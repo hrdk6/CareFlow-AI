@@ -23,7 +23,7 @@ export default function PrescriptionsPage() {
     `/prescriptions${qs({ status, high_alert: highAlert ? "true" : undefined, limit: LIMIT, offset })}`);
   return (
     <>
-      <PageHeader title="Prescriptions" subtitle="Outpatient medication orders for your accessible patients." />
+      <PageHeader title="Prescriptions" subtitle="Current and past medication orders." />
       <Card bodyClassName="p-0">
         <div className="flex flex-wrap items-center gap-3 border-b border-line p-3">
           <Select value={status} onChange={(e) => { setStatus(e.target.value); setOffset(0); }} placeholder="Any status" className="max-w-[180px]" aria-label="Status"

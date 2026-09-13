@@ -34,7 +34,7 @@ export default function PatientsPage() {
 
   return (
     <>
-      <PageHeader title="Patients" subtitle="Only patients within your access policy are listed."
+      <PageHeader title="Patients" subtitle="Search, filter and open patient records."
         actions={can(PERMS.patientsWrite) && <Button onClick={() => setRegistering(true)}><UserPlus className="h-4 w-4" /> Register patient</Button>} />
       <Card bodyClassName="p-0">
         <div className="flex flex-wrap gap-2 border-b border-line p-3">

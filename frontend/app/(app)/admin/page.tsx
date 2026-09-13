@@ -25,7 +25,7 @@ export default function AdminPage() {
   const [tab, setTab] = useState<Tab>(can(PERMS.users) ? "users" : "audit");
   return (
     <>
-      <PageHeader title="Administration" subtitle="Users and roles, audit trail, AI traces and system metrics." />
+      <PageHeader title="Administration" subtitle="Staff accounts, care teams, activity history and system health." />
       <Tabs active={tab} onChange={setTab} tabs={[
         { id: "users", label: "Users", hidden: !can(PERMS.users) }, { id: "roles", label: "Roles & permissions", hidden: !can(PERMS.users) },
         { id: "audit", label: "Audit log", hidden: !can(PERMS.audit) }, { id: "traces", label: "AI traces", hidden: !can(PERMS.observe) },
@@ -143,7 +143,7 @@ function Roles() {
     <Card bodyClassName="p-0" title="Permission matrix" subtitle="Row-level access (which patients) is enforced separately by the access policy">
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
-          <thead><tr className="border-b border-line text-left text-[11px] uppercase text-muted"><th className="px-3 py-2">Permission</th>{data.map((r) => <th key={r.name} className="px-3 text-center">{r.name}</th>)}</tr></thead>
+          <thead><tr className="border-b border-line text-left text-xs font-medium text-muted"><th className="px-3 py-2">Permission</th>{data.map((r) => <th key={r.name} className="px-3 text-center">{r.name}</th>)}</tr></thead>
           <tbody className="divide-y divide-line">
             {perms.map((p) => (
               <tr key={p.code}><td className="px-3 py-1.5"><div className="font-mono text-xs">{p.code}</div><div className="text-[11px] text-muted">{p.description}</div></td>
@@ -225,7 +225,7 @@ function Metrics() {
       <div className="grid gap-4 xl:grid-cols-2">
         <Card title="Latency by stage (ms)" bodyClassName="p-0">
           <table className="w-full text-sm">
-            <thead><tr className="border-b border-line text-left text-[11px] uppercase text-muted"><th className="px-3 py-2">Stage</th><th>n</th><th>p50</th><th>p95</th><th>max</th></tr></thead>
+            <thead><tr className="border-b border-line text-left text-xs font-medium text-muted"><th className="px-3 py-2">Stage</th><th>n</th><th>p50</th><th>p95</th><th>max</th></tr></thead>
             <tbody className="divide-y divide-line">
               {Object.entries(data.latency_ms).map(([k, v]) => <tr key={k}><td className="px-3 py-1.5">{titleCase(k)}</td><td>{v.n}</td><td className="tabular-nums">{v.p50 ?? "—"}</td><td className="tabular-nums">{v.p95 ?? "—"}</td><td className="tabular-nums">{v.max ?? "—"}</td></tr>)}
             </tbody>

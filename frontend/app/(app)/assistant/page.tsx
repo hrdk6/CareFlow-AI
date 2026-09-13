@@ -4,9 +4,9 @@ import { ShieldCheck } from "lucide-react";
 import { useState } from "react";
 
 import { AssistantPanel } from "@/components/assistant/assistant-panel";
-import { RouteBadge } from "@/components/ui/badge";
 import { Card, PageHeader } from "@/components/ui/card";
 import { Select } from "@/components/ui/form";
+import { PERMS, useAuth } from "@/lib/auth";
 import { useApi } from "@/lib/hooks";
 import type { Page, PatientListItem } from "@/lib/types";
 
@@ -14,6 +14,7 @@ interface LLMBackup { provider: string; model: string | null; reachable: boolean
 interface AIStatus { provider: string; model: string | null; reachable: boolean | null; fallbacks: LLMBackup[]; tool_calling: boolean; embedding_model: string; reranker: string; injection_policy: string }
 
 export default function AssistantPage() {
+  const { can } = useAuth();
   const [patientId, setPatientId] = useState<string>("");
   const { data: patients } = useApi<Page<PatientListItem>>("/patients?limit=200");
   const { data: status } = useApi<AIStatus>("/ai/status");
@@ -21,7 +22,7 @@ export default function AssistantPage() {
   return (
     <div className="grid gap-5 xl:grid-cols-[1fr_300px]">
       <div>
-        <PageHeader title="AI assistant" subtitle="Natural-language access to authorized records, hospital documents and model predictions." />
+        <PageHeader title="AI assistant" subtitle="Ask about patients, schedules and hospital guidelines. Every answer shows where it came from." />
         <Card>
           <div className="mb-4 flex flex-wrap items-center gap-2">
             <span className="text-xs text-muted">Patient context</span>
@@ -32,16 +33,15 @@ export default function AssistantPage() {
         </Card>
       </div>
       <aside className="space-y-4 xl:pt-14">
-        <Card title="How answers are built">
-          <ol className="space-y-2 text-xs text-ink-2">
-            <li><b>1. Route.</b> A deterministic router picks the capabilities a question needs: <span className="inline-flex gap-1"><RouteBadge route="SQL" /><RouteBadge route="RAG" /><RouteBadge route="ML" /><RouteBadge route="SIMILARITY" /></span></li>
-            <li><b>2. Authorize.</b> Every tool call runs with your permissions; data you cannot see never reaches the model.</li>
-            <li><b>3. Retrieve.</b> Documents: semantic + keyword search, fused and reranked by a cross-encoder.</li>
-            <li><b>4. Ground.</b> The answer must cite [S#] passages and [R#] records; invalid citations are removed.</li>
+        <Card title="How it works">
+          <ol className="space-y-3 text-[13px] leading-relaxed text-ink-2">
+            <li><b className="font-medium text-ink">Ask in plain language.</b> About a patient, a schedule or a hospital guideline.</li>
+            <li><b className="font-medium text-ink">Pick a patient for context.</b> Questions then focus on that patient&apos;s records, labs and medicines.</li>
+            <li><b className="font-medium text-ink">Every answer shows its sources.</b> Select a source marker to read the passage or record behind it.</li>
           </ol>
         </Card>
-        {status && (
-          <Card title="Configuration">
+        {status && can(PERMS.observe) && (
+          <Card title="Configuration" subtitle="Visible to administrators">
             <dl className="space-y-1.5 text-xs">
               <div className="flex justify-between"><dt className="text-muted">LLM provider</dt><dd className="font-mono">{status.provider}</dd></div>
               <div className="flex justify-between"><dt className="text-muted">Model</dt><dd className="font-mono">{status.model ?? "none (extractive)"}</dd></div>
@@ -55,7 +55,7 @@ export default function AssistantPage() {
             </dl>
           </Card>
         )}
-        <p className="flex gap-1.5 text-[11px] text-muted"><ShieldCheck className="h-4 w-4 shrink-0" /> The assistant retrieves, summarises and explains. It does not diagnose or choose treatments.</p>
+        <p className="flex gap-1.5 text-xs leading-relaxed text-muted"><ShieldCheck className="h-4 w-4 shrink-0" /> The assistant retrieves, summarises and explains. It does not diagnose or choose treatments.</p>
       </aside>
     </div>
   );

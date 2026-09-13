@@ -85,7 +85,7 @@ export default function PatientProfilePage() {
             ["Emergency contact", patient.emergency_contact_name ? `${patient.emergency_contact_name} (${patient.emergency_contact_relation ?? "—"})` : null],
             ["Emergency phone", patient.emergency_contact_phone],
             ["Care team", clinical && patient.care_team?.length ? (
-              <span className="inline-flex items-center gap-1"><Users className="h-3.5 w-3.5 text-faint" />{patient.care_team.map((c) => `${c.name} (${titleCase(c.care_role)})`).join(", ")}</span>
+              <span title={patient.care_team.map((c) => `${c.name} (${titleCase(c.care_role)})`).join(", ")}><Users className="mr-1 inline h-3.5 w-3.5 align-[-2px] text-faint" />{patient.care_team.map((c) => `${c.name} (${titleCase(c.care_role)})`).join(", ")}</span>
             ) : "—"],
           ]} />
         </div>

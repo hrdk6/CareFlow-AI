@@ -19,7 +19,7 @@ describe("formatting helpers", () => {
 describe("components", () => {
   it("StatusBadge humanises statuses", () => {
     render(<StatusBadge status="checked_in" />);
-    expect(screen.getByText("checked in")).toBeInTheDocument();
+    expect(screen.getByText("Checked in")).toBeInTheDocument();
   });
 
   it("DataTable shows empty and error states", () => {
