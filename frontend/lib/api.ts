@@ -16,6 +16,7 @@ export class ApiError extends Error {
 type RequestOptions = Omit<RequestInit, "body"> & { json?: unknown; body?: BodyInit };
 
 const BASE = "/api";
+const UNREACHABLE = "Cannot reach the CareFlow API. Check that the backend is running.";
 
 export async function api<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const method = (options.method ?? "GET").toUpperCase();
@@ -31,7 +32,7 @@ export async function api<T>(path: string, options: RequestOptions = {}): Promis
   try {
     response = await fetch(BASE + path, { ...options, method, headers, body, credentials: "same-origin", cache: "no-store" });
   } catch {
-    throw new ApiError(0, "network_error", "Cannot reach the CareFlow API. Check that the backend is running.");
+    throw new ApiError(0, "network_error", UNREACHABLE);
   }
   if (response.status === 204) return undefined as T;
   const text = await response.text();
@@ -48,6 +49,9 @@ export async function api<T>(path: string, options: RequestOptions = {}): Promis
       // eslint-disable-next-line @next/next/no-location-assign-relative-destination
       window.location.href = `/login?next=${encodeURIComponent(window.location.pathname)}`;
     }
+    // The backend always answers errors with a JSON envelope. A 5xx without one came from the Next.js proxy,
+    // which returns a bare 500 when nothing is listening on the API port.
+    if (!err && response.status >= 500) throw new ApiError(response.status, "network_error", UNREACHABLE);
     throw new ApiError(response.status, err?.code ?? "http_error", err?.message ?? `Request failed (${response.status})`,
       err?.request_id, err?.details);
   }

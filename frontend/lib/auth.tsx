@@ -9,6 +9,9 @@ import type { User } from "./types";
 interface AuthState {
   user: User | null;
   loading: boolean;
+  /** Set when the session could not be checked at all (for example the API is unreachable). */
+  error: unknown;
+  retry: () => void;
   can: (...permissions: string[]) => boolean;
   logout: () => Promise<void>;
 }
@@ -16,7 +19,7 @@ interface AuthState {
 const AuthContext = createContext<AuthState | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const { data, loading } = useApi<User>("/auth/me");
+  const { data, loading, error, reload } = useApi<User>("/auth/me");
   const user = data ?? null;
   const can = useCallback((...perms: string[]) => !!user && perms.every((p) => user.permissions.includes(p)), [user]);
   const logout = useCallback(async () => {
@@ -28,7 +31,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       window.location.href = "/login";
     }
   }, []);
-  const value = useMemo(() => ({ user, loading, can, logout }), [user, loading, can, logout]);
+  const value = useMemo(() => ({ user, loading, error, retry: reload, can, logout }), [user, loading, error, reload, can, logout]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 

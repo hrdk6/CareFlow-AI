@@ -10,7 +10,7 @@ import { useState } from "react";
 
 import { initials } from "@/components/ui/avatar";
 import { IconButton } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/feedback";
+import { ErrorState, Spinner } from "@/components/ui/feedback";
 import { PERMS, useAuth } from "@/lib/auth";
 import { cn } from "@/lib/format";
 
@@ -147,13 +147,26 @@ function Rail({ onNavigate }: { onNavigate?: () => void }) {
 }
 
 export function AppShell({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
+  const { user, loading, error, retry } = useAuth();
   const [menu, setMenu] = useState(false); // the rail closes itself through onNavigate
 
   if (loading && !user) {
     return <div className="flex min-h-screen items-center justify-center"><Spinner label="Loading your workspace" /></div>;
   }
 
+  // Without a user there are no permissions to build the menu from, so explain the failure instead of
+  // rendering an empty workspace. (An expired session never gets here: the API client sends it to sign-in.)
+  if (!user && error) {
+    return (
+      <div className="flex min-h-screen items-center justify-center p-4">
+        <div className="w-full max-w-md rounded-2xl border border-line bg-panel p-6 shadow-e2">
+          <h1 className="text-[20px] font-semibold text-ink">Your workspace could not load</h1>
+          <p className="mt-1 mb-4 text-sm text-muted">CareFlow could not check your session.</p>
+          <ErrorState error={error} onRetry={retry} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen">

@@ -39,6 +39,19 @@ describe("api client", () => {
     await expect(api("/health")).rejects.toMatchObject({ status: 0, code: "network_error" });
   });
 
+  it("treats the proxy's bare 500 as an unreachable backend", async () => {
+    // What the Next.js rewrite returns when nothing listens on the API port.
+    vi.stubGlobal("fetch", vi.fn().mockImplementation(async () => new Response("Internal Server Error", { status: 500 })));
+    const err = await api("/auth/me").catch((e) => e);
+    expect(err).toMatchObject({ status: 500, code: "network_error" });
+    expect(errorMessage(err)).toMatch(/Cannot reach the CareFlow API/);
+  });
+
+  it("keeps the backend's own 5xx message when it sends one", async () => {
+    mockFetch(500, { error: { code: "internal_error", message: "Unexpected error", request_id: "r1" } });
+    await expect(api("/dashboard")).rejects.toMatchObject({ status: 500, code: "internal_error", requestId: "r1" });
+  });
+
   it("builds query strings without empty values", () => {
     expect(qs({ q: "rao", status: "", limit: 5, x: undefined })).toBe("?q=rao&limit=5");
   });
