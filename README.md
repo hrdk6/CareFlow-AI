@@ -77,7 +77,7 @@ Docker Compose.
 | LLM | Provider abstraction: Ollama/OpenAI-compatible (httpx), Anthropic (official SDK, Claude Opus 5 default), extractive fallback | Swap providers by configuration |
 | Parsing | pypdf, python-docx | PDF/TXT/MD/DOCX ingestion |
 | Observability | JSON logs, Prometheus client, trace table | Latency per AI stage, tokens, errors |
-| Tests | pytest (181 tests, real PostgreSQL), Vitest + Testing Library (13 tests) | |
+| Tests | pytest (183 tests, real PostgreSQL), Vitest + Testing Library (13 tests) | |
 | Packaging | uv, npm, Docker Compose (3 services) | |
 
 No separate vector database, queue or cache: they were not needed at this scale (see
@@ -268,7 +268,7 @@ on the Vercel URL as each demo account, open patient **P1024** as Dr. Rao, and a
 
 ## Testing & evaluation
 
-Backend tests run against a real PostgreSQL test database with a seeded mini-hospital (181 tests: auth,
+Backend tests run against a real PostgreSQL test database with a seeded mini-hospital (183 tests: auth,
 RBAC/row-level access, patients, appointments, clinical writes, documents/ingestion, ML, RAG, routing,
 prompt injection, AI integration for SQL / RAG / ML / SQL+RAG / SQL+ML / SQL+RAG+ML / similarity):
 
@@ -341,7 +341,7 @@ Interpretation and caveats: [`docs/ml.md`](docs/ml.md), [`docs/rag.md`](docs/rag
 ## Repository layout
 
 ```
-backend/        FastAPI app (app/), Alembic migration, 181 tests, Dockerfile
+backend/        FastAPI app (app/), Alembic migration, 183 tests, Dockerfile
 frontend/       Next.js app (app/, components/, lib/), Vitest tests, Dockerfile
 ml/             UCI preprocessing, training, evaluation reports, versioned artifacts
 rag/            synthetic knowledge base (source → dist), benchmark and evaluation runner

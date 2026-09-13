@@ -117,6 +117,20 @@ def test_risk_endpoint_reports_the_explainer_in_use(client, auth, demo_patient, 
     assert los["explanation_method"] == "shap"  # XGBoost keeps its exact native TreeSHAP
 
 
+def test_thread_limit_leaves_predictions_unchanged():
+    import copy
+
+    from app.ml.registry import limit_threads
+
+    model = get_registry().get("readmission_30d")
+    clean, _ = validate_features(READMISSION_FEATURES, BASE)
+    X = pd.DataFrame([clean], columns=list(READMISSION_FEATURES.all))
+    limited = copy.deepcopy(model.payload)
+    limit_threads(limited, 1)
+    assert limited["pipeline"].named_steps["model"].n_jobs == 1
+    assert limited["pipeline"].predict_proba(X)[0, 1] == model.payload["pipeline"].predict_proba(X)[0, 1]
+
+
 def test_db_feature_engineering_for_demo_patient(db, demo_patient):
     adm = reference_admission(db, demo_patient.id)
     fb = readmission_features(db, demo_patient, adm)

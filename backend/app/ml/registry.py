@@ -35,6 +35,19 @@ class LoadedModel:
         return self.metadata.get("trained_at", "")
 
 
+def limit_threads(payload: dict, threads: int | None) -> None:
+    """Cap inference threads on the loaded estimator. Predictions are unchanged; only parallelism is.
+
+    Artifacts are trained with n_jobs=-1 (every core). On a small container that still sees the host's cores, a
+    single prediction would start one worker per host core, each with its own buffers.
+    """
+    if not threads:
+        return
+    estimator = payload["pipeline"].named_steps["model"]
+    if hasattr(estimator, "n_jobs"):
+        estimator.set_params(n_jobs=threads)
+
+
 class ModelRegistry:
     def __init__(self, model_dir: Path):
         self.model_dir = Path(model_dir)
@@ -66,6 +79,7 @@ class ModelRegistry:
                     raise ServiceUnavailableError(f"Model artifact missing for {name} v{version}")
                 try:
                     payload = joblib.load(artifact)
+                    limit_threads(payload, get_settings().model_threads)
                 except Exception as exc:  # corrupted file or incompatible library versions
                     logger.exception("model load failed")
                     raise ServiceUnavailableError(f"Model {name} v{version} could not be loaded") from exc

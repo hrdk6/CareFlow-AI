@@ -58,8 +58,8 @@ class Settings(BaseSettings):
     # ~90 MB shap library on 512 MB hosts. Measured against SHAP on the 110 scorable demo patients: same top factor
     # for 82%, same direction for 99% of shown factors, bar sizes within 15% on average. Risk values are identical.
     ml_explainer: Literal["shap", "tree_path"] = "shap"
-    # CPU threads for the ONNX embedding/reranker sessions; empty = all cores. 1 suits small shared-CPU instances
-    # and trims per-thread buffers.
+    # CPU threads for model inference (ONNX embedding/reranker, random forest, XGBoost); empty = all cores. 1 suits
+    # small shared-CPU instances, which otherwise start one worker per host core. Results are unchanged.
     model_threads: int | None = None
     retrieval_candidates: int = 30      # per retriever, before fusion
     rerank_candidates: int = 30         # fused candidates sent to the cross-encoder
