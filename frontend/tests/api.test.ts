@@ -47,6 +47,19 @@ describe("api client", () => {
     expect(errorMessage(err)).toMatch(/Cannot reach the CareFlow API/);
   });
 
+  it("explains a platform rate limit instead of a bare 429", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockImplementation(async () =>
+      new Response("Too Many Requests", { status: 429, headers: { "Retry-After": "30" } })));
+    const err = await api("/auth/login", { method: "POST", json: {} }).catch((e) => e);
+    expect(err).toMatchObject({ status: 429, code: "upstream_rate_limited" });
+    expect(errorMessage(err)).toBe("The server is receiving too many requests right now. Try again in 30 seconds.");
+  });
+
+  it("keeps CareFlow's own rate-limit message", async () => {
+    mockFetch(429, { error: { code: "too_many_attempts", message: "Too many failed sign-in attempts. Try again in 15 minutes." } });
+    await expect(api("/auth/login", { method: "POST", json: {} })).rejects.toMatchObject({ code: "too_many_attempts" });
+  });
+
   it("keeps the backend's own 5xx message when it sends one", async () => {
     mockFetch(500, { error: { code: "internal_error", message: "Unexpected error", request_id: "r1" } });
     await expect(api("/dashboard")).rejects.toMatchObject({ status: 500, code: "internal_error", requestId: "r1" });

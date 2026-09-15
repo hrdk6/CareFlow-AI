@@ -52,6 +52,13 @@ export async function api<T>(path: string, options: RequestOptions = {}): Promis
     // The backend always answers errors with a JSON envelope. A 5xx without one came from the Next.js proxy,
     // which returns a bare 500 when nothing is listening on the API port.
     if (!err && response.status >= 500) throw new ApiError(response.status, "network_error", UNREACHABLE);
+    // A 429 without the envelope came from the hosting platform in front of the API, not from CareFlow's own
+    // limits (those explain themselves), so say what happened instead of a bare status code.
+    if (!err && response.status === 429) {
+      const wait = Number(response.headers.get("retry-after"));
+      throw new ApiError(429, "upstream_rate_limited", "The server is receiving too many requests right now. " +
+        (wait > 0 ? `Try again in ${Math.ceil(wait)} seconds.` : "Wait a minute, then try again."));
+    }
     throw new ApiError(response.status, err?.code ?? "http_error", err?.message ?? `Request failed (${response.status})`,
       err?.request_id, err?.details);
   }
