@@ -1,6 +1,8 @@
 "use client";
 
-import { Activity, AlertTriangle, CalendarClock, FlaskConical, LogIn, LogOut, Pill, Siren, Stethoscope, Tag } from "lucide-react";
+import {
+  Activity, AlertTriangle, CalendarClock, FlaskConical, LogIn, LogOut, Pill, ScanLine, Siren, Stethoscope, Tag,
+} from "lucide-react";
 import { useState } from "react";
 
 import { Card } from "@/components/ui/card";
@@ -24,6 +26,7 @@ const META: Record<string, { icon: React.ElementType; label: string; color: stri
   medication_stop: { icon: Pill, label: "Medication stopped", color: NEUTRAL },
   lab_abnormal: { icon: FlaskConical, label: "Abnormal lab", color: "bg-warn-tint text-warn ring-warn-edge" },
   appointment: { icon: CalendarClock, label: "Upcoming", color: "bg-info-tint text-info ring-info-edge" },
+  imaging: { icon: ScanLine, label: "Radiology report", color: "bg-info-tint text-info ring-info-edge" },
 };
 
 function dayMonth(iso: string) {

@@ -50,6 +50,23 @@ export interface MedicalRecord {
   id: number; patient_id: number; patient_mrn: string | null; doctor_id: number | null; doctor_name: string | null;
   admission_id: number | null; visit_date: string; record_type: string; chief_complaint: string; symptoms: string | null;
   diagnosis_summary: string | null; notes: string | null; treatment_plan: string | null;
+  ai_provenance?: AIProvenance | null;
+}
+/**
+ * Set on a record a model had a hand in. Two kinds, and the difference matters: a discharge summary was
+ * DRAFTED by a model and edited by the clinician who signed it; a radiology report was written entirely by
+ * the clinician, with a triage model's output on screen while they wrote it.
+ */
+export interface AIProvenance {
+  kind?: "radiology_triage_shown";
+  signed_by: string; signed_at: string;
+  // discharge co-pilot
+  draft_id?: number; generated_by?: string; generated_at?: string; edited_pct?: number;
+  unsupported_confirmed?: number;
+  sources?: Record<string, { source_type: string; source_id: number; label: string; date: string | null }>;
+  // radiology
+  model?: string | null; model_agreement?: string | null; priority?: string | null;
+  priority_score?: number | null; flagged?: string[];
 }
 export interface Prescription {
   id: number; patient_id: number; patient_mrn: string | null; medication_id: number; medication: string; drug_class: string;
@@ -116,10 +133,16 @@ export interface Citation {
 }
 export interface RecordRef { id: string; source_type: string; source_id: number; label: string; date: string | null }
 export interface ToolCall { name: string; arguments: Record<string, unknown>; status: string; summary: string; ms: number | null }
+/** What left the server for the language model; the replaced values themselves are never returned. */
+export interface Privacy {
+  applied: boolean; destination: string | null; replaced: Record<string, number>; total: number;
+  preview?: string | null; name_model?: boolean;
+}
 export interface AIResponse {
   answer: string; route: string[]; routing_method: string; intents: string[]; patient_id: number | null;
   citations: Citation[]; record_refs: RecordRef[]; predictions: Prediction[]; similarity: Similarity | null;
-  tool_calls: ToolCall[]; warnings: string[]; limitations: string[]; insufficient_context: boolean; provider: string;
+  tool_calls: ToolCall[]; warnings: string[]; limitations: string[]; insufficient_context: boolean;
+  privacy: Privacy | null; provider: string;
   model: string | null; stage_ms: Record<string, number>; retrieval: Record<string, unknown>; request_id: string | null;
   created_at: string; disclaimer: string;
 }
@@ -141,9 +164,98 @@ export interface AITrace {
   routing_method: string; provider: string; llm_model: string | null; status: string; error_code: string | null;
   total_ms: number; stage_ms: Record<string, number>; retrieved_chunk_ids: number[]; cited_source_ids: number[];
   tool_calls: { name: string; status: string; ms: number }[]; model_versions: string[];
-  prompt_tokens: number | null; completion_tokens: number | null;
+  prompt_tokens: number | null; completion_tokens: number | null; privacy: Privacy | null;
 }
 export interface AdminUser {
   id: number; email: string; full_name: string; role: Role; is_active: boolean; doctor_id: number | null;
   department_id: number | null; last_login_at: string | null;
+}
+
+// ---- discharge co-pilot ------------------------------------------------------------------------
+export type CheckStatus = "met" | "not_met" | "to_confirm" | "unknown" | "not_applicable";
+export interface PolicyCheck { key: string; label: string; status: CheckStatus; detail: string; refs: string[] }
+export interface DraftSentence { text: string; citations: string[]; issues: string[] }
+export interface DraftSection { key: "presenting_problem" | "hospital_course"; title: string; text: string; sentences: DraftSentence[] }
+export interface MedicationLine {
+  medication: string; status: "continued" | "changed" | "new" | "stopped" | "held_resumed" | "inpatient_only";
+  before: string | null; after: string | null; reason: string | null; high_alert: boolean; drug_class: string; refs: string[];
+}
+export interface InvestigationLine {
+  test_code: string; test_name: string; unit: string | null; first: number | null; last: number | null; first_at: string;
+  last_at: string; results: number; worst_flag: LabReport["flag"]; refs: string[];
+}
+export interface DischargeDraft {
+  draft_id: number; status: "draft" | "signed" | "superseded"; admission: Admission;
+  patient: { id: number; mrn: string; name: string; age: number; sex: string; allergies: Allergy[] };
+  generated_at: string; generated_by: string; sections: DraftSection[]; follow_up_plan: string;
+  diagnoses: { code: string; description: string; role: "primary" | "secondary" | "comorbidity"; ref: string }[];
+  investigations: InvestigationLine[]; medications: MedicationLine[]; observations: VitalSigns | null;
+  risk: {
+    high_risk: boolean; criteria: PolicyCheck[];
+    model: { probability: number; threshold: number; flagged: boolean; band: string; model: string; top_factors: string[] } | null;
+  };
+  checklist: PolicyCheck[]; record_refs: RecordRef[]; citations: Citation[]; warnings: string[]; privacy: Privacy | null;
+  stage_ms: Record<string, number>; disclaimer: string;
+}
+export interface DischargeSigned { record: MedicalRecord; admission: Admission; edited_pct: number }
+
+// ---- observations and the ward board ------------------------------------------------------------
+export type Risk = "low" | "low_medium" | "medium" | "high";
+export interface News2 {
+  score: number; risk: Risk; label: string; parameters: Record<string, number>; single_parameter_3: boolean;
+  response: string; monitoring: string; due_within_hours: number; triggers: string[];
+  applies: boolean; note: string | null;
+}
+export interface VitalSigns {
+  id: number; patient_id: number; admission_id: number | null; recorded_at: string; recorded_by: string | null;
+  respiratory_rate: number; spo2: number; spo2_scale: number; on_oxygen: boolean; systolic_bp: number;
+  diastolic_bp: number | null; heart_rate: number; temperature: number; consciousness: "A" | "C" | "V" | "P" | "U";
+  news2_score: number; news2_risk: Risk; source: string; notes: string | null; news2: News2;
+}
+export interface WardPatient {
+  patient_id: number; mrn: string; full_name: string; age: number; sex: string; department: string;
+  ward: string | null; admitted_at: string; day_of_stay: number; reason: string; attending: string | null;
+  latest: VitalSigns | null; trend: { at: string; score: number }[]; due_at: string | null; overdue_hours: number | null;
+}
+export interface WardBoard {
+  generated_at: string; patients: WardPatient[]; counts: Record<string, number>; citations: Citation[]; note: string;
+}
+
+// ---- radiology ----------------------------------------------------------------------------------
+export type Priority = "routine" | "elevated" | "priority";
+export type Agreement = "agreed" | "partly" | "disagreed" | "not_used";
+export interface Finding {
+  finding: string; label: string; probability: number; threshold: number; flagged: boolean; priority: boolean;
+  roc_auc: number; roc_auc_ci: number[]; sensitivity: number | null; specificity: number | null;
+  prevalence: number; attention: number[][];
+}
+export interface Triage {
+  priority: Priority; priority_score: number; findings: Finding[]; model_name: string; model_version: string;
+  trained_at: string; backbone: string; operating_point: string; limitations: string[]; disclaimer: string;
+  scored_at: string | null; inference_ms: number | null;
+}
+export interface Deidentification {
+  method: string; removed_tags: string[]; blanked_tags: string[]; date_tags_shifted: string[];
+  shift_days: number; private_tags_removed: boolean; uids_regenerated: boolean;
+}
+export interface ImagingReport {
+  id: number; findings: string; impression: string; status: "draft" | "final"; model_agreement: Agreement | null;
+  reported_by: string | null; signed_at: string | null; record_id: number | null;
+}
+export interface ImagingStudy {
+  id: number; patient_id: number; accession: string; study_uid: string; modality: string; body_part: string | null;
+  view_position: string | null; description: string | null; indication: string | null; acquired_at: string;
+  rows: number; columns: number; bits_stored: number; window_center: number; window_width: number; source: string;
+  deidentification: Deidentification; triage: Triage | null; report: ImagingReport | null;
+}
+export interface WorklistItem {
+  study_id: number; accession: string; patient_id: number; mrn: string; full_name: string; age: number; sex: string;
+  department: string | null; inpatient: boolean; acquired_at: string; waiting_hours: number;
+  description: string | null; indication: string | null; view_position: string | null;
+  priority: Priority | null; priority_score: number | null; flagged: string[]; reported: boolean;
+  reported_at: string | null;
+}
+export interface Worklist {
+  generated_at: string; items: WorklistItem[]; counts: Record<string, number>; model_available: boolean;
+  model_name: string | null; model_version: string | null; note: string; disclaimer: string;
 }

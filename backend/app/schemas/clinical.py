@@ -179,6 +179,9 @@ class MedicalRecordOut(ORMModel):
     diagnosis_summary: str | None
     notes: str | None
     treatment_plan: str | None
+    # Set when the record was drafted by the discharge co-pilot and signed by a clinician: who signed, which
+    # model drafted it, how much was edited, and the sources behind each [R#]/[S#] marker in the text.
+    ai_provenance: dict | None = None
 
 
 class MedicationOut(ORMModel):
@@ -257,7 +260,7 @@ class TimelineEvent(BaseModel):
     id: str
     at: datetime
     category: Literal["admission", "discharge", "visit", "emergency", "diagnosis", "medication_start",
-                      "medication_change", "medication_stop", "lab_abnormal", "appointment"]
+                      "medication_change", "medication_stop", "lab_abnormal", "appointment", "imaging"]
     title: str
     detail: str | None = None
     source_type: str

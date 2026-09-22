@@ -49,6 +49,9 @@ class Settings(BaseSettings):
 
     # --- ML ---
     model_dir: Path = REPO_DIR / "ml" / "artifacts"
+    # Score chest radiographs when they are ingested. Off means studies are stored and viewable but not
+    # scored - which is also what happens on a host where the backbone cannot be downloaded.
+    imaging_triage: bool = True
 
     # --- embeddings / retrieval ---
     embedding_provider: Literal["fastembed", "hashing"] = "fastembed"
@@ -111,6 +114,19 @@ class Settings(BaseSettings):
     anthropic_effort: Literal["low", "medium", "high", "xhigh", "max"] | None = None
     anthropic_refusal_fallbacks: bool = True
     injection_policy: Literal["quarantine", "annotate"] = "quarantine"
+    # Replace patient identifiers (names, MRNs, dates of birth, contact details) with placeholders before a
+    # prompt leaves the server, and restore them in the answer. "auto": only for models hosted outside this
+    # network (Groq, Gemini, Anthropic, a remote OpenAI-compatible URL); "on": every model; "off": never.
+    llm_pseudonymize: Literal["auto", "on", "off"] = "auto"
+    # The third pseudonymisation pass: a named-entity model that masks people the database never issued an
+    # identifier for (a relative in a note, a clinician elsewhere). Adds ~110 MB of model and a few hundred
+    # milliseconds per prompt. Off means the dictionary and shape passes run alone, and the answer says so.
+    privacy_ner: bool = True
+
+    # --- ward event stream ---
+    # A server-sent-event stream ends after this long and the browser reconnects, so a forgotten tab cannot
+    # hold a connection (and a worker thread) open forever.
+    stream_max_seconds: int = 900
 
     @field_validator("database_url")
     @classmethod

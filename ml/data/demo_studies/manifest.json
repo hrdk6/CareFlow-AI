@@ -1,0 +1,403 @@
+{
+  "source": {
+    "dataset": "NIH ChestX-ray14",
+    "citation": "Wang et al., CVPR 2017 (NIH Clinical Center)",
+    "split": "held-out test films only",
+    "selection": "stratified by finding, seed 42"
+  },
+  "note": "Pixel data is from the public NIH release. Every identity in the DICOM headers is invented so that ingestion has identifying tags to remove; the reference findings are the dataset's own NLP-mined labels and are demo metadata, not a diagnosis and never shown in the product.",
+  "studies": [
+    {
+      "file": "cxr-001.dcm",
+      "source_image": "00000278_002.png",
+      "reference_findings": [],
+      "age": 53,
+      "sex": "M",
+      "view": "PA",
+      "header_identity": {
+        "patient_name": "VANCE^MORGAN",
+        "patient_id": "RX-100037",
+        "accession": "ACC2026001",
+        "institution": "Northgate Chest Clinic"
+      }
+    },
+    {
+      "file": "cxr-002.dcm",
+      "source_image": "00001601_014.png",
+      "reference_findings": [
+        "Atelectasis",
+        "Effusion"
+      ],
+      "age": 60,
+      "sex": "F",
+      "view": "PA",
+      "header_identity": {
+        "patient_name": "HOLLOWAY^SAM",
+        "patient_id": "RX-100074",
+        "accession": "ACC2026002",
+        "institution": "St Elmo Diagnostics"
+      }
+    },
+    {
+      "file": "cxr-003.dcm",
+      "source_image": "00002279_000.png",
+      "reference_findings": [
+        "Mass"
+      ],
+      "age": 52,
+      "sex": "F",
+      "view": "PA",
+      "header_identity": {
+        "patient_name": "REDFERN^JODIE",
+        "patient_id": "RX-100111",
+        "accession": "ACC2026003",
+        "institution": "Riverside Imaging Centre"
+      }
+    },
+    {
+      "file": "cxr-004.dcm",
+      "source_image": "00003348_001.png",
+      "reference_findings": [
+        "Pneumothorax"
+      ],
+      "age": 46,
+      "sex": "F",
+      "view": "AP",
+      "header_identity": {
+        "patient_name": "OKONKWO^CHIKA",
+        "patient_id": "RX-100148",
+        "accession": "ACC2026004",
+        "institution": "Northgate Chest Clinic"
+      }
+    },
+    {
+      "file": "cxr-005.dcm",
+      "source_image": "00003831_000.png",
+      "reference_findings": [],
+      "age": 37,
+      "sex": "F",
+      "view": "AP",
+      "header_identity": {
+        "patient_name": "BARTLETT^ROWAN",
+        "patient_id": "RX-100185",
+        "accession": "ACC2026005",
+        "institution": "St Elmo Diagnostics"
+      }
+    },
+    {
+      "file": "cxr-006.dcm",
+      "source_image": "00004508_014.png",
+      "reference_findings": [
+        "Infiltration",
+        "Edema"
+      ],
+      "age": 37,
+      "sex": "M",
+      "view": "AP",
+      "header_identity": {
+        "patient_name": "FENNIMORE^DALE",
+        "patient_id": "RX-100222",
+        "accession": "ACC2026006",
+        "institution": "Riverside Imaging Centre"
+      }
+    },
+    {
+      "file": "cxr-007.dcm",
+      "source_image": "00004974_003.png",
+      "reference_findings": [
+        "Atelectasis",
+        "Infiltration",
+        "Nodule"
+      ],
+      "age": 31,
+      "sex": "M",
+      "view": "PA",
+      "header_identity": {
+        "patient_name": "IRETON^KIM",
+        "patient_id": "RX-100259",
+        "accession": "ACC2026007",
+        "institution": "Northgate Chest Clinic"
+      }
+    },
+    {
+      "file": "cxr-008.dcm",
+      "source_image": "00005962_004.png",
+      "reference_findings": [],
+      "age": 29,
+      "sex": "M",
+      "view": "PA",
+      "header_identity": {
+        "patient_name": "PRIOR^ALEX",
+        "patient_id": "RX-100296",
+        "accession": "ACC2026008",
+        "institution": "St Elmo Diagnostics"
+      }
+    },
+    {
+      "file": "cxr-009.dcm",
+      "source_image": "00007354_011.png",
+      "reference_findings": [
+        "Infiltration",
+        "Mass",
+        "Consolidation"
+      ],
+      "age": 43,
+      "sex": "M",
+      "view": "AP",
+      "header_identity": {
+        "patient_name": "VANCE^MORGAN",
+        "patient_id": "RX-100333",
+        "accession": "ACC2026009",
+        "institution": "Riverside Imaging Centre"
+      }
+    },
+    {
+      "file": "cxr-010.dcm",
+      "source_image": "00007798_001.png",
+      "reference_findings": [
+        "Cardiomegaly"
+      ],
+      "age": 57,
+      "sex": "F",
+      "view": "PA",
+      "header_identity": {
+        "patient_name": "HOLLOWAY^SAM",
+        "patient_id": "RX-100370",
+        "accession": "ACC2026010",
+        "institution": "Northgate Chest Clinic"
+      }
+    },
+    {
+      "file": "cxr-011.dcm",
+      "source_image": "00010677_009.png",
+      "reference_findings": [
+        "Infiltration",
+        "Pleural_Thickening"
+      ],
+      "age": 55,
+      "sex": "F",
+      "view": "AP",
+      "header_identity": {
+        "patient_name": "REDFERN^JODIE",
+        "patient_id": "RX-100407",
+        "accession": "ACC2026011",
+        "institution": "St Elmo Diagnostics"
+      }
+    },
+    {
+      "file": "cxr-012.dcm",
+      "source_image": "00011925_035.png",
+      "reference_findings": [
+        "Atelectasis",
+        "Infiltration",
+        "Consolidation"
+      ],
+      "age": 54,
+      "sex": "M",
+      "view": "AP",
+      "header_identity": {
+        "patient_name": "OKONKWO^CHIKA",
+        "patient_id": "RX-100444",
+        "accession": "ACC2026012",
+        "institution": "Riverside Imaging Centre"
+      }
+    },
+    {
+      "file": "cxr-013.dcm",
+      "source_image": "00012374_003.png",
+      "reference_findings": [],
+      "age": 34,
+      "sex": "M",
+      "view": "PA",
+      "header_identity": {
+        "patient_name": "BARTLETT^ROWAN",
+        "patient_id": "RX-100481",
+        "accession": "ACC2026013",
+        "institution": "Northgate Chest Clinic"
+      }
+    },
+    {
+      "file": "cxr-014.dcm",
+      "source_image": "00013564_001.png",
+      "reference_findings": [],
+      "age": 40,
+      "sex": "F",
+      "view": "AP",
+      "header_identity": {
+        "patient_name": "FENNIMORE^DALE",
+        "patient_id": "RX-100518",
+        "accession": "ACC2026014",
+        "institution": "St Elmo Diagnostics"
+      }
+    },
+    {
+      "file": "cxr-015.dcm",
+      "source_image": "00014354_000.png",
+      "reference_findings": [],
+      "age": 33,
+      "sex": "F",
+      "view": "PA",
+      "header_identity": {
+        "patient_name": "IRETON^KIM",
+        "patient_id": "RX-100555",
+        "accession": "ACC2026015",
+        "institution": "Riverside Imaging Centre"
+      }
+    },
+    {
+      "file": "cxr-016.dcm",
+      "source_image": "00015495_009.png",
+      "reference_findings": [
+        "Nodule"
+      ],
+      "age": 55,
+      "sex": "F",
+      "view": "PA",
+      "header_identity": {
+        "patient_name": "PRIOR^ALEX",
+        "patient_id": "RX-100592",
+        "accession": "ACC2026016",
+        "institution": "Northgate Chest Clinic"
+      }
+    },
+    {
+      "file": "cxr-017.dcm",
+      "source_image": "00016743_019.png",
+      "reference_findings": [
+        "Effusion"
+      ],
+      "age": 57,
+      "sex": "F",
+      "view": "PA",
+      "header_identity": {
+        "patient_name": "VANCE^MORGAN",
+        "patient_id": "RX-100629",
+        "accession": "ACC2026017",
+        "institution": "St Elmo Diagnostics"
+      }
+    },
+    {
+      "file": "cxr-018.dcm",
+      "source_image": "00019858_000.png",
+      "reference_findings": [
+        "Atelectasis",
+        "Cardiomegaly",
+        "Effusion",
+        "Mass",
+        "Nodule"
+      ],
+      "age": 62,
+      "sex": "M",
+      "view": "PA",
+      "header_identity": {
+        "patient_name": "HOLLOWAY^SAM",
+        "patient_id": "RX-100666",
+        "accession": "ACC2026018",
+        "institution": "Riverside Imaging Centre"
+      }
+    },
+    {
+      "file": "cxr-019.dcm",
+      "source_image": "00020228_002.png",
+      "reference_findings": [
+        "Mass"
+      ],
+      "age": 27,
+      "sex": "M",
+      "view": "PA",
+      "header_identity": {
+        "patient_name": "REDFERN^JODIE",
+        "patient_id": "RX-100703",
+        "accession": "ACC2026019",
+        "institution": "Northgate Chest Clinic"
+      }
+    },
+    {
+      "file": "cxr-020.dcm",
+      "source_image": "00020337_000.png",
+      "reference_findings": [
+        "Cardiomegaly",
+        "Effusion",
+        "Infiltration",
+        "Mass"
+      ],
+      "age": 53,
+      "sex": "M",
+      "view": "PA",
+      "header_identity": {
+        "patient_name": "OKONKWO^CHIKA",
+        "patient_id": "RX-100740",
+        "accession": "ACC2026020",
+        "institution": "St Elmo Diagnostics"
+      }
+    },
+    {
+      "file": "cxr-021.dcm",
+      "source_image": "00022594_001.png",
+      "reference_findings": [
+        "Effusion",
+        "Pneumothorax"
+      ],
+      "age": 27,
+      "sex": "M",
+      "view": "PA",
+      "header_identity": {
+        "patient_name": "BARTLETT^ROWAN",
+        "patient_id": "RX-100777",
+        "accession": "ACC2026021",
+        "institution": "Riverside Imaging Centre"
+      }
+    },
+    {
+      "file": "cxr-022.dcm",
+      "source_image": "00022870_013.png",
+      "reference_findings": [
+        "Atelectasis",
+        "Infiltration"
+      ],
+      "age": 63,
+      "sex": "M",
+      "view": "AP",
+      "header_identity": {
+        "patient_name": "FENNIMORE^DALE",
+        "patient_id": "RX-100814",
+        "accession": "ACC2026022",
+        "institution": "Northgate Chest Clinic"
+      }
+    },
+    {
+      "file": "cxr-023.dcm",
+      "source_image": "00026555_006.png",
+      "reference_findings": [
+        "Effusion",
+        "Infiltration",
+        "Edema"
+      ],
+      "age": 46,
+      "sex": "M",
+      "view": "PA",
+      "header_identity": {
+        "patient_name": "IRETON^KIM",
+        "patient_id": "RX-100851",
+        "accession": "ACC2026023",
+        "institution": "St Elmo Diagnostics"
+      }
+    },
+    {
+      "file": "cxr-024.dcm",
+      "source_image": "00028242_000.png",
+      "reference_findings": [
+        "Infiltration"
+      ],
+      "age": 61,
+      "sex": "F",
+      "view": "PA",
+      "header_identity": {
+        "patient_name": "PRIOR^ALEX",
+        "patient_id": "RX-100888",
+        "accession": "ACC2026024",
+        "institution": "Riverside Imaging Centre"
+      }
+    }
+  ]
+}

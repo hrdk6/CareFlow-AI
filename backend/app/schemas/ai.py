@@ -39,6 +39,17 @@ class ToolCallOut(BaseModel):
     ms: float | None = None
 
 
+class PrivacyOut(BaseModel):
+    """What left the server for the language model. Never the replaced values themselves."""
+
+    applied: bool  # identifiers were replaced with placeholders before sending
+    destination: str | None = None  # provider that received the request, e.g. "groq"
+    replaced: dict[str, int] = {}  # distinct identifiers replaced, by kind (patient_name, mrn, phone, ...)
+    total: int = 0
+    preview: str | None = None  # the request content exactly as sent (returned once, never stored)
+    name_model: bool = False  # the named-entity pass ran as well as the dictionary
+
+
 class AIResponse(BaseModel):
     answer: str
     route: list[str]
@@ -53,6 +64,7 @@ class AIResponse(BaseModel):
     warnings: list[str] = []
     limitations: list[str] = []
     insufficient_context: bool = False
+    privacy: PrivacyOut | None = None  # None when no language model was called
     provider: str
     model: str | None
     stage_ms: dict = {}

@@ -47,7 +47,7 @@ def test_required_categorical_without_unknown_bucket():
 # ------------------------------------------------------------------ registry / versioning
 def test_registry_loads_versioned_artifacts_with_model_cards():
     reg = get_registry()
-    assert set(reg.active_versions()) == {"readmission_30d", "length_of_stay"}
+    assert set(reg.active_versions()) == {"readmission_30d", "length_of_stay", "chest_xray_triage"}
     model = reg.get("readmission_30d")
     assert {"pipeline", "calibrator"} <= set(model.payload)
     meta = model.metadata
@@ -58,7 +58,7 @@ def test_registry_loads_versioned_artifacts_with_model_cards():
 
 def test_model_versions_are_mirrored_in_database(db):
     rows = db.scalars(select(ModelVersion).where(ModelVersion.is_active)).all()
-    assert {r.model_name for r in rows} == {"readmission_30d", "length_of_stay"}
+    assert {r.model_name for r in rows} == {"readmission_30d", "length_of_stay", "chest_xray_triage"}
     assert all(r.dataset_version and r.metrics and r.feature_config for r in rows)
 
 

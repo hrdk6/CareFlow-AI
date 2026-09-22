@@ -41,7 +41,7 @@ def limit_threads(payload: dict, threads: int | None) -> None:
     Artifacts are trained with n_jobs=-1 (every core). On a small container that still sees the host's cores, a
     single prediction would start one worker per host core, each with its own buffers.
     """
-    if not threads:
+    if not threads or "pipeline" not in payload:  # the imaging heads are linear models, not a pipeline
         return
     estimator = payload["pipeline"].named_steps["model"]
     if hasattr(estimator, "n_jobs"):

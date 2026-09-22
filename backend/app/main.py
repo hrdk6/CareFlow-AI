@@ -11,7 +11,7 @@ from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 from sqlalchemy import text
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from app.api import admin, ai, auth, clinical, documents, patients, scheduling
+from app.api import admin, ai, auth, clinical, discharge, documents, fhir, imaging, patients, scheduling, vitals
 from app.core.config import get_settings
 from app.core.errors import AppError
 from app.core.logging import configure_logging, request_id_var
@@ -22,7 +22,12 @@ from app.observability.middleware import RequestContextMiddleware
 logger = logging.getLogger("careflow")
 
 
-def _error(status: int, code: str, message: str, details: dict | None = None) -> JSONResponse:
+def _error(request: Request, status: int, code: str, message: str, details: dict | None = None) -> JSONResponse:
+    if request.url.path.startswith("/fhir"):
+        # FHIR clients expect an OperationOutcome, not CareFlow's envelope.
+        from app.interop.fhir import FHIR_JSON, operation_outcome
+
+        return JSONResponse(status_code=status, content=operation_outcome(status, code, message), media_type=FHIR_JSON)
     return JSONResponse(status_code=status, content={"error": {
         "code": code, "message": message, "request_id": request_id_var.get(), "details": details or {}}})
 
@@ -94,25 +99,26 @@ def create_app() -> FastAPI:
                        allow_headers=["Authorization", "Content-Type", "X-CareFlow-CSRF", "X-Request-ID"])
 
     @app.exception_handler(AppError)
-    async def app_error(_: Request, exc: AppError):
-        return _error(exc.status_code, exc.code, exc.message, exc.details)
+    async def app_error(request: Request, exc: AppError):
+        return _error(request, exc.status_code, exc.code, exc.message, exc.details)
 
     @app.exception_handler(RequestValidationError)
-    async def validation_error(_: Request, exc: RequestValidationError):
+    async def validation_error(request: Request, exc: RequestValidationError):
         # Report where and why, never echo the submitted values (they may contain PHI).
         issues = [{"field": ".".join(str(p) for p in e["loc"] if p != "body"), "message": e["msg"]} for e in exc.errors()]
-        return _error(422, "validation_failed", "The request is invalid", {"issues": issues})
+        return _error(request, 422, "validation_failed", "The request is invalid", {"issues": issues})
 
     @app.exception_handler(StarletteHTTPException)
-    async def http_error(_: Request, exc: StarletteHTTPException):
-        return _error(exc.status_code, "http_error", str(exc.detail))
+    async def http_error(request: Request, exc: StarletteHTTPException):
+        return _error(request, exc.status_code, "http_error", str(exc.detail))
 
     @app.exception_handler(Exception)
-    async def unhandled(_: Request, exc: Exception):
+    async def unhandled(request: Request, exc: Exception):
         logger.exception("unhandled error")
-        return _error(500, "internal_error", "An unexpected error occurred. Quote the request id when reporting it.")
+        return _error(request, 500, "internal_error", "An unexpected error occurred. Quote the request id when reporting it.")
 
-    for module in (auth, patients, scheduling, clinical, documents, ai, admin):
+    for module in (auth, patients, scheduling, clinical, vitals, imaging, discharge, documents, ai,
+                   admin, fhir):
         app.include_router(module.router)
 
     @app.get("/", include_in_schema=False)

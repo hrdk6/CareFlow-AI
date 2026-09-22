@@ -11,6 +11,10 @@
 | Horizontal privilege escalation | A doctor opening a patient outside their care | Row-level SQL predicates, 404 for "not accessible" |
 | Vertical privilege escalation | A receptionist reading clinical notes | Permission checks per endpoint and per AI tool |
 | Data exfiltration through the AI | "List every patient with diabetes" | Tools run with the caller's policy; the LLM never has DB access |
+| Patient identifiers leaving the network | A prompt sent to a hosted model provider | Pseudonymisation gateway: identifiers replaced before sending, restored on the server |
+| Machine-written text entering the record | A drafted discharge summary saved unreviewed | Drafts are stored separately; only a clinician's signature writes a record, and unsupported sentences must be confirmed |
+| A live feed widening access | A ward stream showing patients the viewer may not see | Events carry ids and a score only, are filtered per subscriber, and the access snapshot is re-checked |
+| Identity leaving in a file rather than a field | A DICOM study forwarded with its header intact | Files are de-identified before they are stored; the patient link lives in the database, under the access policy |
 | Prompt injection in documents | A PDF saying "ignore previous instructions…" | Scanner + quarantine, data-only delimiters, tool authorization, citation validation |
 | Credential attacks | Password spraying | Argon2id, generic errors, rate limiting, timing-safe unknown-user path |
 | CSRF | A malicious site POSTing with the user's cookie | `SameSite=Strict` cookie + mandatory custom header on writes |
@@ -67,6 +71,8 @@ flowchart TB
 * **Prompt construction** separates the system prompt, the user query (`<user_query>`), authorized database facts, predictions and retrieved documents (`<retrieved_documents trust="untrusted">`). Retrieved text is neutralised so it cannot forge or close these delimiters.
 * **Prompt-injection scanner** (`rag/injection.py`) flags override/role-play/exfiltration/fake-tag/tool-invocation patterns at ingestion. Flagged chunks are visible to administrators but **quarantined** from the LLM context by default, and the user is told a passage was withheld.
 * **Output checks:** citations must reference evidence that was actually supplied; patient identifiers the user cannot access are redacted.
+* **Pseudonymisation before the prompt leaves the network** (`app/privacy`): for models hosted outside this network, every direct identifier of the patients in the evidence is replaced with a placeholder, then phone/e-mail/MRN/ID shapes the database does not hold, then — a third pass — the people it never issued an identifier for, found by a named-entity model and masked as `PERSON_n`. The answer *and the model's tool-call arguments* are mapped back on the server, so a tool called with `MRN_1` still runs under the real access policy. Placeholders live for one request and are never stored; the trace keeps counts only. Limits are stated in §10.
+* **A model cannot write to the record.** The discharge co-pilot stores drafts in `ai_drafts`; the medical record is written only when a clinician signs. Sentences the checker flagged (no valid source, or a number that is not in the records they cite) must be edited, removed or explicitly confirmed, and the signed record keeps the drafting model, the signer, how much was edited and the source behind every marker in the text.
 * **Clinical-safety rules** in the system prompt: no diagnosis, treatment selection or patient-specific dosing; model factors described as associations, never causes. Decision-style questions are flagged by the router and answered with a safety notice.
 * **Tests:** `backend/tests/test_injection.py` covers the scanner, delimiter neutralisation, quarantine, an LLM that *obeys* an injection and tries to read an unauthorized patient (blocked), fabricated citations (removed) and identifier redaction.
 
@@ -92,6 +98,40 @@ Written through a separate session so denied or failed requests are still record
 
 `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: no-referrer`, `Cache-Control: no-store` on API responses, explicit CORS origins with credentials, containers run as non-root users.
 
+## 9a. Live ward stream
+
+`GET /vitals/stream` (server-sent events) authenticates like any other endpoint, refuses roles without
+clinical read, and then sends only events for patients the viewer may see, re-checking that set
+periodically so a care-team change takes effect on an open stream. Events carry ids, the score and a count
+of triggers — never a name or a value — and the board is refetched through the ordinary authorized endpoint.
+Streams end after `CAREFLOW_STREAM_MAX_SECONDS`, a process accepts a bounded number of them (the rest get a
+503 and fall back to polling), and each one takes its own short database session rather than holding a
+pooled connection open.
+
+## 9b. FHIR endpoints
+
+`/fhir/Patient/{mrn}` and `/fhir/Patient/{mrn}/$everything` run the same row-level policy as the rest of the
+API (a patient outside the caller's care is a 404, as everywhere), `$everything` additionally requires
+clinical read permission, every export is audited with resource counts only, and errors are returned as FHIR
+`OperationOutcome`. `/fhir/metadata` is public because a CapabilityStatement contains no patient data.
+
+## 9c. Imaging
+
+A DICOM file is de-identified **before it is written to disk**, following PS3.15 Annex E's Basic
+Application Level Confidentiality Profile with the options for modified dates (113107) and retained patient
+characteristics (113109): X-type attributes are removed, Z-type attributes are kept and emptied (other
+software requires them to exist), private tags are dropped, study/series/instance UIDs are regenerated
+because the sender's UIDs are themselves identifiers, dates are shifted by one offset per patient, and the
+result is stamped `PatientIdentityRemoved = YES` with the method. What was removed is kept with the study
+and shown in the UI, so the claim is checkable rather than a promise.
+
+The real acquisition date stays in the database, not in the file: de-identification protects a file that
+may leave the hospital, not the clinician reading it, and the database is already behind the access policy.
+Every study, every rendered film and every report goes through `AccessPolicy` like the rest of the record —
+a study belonging to a patient outside the caller's care is a 404, and each view of a film is audited.
+Reports are written by clinicians; the triage model writes nothing, and only a clinician with a doctor
+profile can sign a report into the medical record.
+
 ## 10. Known gaps (deliberately out of scope)
 
 * No MFA, SSO/OIDC, password reset flow or refresh-token rotation; no server-side token revocation list (short expiry instead).
@@ -101,3 +141,7 @@ Written through a separate session so denied or failed requests are still record
 * No field-level encryption or row-level security in PostgreSQL itself (authorization is enforced in the application layer).
 * Heuristic injection detection can be evaded; the architecture limits the blast radius (authorization, no DB access for the model) rather than relying on detection.
 * "Break-glass" emergency access is not implemented.
+* Pseudonymisation is **not** de-identification: clinical dates and ages are deliberately kept (a summary needs them) and this hospital's own staff names are kept. The third pass that masks other people in free text is a general-purpose tagger (CoNLL-2003), not a clinical de-identification model, so it has good but imperfect recall on clinical prose; a model trained on clinical text (i2b2) is the upgrade. It can also be switched off, and then the answer says so instead of claiming it ran.
+* Imaging de-identification covers the header, not the pixels: a film with an identifier burned into the image would keep it. Real deployments run OCR over the pixel data for exactly this; CareFlow does not.
+* The event stream is in-process: with several API instances a subscriber only sees events raised by its own process (the board's periodic refresh still keeps it correct). A shared bus (Redis pub/sub, Postgres `LISTEN/NOTIFY`) is the fix.
+* The FHIR export is read-only, one patient per request: no writes, no bulk `$export`, and no SMART on FHIR / OAuth scopes — authorization is CareFlow's own session and policy.

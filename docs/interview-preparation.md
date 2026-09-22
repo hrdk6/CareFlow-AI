@@ -18,7 +18,9 @@ because "here is what I built and why" is more convincing than a textbook defini
 > and reranked retrieval. It runs with a local model through Ollama, with Claude, or with no LLM at all.
 
 Likely follow-ups: *Why not just give the LLM SQL access?* (§4.3) · *How do you know the citations are
-real?* (§1.8) · *What were the model metrics and are they good?* (§2.7) · *What breaks at scale?* (§5).
+real?* (§1.8) · *What were the model metrics and are they good?* (§2.7) · *What breaks at scale?* (§5) ·
+*What stops a model's text becoming a medical record?* (§6.2) · *What does the cloud provider actually
+see?* (§6.1) · *You built an imaging model — is it any good?* (§6.8).
 
 ---
 
@@ -232,14 +234,117 @@ stay loadable for rollback and for explaining past predictions.
 * **Latency:** measured per stage (reranking ~0.8 s CPU, local 12B LLM tens of seconds, everything else ~10–100 ms). Levers: fewer rerank candidates, GPU, smaller/faster LLM, streaming, caching.
 * **Failures:** each dependency degrades independently — no embeddings → keyword search; no reranker → fused order + lexical gate; LLM down/timeout → extractive answer with a warning; missing model → 503 with guidance; ingestion error → document `failed` with a safe message.
 * **Security:** Argon2id, JWT in httpOnly SameSite cookie + CSRF header, rate limiting, RBAC + row-level policy, upload validation, safe errors, audit trail, non-root containers.
-* **Deployment:** Docker Compose (pgvector, backend with baked-in models and migrations-on-start, Next.js standalone). For production: managed Postgres, secrets manager, HTTPS, Kubernetes or ECS, CI running the 184-test suite and the RAG benchmark as a regression gate.
+* **Deployment:** Docker Compose (pgvector, backend with baked-in models and migrations-on-start, Next.js standalone). For production: managed Postgres, secrets manager, HTTPS, Kubernetes or ECS, CI running the 233-test suite and the RAG benchmark as a regression gate.
 
 ---
 
-## 6. What I would do next / differently
+## 6. Clinical safety, privacy and interoperability
+
+### 6.1 What does the model provider see?
+Nothing that identifies a patient. Every model call goes through a per-request gateway that replaces the
+identifiers the database holds for the patients in the evidence — name, MRN, date of birth, phone, e-mail,
+address, emergency contact — plus phone/e-mail/MRN-shaped text it does not hold, with stable placeholders
+(`PATIENT_1`, `MRN_1`). The answer and, importantly, the model's **tool-call arguments** are mapped back on
+the server, so a tool called with `MRN_1` executes against the real patient under the real access policy.
+*Why a dictionary and not an NER model:* the system knows exactly which identifiers it holds, so replacement
+is deterministic and complete for them, needs no extra memory on a 512 MB host, and cannot quietly miss a
+name the way a statistical tagger can. *Honest limits:* clinical dates and ages stay (a summary needs them),
+staff names stay, and a third party's name typed into free text is not recognised — so it is
+pseudonymisation, not HIPAA Safe Harbor de-identification, and I say so in the UI.
+
+### 6.2 What stops a model's text from becoming a medical record?
+The discharge co-pilot writes to `ai_drafts`, never to `medical_records`. Only a clinician's signature
+creates the record. Before that, each drafted sentence is checked twice: it must carry a citation that
+exists in the evidence, and every number and date in it must appear in the records it cites. A flagged
+sentence still present at signing must be edited, removed, or explicitly confirmed — enforced server-side,
+not in the browser. The signed record keeps the drafting model, the signer, the share of the prose they
+changed, and the source behind every `[R#]`/`[S#]` marker, and the FHIR export carries that as a
+`Provenance` resource with the clinician as `author` and the model as an `assembler` Device.
+
+### 6.3 Why is the medication reconciliation not done by the LLM?
+Because doses must be right every time. The reconciliation is a join: the outpatient list in force on the
+admission date, the inpatient orders, and the list in force at discharge, compared per medicine to produce
+continued / changed / started / stopped / held-and-resumed with the reason recorded on the prescription.
+The language model only writes the narrative, and it is told not to list doses. Anything a reader could act
+on — values, doses, dates, rules — comes from the record or the policy, never from generation.
+
+### 6.4 NEWS2: why is a score not a model?
+NEWS2 (RCP 2017) is a track-and-trigger chart: seven observations banded and summed, with a defined
+response and monitoring frequency per band. It is arithmetic, so it belongs in code, where it is testable
+boundary by boundary — the tests check both sides of every band, the single-parameter-3 rule, and the
+COPD-specific SpO₂ scale. It is also validated **for adults**, so for a patient under 16 CareFlow records
+the observations and withholds the band rather than implying a risk it cannot support. The hospital's own
+rapid-response criteria sit beside it and cite the policy section they come from. A deterioration *model*
+would be a different and much heavier claim: the well-known proprietary sepsis models have poor external
+validity, which is exactly the kind of thing this project refuses to hand-wave.
+
+### 6.5 Why FHIR, and what did you map?
+Interoperability is most of the work in real health IT, and a portfolio claim about it is cheap unless the
+output validates. `GET /fhir/Patient/{mrn}/$everything` returns a searchset Bundle: Patient, Encounter,
+Condition (ICD-10-CM), Observation (LOINC + UCUM for both laboratory results and vital signs),
+MedicationRequest (WHO ATC + SNOMED CT routes), AllergyIntolerance, Appointment, DocumentReference,
+RiskAssessment for the readmission estimate, Practitioner and Organization — all tagged `HTEST` because the
+data is synthetic. The same row-level policy applies, errors are `OperationOutcome`, and the tests validate
+every resource against the `fhir.resources` models, check that every reference resolves inside the bundle,
+and check the codes for elements whose binding is required (the models check structure, not terminology).
+
+### 6.6 Why is there a name model in the privacy path now, when the docs argued for a dictionary?
+Because the two answer different questions. The dictionary is complete for the identifiers the system
+*holds* — it cannot miss a patient's name the way a tagger can — so it still runs first. What it can never
+cover is a person nobody ever issued an identifier for: "her daughter Bhavna Kulkarni called", "previously
+under Dr Sandhya Iyer at another hospital". That is a statistical problem, so the third pass is a
+statistical model (`Xenova/bert-base-NER`, int8, ~140 MB) running over text the first two passes have
+already been through, and its output is masked as `PERSON_n` and restored on the way back like everything
+else. The honest framing in an interview: *the deterministic pass is a guarantee, the model pass is an
+improvement in expectation*, and the UI says which of them ran. It is a general-purpose tagger trained on
+news, not a clinical de-identification model, so the next step is an i2b2-trained one.
+
+### 6.7 Server-sent events: why not WebSockets?
+The ward board needs one direction only — the server telling browsers that something changed — and SSE
+gives that over plain HTTP with automatic reconnection, which survives the same proxy setup the rest of the
+app uses. The events carry ids and a score, never a name or a value, each stream drops events for patients
+its viewer may not see and re-checks that access periodically, and the board refetches through the ordinary
+authorized endpoint. It is an in-process hub, so several API instances would need Redis pub/sub or Postgres
+`LISTEN/NOTIFY`; the board also refreshes on a timer, so the feature degrades to polling rather than
+breaking. Streams expire so a forgotten tab cannot hold a connection forever, and each stream takes short
+database sessions instead of holding a pooled connection.
+
+---
+
+### 6.8 You built an imaging model. Is it any good, and how would you know?
+Good enough to order a reading queue, and the card says exactly how good. On a patient-disjoint held-out
+split of NIH ChestX-ray14 (7,549 films) it reaches ROC-AUC 0.800 for pulmonary oedema, 0.779 for pleural
+effusion, 0.763 for pneumothorax and 0.708 for "any finding", each with a bootstrap interval. That is
+roughly 0.05 below a fine-tuned DenseNet-121 of the CheXNet family, which is the price of the design: the
+backbone is a frozen ImageNet ResNet-50 and each finding is a logistic regression on its pooled features,
+so the whole model trains in minutes, serves in ~60 ms on CPU, and has an *exact* class activation map
+instead of an approximated one.
+
+Three things in the evaluation matter more than the headline number:
+
+* **A publication bar fixed before the test set was read.** ROC-AUC at least 0.70, the lower end of the
+  95% interval at least 0.65, at least 30 positive test films. Six of the fourteen findings missed it —
+  Nodule at 0.587 is the worst — and they are reported in the card and shown nowhere in the product.
+* **A baseline with no image at all.** A logistic regression on age, sex and view position alone. Portable
+  AP films come from sicker patients, so a model can score them for reasons that are about the camera; for
+  Pneumonia (0.625 image vs 0.592 metadata) and Fibrosis (0.678 vs 0.641) the margin is thin, which is part
+  of why they are not shown.
+* **Subgroups.** Accuracy is reported separately by sex, age band and view, because a single AUC hides
+  exactly the failure a deployment would be sued over.
+
+The honest limits: the labels were NLP-mined from reports and are about 90% accurate, so the metrics are
+measured against noisy labels and the model cannot be better than them; it is one institution and adults
+only; and none of it is validated for clinical use. The product wording follows the numbers — at a
+90%-sensitivity cut-off a flag means "not ruled out", not "present", and a film the model does not flag has
+not been cleared.
+
+## 7. What I would do next / differently
 
 * A clinician-labelled evaluation set and LLM-as-judge faithfulness scoring for generated answers.
-* Fairness analysis of the readmission model across sex and age groups (calibration and error rates).
+* Fairness analysis of the readmission model across sex and age groups (calibration and error rates); the
+  chest radiograph card already reports accuracy by sex, age band and view, and the tabular models should.
+* Fine-tuning the image backbone (worth about 0.05 ROC-AUC) and replacing the general-purpose name model in
+  the privacy path with one trained on clinical text.
 * Streaming responses and prompt caching; async LLM client.
 * A job queue for ingestion; OCR for scanned PDFs.
 * Break-glass access with mandatory justification and review.

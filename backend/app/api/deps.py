@@ -63,7 +63,7 @@ def record_out(r: MedicalRecord, mrn: str | None = None) -> MedicalRecordOut:
                             doctor_name=r.doctor.full_name if r.doctor else None, admission_id=r.admission_id,
                             visit_date=r.visit_date, record_type=r.record_type, chief_complaint=r.chief_complaint,
                             symptoms=r.symptoms, diagnosis_summary=r.diagnosis_summary, notes=r.notes,
-                            treatment_plan=r.treatment_plan)
+                            treatment_plan=r.treatment_plan, ai_provenance=r.ai_provenance)
 
 
 def prescription_out(rx: Prescription, mrn: str | None = None) -> PrescriptionOut:

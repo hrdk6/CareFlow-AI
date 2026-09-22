@@ -1,8 +1,9 @@
 "use client";
 
-import { ChevronDown, Plus, XCircle } from "lucide-react";
+import { ChevronDown, Plus, ScanEye, Sparkles, XCircle } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import { Answer } from "@/components/assistant/answer";
 import { LineChart } from "@/components/charts";
 import { Badge, StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -48,6 +49,9 @@ export function RecordsTab({ patientId }: { patientId: number }) {
               className="flex w-full items-center gap-3 px-5 py-3 text-left transition-colors duration-150 hover:bg-sunken">
               <span className="w-24 shrink-0 text-xs tabular-nums text-muted">{fmtDate(r.visit_date)}</span>
               <Badge tone={r.record_type === "emergency" ? "danger" : r.record_type === "discharge_summary" ? "info" : "neutral"}>{titleCase(r.record_type)}</Badge>
+              {r.ai_provenance?.kind === "radiology_triage_shown"
+                ? <Badge tone="info" title="Written by the clinician with a triage model's output on screen; the model wrote none of the text"><ScanEye className="h-3 w-3" aria-hidden /> Model shown</Badge>
+                : r.ai_provenance && <Badge tone="violet" title="Drafted by the discharge co-pilot and signed by a clinician"><Sparkles className="h-3 w-3" aria-hidden /> AI-assisted</Badge>}
               <span className="min-w-0 flex-1 truncate text-sm text-ink">{r.chief_complaint}</span>
               <span className="hidden text-xs text-faint sm:inline">{r.doctor_name}</span>
               <ChevronDown className={cn("h-4 w-4 text-faint transition-transform duration-300 ease-out-expo", open === r.id && "rotate-180 text-accent")} aria-hidden />
@@ -55,18 +59,64 @@ export function RecordsTab({ patientId }: { patientId: number }) {
             {/* The note opens in place: rows below slide down rather than jumping. */}
             <div className={cn("grid transition-[grid-template-rows] duration-300 ease-out-expo", open === r.id ? "grid-rows-[1fr]" : "grid-rows-[0fr]")} inert={open !== r.id}>
               <div className="overflow-hidden">
-                <div className="grid gap-3 bg-sunken/60 px-5 pb-4 pt-2 text-sm sm:grid-cols-2">
-                  {([["Symptoms", r.symptoms], ["Assessment", r.diagnosis_summary], ["Notes", r.notes], ["Plan", r.treatment_plan]] as const).map(([k, v]) => (
-                    <div key={k}><div className="text-xs font-medium text-muted">{k}</div><p className="text-ink-2">{v || "—"}</p></div>
-                  ))}
-                  <div className="text-[11px] text-faint sm:col-span-2">Record #{r.id}{r.admission_id ? ` · admission #${r.admission_id}` : ""}</div>
-                </div>
+                {r.ai_provenance?.kind === "radiology_triage_shown" ? <SignedRadiologyReport record={r} />
+                  : r.ai_provenance ? <SignedSummary record={r} /> : (
+                  <div className="grid gap-3 bg-sunken/60 px-5 pb-4 pt-2 text-sm sm:grid-cols-2">
+                    {([["Symptoms", r.symptoms], ["Assessment", r.diagnosis_summary], ["Notes", r.notes], ["Plan", r.treatment_plan]] as const).map(([k, v]) => (
+                      <div key={k}><div className="text-xs font-medium text-muted">{k}</div><p className="text-ink-2">{v || "—"}</p></div>
+                    ))}
+                    <div className="text-[11px] text-faint sm:col-span-2">Record #{r.id}{r.admission_id ? ` · admission #${r.admission_id}` : ""}</div>
+                  </div>
+                )}
               </div>
             </div>
           </li>
         ))}
       </ul>
     </Card>
+  );
+}
+
+/** A radiology report is the reader's own text. All the model contributes is what it had flagged. */
+function SignedRadiologyReport({ record: r }: { record: MedicalRecord }) {
+  const p = r.ai_provenance!;
+  const flagged = p.flagged?.length ? p.flagged.join(", ") : "nothing";
+  const verdict: Record<string, string> = {
+    agreed: "matched their read", partly: "partly matched their read", disagreed: "did not match their read",
+    not_used: "was not used",
+  };
+  return (
+    <div className="space-y-3 bg-sunken/60 px-5 pb-4 pt-2 text-sm">
+      <p className="flex flex-wrap items-center gap-x-1.5 gap-y-1 rounded-lg bg-info-tint px-3 py-2 text-xs text-ink-2 ring-1 ring-inset ring-info-edge">
+        <ScanEye className="h-3.5 w-3.5 text-info" aria-hidden />
+        <span>Written and signed by <span className="font-medium text-ink">{p.signed_by}</span> on {fmtDateTime(p.signed_at)} UTC.</span>
+        {p.model && <span>The triage model ({p.model}) had flagged {flagged}, which the reader recorded {verdict[p.model_agreement ?? ""] ?? "no verdict on"}.</span>}
+      </p>
+      {([["Indication", r.symptoms], ["Findings", r.notes], ["Impression", r.diagnosis_summary]] as const).map(([k, v]) => (
+        <div key={k}><div className="text-xs font-medium text-muted">{k}</div><p className="whitespace-pre-wrap text-ink-2">{v || "\u2014"}</p></div>
+      ))}
+      <div className="text-[11px] text-faint">Record #{r.id}{r.admission_id ? ` \u00b7 admission #${r.admission_id}` : ""}</div>
+    </div>
+  );
+}
+
+/** A co-pilot summary keeps its [R#]/[S#] markers; each still resolves to the record or policy passage it came from. */
+function SignedSummary({ record: r }: { record: MedicalRecord }) {
+  const p = r.ai_provenance!;
+  const labels = Object.fromEntries(Object.entries(p.sources ?? {}).map(([id, s]) => [id, `${titleCase(s.source_type)}: ${s.label}${s.date ? ` (${s.date})` : ""}`]));
+  const model = p.generated_by === "template" ? "assembled from the record" : `drafted with ${p.generated_by}`;
+  return (
+    <div className="space-y-3 bg-sunken/60 px-5 pb-4 pt-2 text-sm">
+      <p className="flex flex-wrap items-center gap-x-1.5 gap-y-1 rounded-lg bg-ai-tint px-3 py-2 text-xs text-ink-2 ring-1 ring-inset ring-ai-edge">
+        <Sparkles className="h-3.5 w-3.5 text-ai" aria-hidden />
+        <span>Discharge co-pilot summary, {model}; reviewed and signed by <span className="font-medium text-ink">{p.signed_by}</span> on {fmtDateTime(p.signed_at)} UTC.</span>
+        <span>{p.edited_pct}% of the drafted text was changed by the clinician{p.unsupported_confirmed ? `; ${p.unsupported_confirmed} unsupported sentence(s) confirmed` : ""}.</span>
+      </p>
+      {([["Presenting problem", r.symptoms], ["Diagnoses", r.diagnosis_summary], ["Hospital course", r.notes], ["Follow-up plan", r.treatment_plan]] as const).map(([k, v]) => (
+        <div key={k}><div className="text-xs font-medium text-muted">{k}</div>{v ? <Answer text={v} labels={labels} /> : <p className="text-ink-2">—</p>}</div>
+      ))}
+      <div className="text-[11px] text-faint">Record #{r.id}{r.admission_id ? ` · admission #${r.admission_id}` : ""} · hover a source marker to see what it refers to</div>
+    </div>
   );
 }
 

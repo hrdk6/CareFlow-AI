@@ -37,3 +37,13 @@ frontend/tsconfig.tsbuildinfo
 .impeccable/questions/
 .impeccable/hook.cache.json
 .impeccable/config.local.json
+
+# Build output (a node_modules outside frontend/ got committed once by accident)
+node_modules/
+.ppt-build/
+
+# Submission artifacts: the presentation and synopsis live here locally, not in the codebase
+.codex-finalizer/
+deliverables/
+docs/*.pptx
+docs/*.pdf

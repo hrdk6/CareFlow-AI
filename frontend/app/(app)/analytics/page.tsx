@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { BarList, ConfusionMatrix, LineChart } from "@/components/charts";
+import { ChestXrayCard } from "@/components/imaging/model-card";
 import { Badge } from "@/components/ui/badge";
 import { Card, PageHeader, StatCard } from "@/components/ui/card";
 import { ErrorState, Notice, Skeleton } from "@/components/ui/feedback";
@@ -14,15 +15,17 @@ import type { ModelCard } from "@/lib/types";
 type Metrics = Record<string, number | Record<string, number> | [number, number][] | { mean_predicted: number; observed_rate: number }[]>;
 
 export default function AnalyticsPage() {
-  const [tab, setTab] = useState<"readmission" | "los" | "rag" | "similarity">("readmission");
+  const [tab, setTab] = useState<"readmission" | "los" | "cxr" | "rag" | "similarity">("readmission");
   const { data: cards, error, loading, reload } = useApi<ModelCard[]>("/ml/models");
   const readmission = cards?.find((c) => c.model_name === "readmission_30d" && c.is_active);
   const los = cards?.find((c) => c.model_name === "length_of_stay" && c.is_active);
+  const cxr = cards?.find((c) => c.model_name === "chest_xray_triage" && c.is_active);
   return (
     <>
       <PageHeader title="Model performance" subtitle="How well the prediction models and the assistant's search perform on held-out data. Every figure comes from the evaluation scripts." />
       <Tabs active={tab} onChange={setTab} tabs={[
         { id: "readmission", label: "Readmission model" }, { id: "los", label: "Length-of-stay model" },
+        { id: "cxr", label: "Chest radiograph triage", hidden: !cxr },
         { id: "rag", label: "RAG evaluation" }, { id: "similarity", label: "Patient similarity" },
       ]} />
       <div className="mt-4">
@@ -30,6 +33,7 @@ export default function AnalyticsPage() {
         {loading && !cards && <Skeleton lines={8} />}
         {tab === "readmission" && readmission && <ReadmissionCard card={readmission} />}
         {tab === "los" && los && <LosCard card={los} />}
+        {tab === "cxr" && cxr && <ChestXrayCard card={cxr} />}
         {tab === "rag" && <RagEval />}
         {tab === "similarity" && <SimilarityEval />}
       </div>

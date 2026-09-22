@@ -28,8 +28,9 @@ from app.llm.tools import TOOLS, ToolContext, execute_tool, tools_for
 from app.ml.service import DISCLAIMER as ML_DISCLAIMER
 from app.models import AIQueryTrace, User
 from app.observability.metrics import AI_QUERIES, LLM_TOKENS, StageTimer
+from app.privacy.pseudonymize import PrivacyGateway, pseudonymization_enabled
 from app.routing.router import Intent, RoutePlan, route
-from app.schemas.ai import AIQueryIn, AIResponse, ToolCallOut
+from app.schemas.ai import AIQueryIn, AIResponse, PrivacyOut, ToolCallOut
 
 logger = logging.getLogger("careflow.ai")
 
@@ -42,12 +43,15 @@ _MED_WORDS = ("medic", "meds", "prescri", "drug", "dose", "insulin", "metformin"
 
 
 class AIOrchestrator:
-    def __init__(self, db: Session, user: User, provider=None):
+    def __init__(self, db: Session, user: User, provider=None, *, pseudonymize: bool | None = None):
         self.db = db
         self.user = user
         self.policy = AccessPolicy(db, user)
         self.provider = provider or get_llm_provider()
         self.settings = get_settings()
+        # None = decide from CAREFLOW_LLM_PSEUDONYMIZE and where the provider is hosted.
+        self._pseudonymize = pseudonymize
+        self.llm: PrivacyGateway | None = None  # the provider as seen by one request (see run)
 
     # ------------------------------------------------------------------ plan execution
     def _run_plan(self, plan: RoutePlan, ctx: ToolContext, query: str, calls: list[ToolCallOut]) -> None:
@@ -123,7 +127,7 @@ class AIOrchestrator:
                                   decision_request=plan.decision_request,
                                   budget_chars=self.settings.llm_context_budget_chars)
         with ctx.timer.stage("llm"):
-            return self.provider.chat(SYSTEM_PROMPT, [ChatMessage(role="user", content=prompt)])
+            return self.llm.chat(SYSTEM_PROMPT, [ChatMessage(role="user", content=prompt)])
 
     def _agent(self, ctx: ToolContext, query: str, patient_label: str | None,
                calls: list[ToolCallOut]) -> LLMResult:
@@ -135,7 +139,7 @@ class AIOrchestrator:
         fallback_reason: str | None = None
         for _ in range(self.settings.llm_max_tool_rounds):
             with ctx.timer.stage("llm"):
-                result = self.provider.chat(SYSTEM_PROMPT + AGENT_ADDENDUM, messages, tools=specs)
+                result = self.llm.chat(SYSTEM_PROMPT + AGENT_ADDENDUM, messages, tools=specs)
             fallback_reason = result.fallback_reason or fallback_reason
             usage[0] += result.prompt_tokens or 0
             usage[1] += result.completion_tokens or 0
@@ -158,7 +162,7 @@ class AIOrchestrator:
         else:
             # Tool budget exhausted: answer with what was gathered, without further tool access.
             with ctx.timer.stage("llm"):
-                result = self.provider.chat(SYSTEM_PROMPT, [ChatMessage(role="user", content=synthesis_prompt(
+                result = self.llm.chat(SYSTEM_PROMPT, [ChatMessage(role="user", content=synthesis_prompt(
                     query, ctx.evidence, patient_label=patient_label, decision_request=False,
                     budget_chars=self.settings.llm_context_budget_chars))])
             usage[0] += result.prompt_tokens or 0
@@ -197,6 +201,13 @@ class AIOrchestrator:
                                 None, patient_id=None, insufficient=False)
 
         ctx = ToolContext(self.db, self.user, self.policy, patient_id, ev, timer)
+        # Every model call of this request goes through the privacy gateway: identifiers of the patients in the
+        # evidence are replaced before the prompt leaves the server and restored in the answer.
+        enabled = self._pseudonymize if self._pseudonymize is not None else             pseudonymization_enabled(self.provider, self.settings.llm_pseudonymize)
+        self.llm = PrivacyGateway(self.db, self.policy, self.provider, enabled=enabled,
+                                  evidence_patient_ids=ev.patient_ids)
+        self.llm.include(patient_id)
+        self.llm.seed_names(req.query)
         method = "deterministic"
         llm_result: LLMResult | None = None
         insufficient = False
@@ -244,10 +255,10 @@ class AIOrchestrator:
             if llm_result.completion_tokens:
                 LLM_TOKENS.labels(answered_by, "completion").inc(llm_result.completion_tokens)
         return self._finish(req, plan, ev, calls, timer, answer, method, llm_result, warnings, limitations, status,
-                            error_code, patient_id=patient_id, insufficient=insufficient)
+                            error_code, patient_id=patient_id, insufficient=insufficient, privacy=self.llm.summary())
 
     def _finish(self, req, plan, ev, calls, timer, answer, method, llm_result, warnings, limitations, status,
-                error_code, *, patient_id, insufficient) -> AIResponse:
+                error_code, *, patient_id, insufficient, privacy: PrivacyOut | None = None) -> AIResponse:
         with timer.stage("grounding"):
             answer, used, removed = validate_citations(answer, ev.valid_ids)
             answer, redacted = redact_unauthorized_mrns(answer, self.db, self.policy)
@@ -284,23 +295,25 @@ class AIOrchestrator:
         model = llm_result.model if llm_result else None
         provider = (llm_result.provider or self.provider.name) if llm_result else "extractive"
         AI_QUERIES.labels(" + ".join(capabilities), status).inc()
-        self._trace(req, capabilities, method, status, error_code, timer, ev, calls, used, llm_result, model, provider)
+        self._trace(req, capabilities, method, status, error_code, timer, ev, calls, used, llm_result, model, provider,
+                    privacy)
         audit("ai.query", user=self.user, outcome="denied" if status == "denied" else "success",
               resource_type="patient" if patient_id else None, resource_id=patient_id, patient_id=patient_id,
               details={"route": capabilities, "tools": [c.name for c in calls],
                        "patients_touched": sorted(ev.patient_ids)[:20],
-                       "sources": [ev.sources[i].chunk_id for i in used if i.startswith("S")]})
+                       "sources": [ev.sources[i].chunk_id for i in used if i.startswith("S")],
+                       "identifiers_masked": privacy.total if privacy else 0})
         return AIResponse(
             answer=answer, route=capabilities, routing_method=method, intents=intents, patient_id=patient_id,
             citations=citations, record_refs=record_refs, predictions=ev.predictions, similarity=ev.similarity,
             tool_calls=calls, warnings=warnings, limitations=limitations, insufficient_context=insufficient,
-            provider=provider, model=model, stage_ms={**timer.stages, "total": timer.total_ms},
+            privacy=privacy, provider=provider, model=model, stage_ms={**timer.stages, "total": timer.total_ms},
             retrieval={**ev.retrieval, "context_source_ids": [c.chunk_id for c in ev.sources.values()],
                        "withheld": ev.withheld_sources},
             request_id=request_id_var.get(), created_at=datetime.now(UTC), disclaimer=DISCLAIMER)
 
     def _trace(self, req, capabilities, method, status, error_code, timer, ev, calls, used, llm_result, model,
-               provider) -> None:
+               provider, privacy: PrivacyOut | None = None) -> None:
         try:
             self.db.add(AIQueryTrace(
                 user_id=self.user.id, request_id=request_id_var.get(),
@@ -312,7 +325,9 @@ class AIOrchestrator:
                 tool_calls=[{"name": c.name, "status": c.status, "ms": c.ms} for c in calls],
                 model_versions=ev.model_versions,
                 prompt_tokens=llm_result.prompt_tokens if llm_result else None,
-                completion_tokens=llm_result.completion_tokens if llm_result else None))
+                completion_tokens=llm_result.completion_tokens if llm_result else None,
+                # Counts and destination only: the placeholders' values and the prompt are never stored.
+                privacy=privacy.model_dump(exclude={"preview"}) if privacy else None))
             self.db.flush()
         except Exception:
             logger.exception("failed to persist AI trace")

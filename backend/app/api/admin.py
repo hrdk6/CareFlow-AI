@@ -255,12 +255,15 @@ def model_cards(db: DB, user: User = Depends(require(Perm.ML_READ))) -> list[Mod
     for row in db.scalars(select(ModelVersion).order_by(ModelVersion.model_name, ModelVersion.version)):
         m = registry.metadata(row.model_name, row.version)
         extra = {k: m[k] for k in ("threshold", "risk_bands", "calibration", "prediction_interval", "split",
-                                   "selection_metric", "explanation_space", "target") if k in m}
+                                   "selection_metric", "explanation_space", "target", "operating_point",
+                                   "publication_bar", "published_findings") if k in m}
         cards.append(ModelCardOut(model_name=row.model_name, version=row.version, is_active=active.get(row.model_name) == row.version,
                                   task=m["task"], algorithm=m["algorithm"], trained_at=m["trained_at"], dataset=m["dataset"],
-                                  features=m["features"], metrics=m["metrics"], candidates=m["candidates"],
-                                  global_importance=m["global_importance"], leakage_ablation=m["leakage_ablation"],
-                                  limitations=m["limitations"], intended_use=m["intended_use"], extra=extra))
+                                  features=m["features"], metrics=m["metrics"], candidates=m.get("candidates", []),
+                                  global_importance=m.get("global_importance", {}),
+                                  leakage_ablation=m.get("leakage_ablation", {}),
+                                  limitations=m.get("limitations", []), intended_use=m.get("intended_use", ""),
+                                  extra=extra))
     return cards
 
 

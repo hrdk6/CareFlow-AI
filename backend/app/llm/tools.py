@@ -306,6 +306,7 @@ def get_appointments(ctx: ToolContext, a: AppointmentArgs) -> ToolResult:
     rows = ctx.db.scalars(stmt.order_by(order).limit(20)).all()
     lines, data = [], []
     for ap in rows:
+        ctx.evidence.patient_ids.add(ap.patient_id)  # named in the evidence: audited and pseudonymised like any other
         rid = ctx.evidence.ref_record("appointment", ap.id, f"{ap.scheduled_start:%Y-%m-%d %H:%M} {ap.reason}",
                                       ap.scheduled_start.date().isoformat())
         lines.append(f"[{rid}] {ap.scheduled_start:%Y-%m-%d %H:%M} UTC - {ap.patient.full_name} ({ap.patient.mrn}) with "

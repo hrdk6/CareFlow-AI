@@ -1,6 +1,7 @@
 "use client";
 
-import { AlertTriangle, BedDouble, Plus, UserMinus } from "lucide-react";
+import { AlertTriangle, BedDouble, FileSignature, Plus, UserMinus } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 
 import { Avatar } from "@/components/ui/avatar";
@@ -55,7 +56,14 @@ export function OverviewTab({ patient, clinical, onOpen, onChanged }: { patient:
                 Since {fmtDate(adm.admitted_at)} · {adm.reason}{adm.attending_doctor ? ` · Attending ${adm.attending_doctor}` : ""}
               </p>
             </div>
-            {can(PERMS.admit) && <Button size="sm" variant="secondary" onClick={() => setDischarging(true)}><UserMinus className="h-3.5 w-3.5" /> Discharge</Button>}
+            <div className="flex flex-wrap gap-2">
+              {can(PERMS.admit, PERMS.clinicalWrite) && (
+                <Link href={`/patients/${patient.id}/discharge/${adm.id}`} tabIndex={-1}>
+                  <Button size="sm"><FileSignature className="h-3.5 w-3.5" aria-hidden /> Prepare discharge</Button>
+                </Link>
+              )}
+              {can(PERMS.admit) && <Button size="sm" variant="secondary" onClick={() => setDischarging(true)}><UserMinus className="h-3.5 w-3.5" /> Discharge</Button>}
+            </div>
           </section>
         ) : (
           <section aria-label="Admission" className="flex flex-wrap items-center gap-x-4 gap-y-3 rounded-xl border border-line bg-panel px-5 py-3 shadow-e1">

@@ -25,6 +25,7 @@ from app.schemas.clinical import (
 )
 from app.schemas.common import Page
 from app.seed.catalog import LABS
+from app.services.discharge import discharge_admission
 
 router = APIRouter(tags=["clinical"])
 Clinical = Depends(require(Perm.PATIENTS_READ_CLINICAL))
@@ -245,8 +246,7 @@ def discharge(admission_id: int, body: DischargeIn, db: DB,
     p = policy_for(db, user).get_patient(adm.patient_id, clinical=True)
     if adm.status != "admitted":
         raise ValidationFailedError("Admission is already closed")
-    adm.status, adm.discharged_at, adm.discharge_disposition = "discharged", datetime.now(UTC), body.discharge_disposition
-    p.status = "deceased" if body.discharge_disposition == "expired" else "discharged"
+    discharge_admission(adm, p, body.discharge_disposition)
     db.flush()
     audit("admission.discharge", user=user, resource_type="admission", resource_id=adm.id, patient_id=p.id)
     return admission_out(adm)

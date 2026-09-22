@@ -1,11 +1,15 @@
 "use client";
 
-import { AlertTriangle, ArrowLeft, Bot, CalendarPlus, Droplet } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Bot, CalendarPlus, Droplet, FileJson } from "lucide-react";
 import Link from "next/link";
 import { useParams, usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
 
 import { AssistantPanel } from "@/components/assistant/assistant-panel";
 import { AppointmentsTab, LabsTab, PrescriptionsTab, RecordsTab } from "@/components/patient/clinical-tabs";
+import { FhirExportDrawer } from "@/components/patient/fhir-export";
+import { ImagingTab } from "@/components/patient/imaging-tab";
+import { ObservationsTab } from "@/components/patient/observations";
 import { OverviewTab } from "@/components/patient/overview";
 import { PredictionsTab } from "@/components/patient/predictions";
 import { SimilarTab } from "@/components/patient/similar";
@@ -20,7 +24,7 @@ import { fmtDate } from "@/lib/format";
 import { useApi } from "@/lib/hooks";
 import type { PatientClinical, PatientDemographics } from "@/lib/types";
 
-const TAB_IDS = ["overview", "timeline", "records", "prescriptions", "labs", "appointments", "predictions", "similar", "assistant"] as const;
+const TAB_IDS = ["overview", "timeline", "observations", "imaging", "records", "prescriptions", "labs", "appointments", "predictions", "similar", "assistant"] as const;
 type TabId = (typeof TAB_IDS)[number];
 
 const SEX: Record<string, string> = { F: "Female", M: "Male" };
@@ -65,6 +69,7 @@ export default function PatientProfilePage() {
   const { data, error, loading, reload } = useApi<PatientClinical | PatientDemographics>(`/patients/${id}`);
   const clinical = can(PERMS.clinical);
   const patient = data as PatientClinical | undefined;
+  const [exporting, setExporting] = useState(false);
 
   if (error) return <ErrorState error={error} onRetry={reload} />;
   if (loading && !data) return <ProfileSkeleton />;
@@ -112,6 +117,7 @@ export default function PatientProfilePage() {
                 <Button variant="secondary"><CalendarPlus className="h-4 w-4" /> Book appointment</Button>
               </Link>
             )}
+            {clinical && <Button variant="secondary" onClick={() => setExporting(true)}><FileJson className="h-4 w-4" aria-hidden /> Export as FHIR</Button>}
             {can(PERMS.ai) && <Button onClick={() => setTab("assistant")}><Bot className="h-4 w-4" /> Ask the assistant</Button>}
           </div>
         </div>
@@ -133,6 +139,8 @@ export default function PatientProfilePage() {
         <Tabs<TabId> active={tab} onChange={setTab} tabs={[
           { id: "overview", label: "Overview" },
           { id: "timeline", label: "Timeline", hidden: !clinical },
+          { id: "observations", label: "Observations", hidden: !clinical },
+          { id: "imaging", label: "Imaging", hidden: !clinical },
           { id: "records", label: "Records", hidden: !clinical },
           { id: "prescriptions", label: "Prescriptions", hidden: !clinical },
           { id: "labs", label: "Labs", hidden: !clinical },
@@ -143,9 +151,13 @@ export default function PatientProfilePage() {
         ]} />
       </div>
 
+      <FhirExportDrawer open={exporting} onClose={() => setExporting(false)} mrn={patient.mrn} name={patient.full_name} />
+
       <div key={tab} className="animate-panel-in" role="tabpanel">
         {tab === "overview" && <OverviewTab patient={patient} clinical={clinical} onOpen={(t) => setTab(t as TabId)} onChanged={reload} />}
         {tab === "timeline" && <TimelineTab patientId={patient.id} />}
+        {tab === "observations" && <ObservationsTab patientId={patient.id} patientName={patient.full_name} />}
+        {tab === "imaging" && <ImagingTab patientId={patient.id} />}
         {tab === "records" && <RecordsTab patientId={patient.id} />}
         {tab === "prescriptions" && <PrescriptionsTab patientId={patient.id} />}
         {tab === "labs" && <LabsTab patientId={patient.id} />}

@@ -88,9 +88,11 @@ class ModelCardOut(BaseModel):
     dataset: dict
     features: dict
     metrics: dict
-    candidates: list[dict]
-    global_importance: dict
-    leakage_ablation: dict
-    limitations: list[str]
-    intended_use: str
+    # Not every model has a single candidate table or one global importance ranking: the chest
+    # radiograph triage card is one card per finding, and carries its own comparison instead.
+    candidates: list[dict] = []
+    global_importance: dict = {}
+    leakage_ablation: dict = {}
+    limitations: list[str] = []
+    intended_use: str = ""
     extra: dict = {}

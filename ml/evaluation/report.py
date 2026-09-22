@@ -144,3 +144,68 @@ def write_los_report(metadata_path: Path) -> Path:
     out = REPORTS / f"length_of_stay_v{m['version']}.md"
     out.write_text("\n".join(lines) + "\n")
     return out
+
+
+def write_cxr_triage_report(metadata_path: Path) -> Path:
+    m = _load(metadata_path)
+    rows = m["metrics"]["test"]
+    d, split = m["dataset"], m["dataset"]["split"]
+    bar = m["publication_bar"]
+    scored = {k: v for k, v in rows.items() if "roc_auc" in v}
+    lines = [
+        f"# Chest radiograph triage report - v{m['version']}",
+        "",
+        f"*Generated from `{metadata_path.as_posix().split('ml/')[-1]}` at training time ({m['trained_at']}).*",
+        "",
+        f"- **Model:** `{m['algorithm']}` - {m['features']['description']}",
+        f"- **Backbone:** `{m['features']['backbone']}`, frozen (never fine-tuned on radiographs)",
+        f"- **Dataset:** {d['name']} - {d['citation']}",
+        f"- **Labels:** {d['labels']}",
+        f"- **Films:** {d['rows_used']:,} from {d['patients']:,} patients, split by {split['grouped_by']} -"
+        f" train {split['train']:,} / val {split['val']:,} / test {split['test']:,}",
+        f"- **Operating point:** {m['operating_point']['rule']}",
+        "",
+        "## Test-set metrics (held out, evaluated once)",
+        "",
+        "`meta only` is a logistic regression on age, sex and view position with no image at all: a finding",
+        "whose image model barely beats it is being predicted from who was photographed, not from the chest.",
+        "",
+        "| Finding | Positives | ROC-AUC | 95% CI | PR-AUC | Sens | Spec | Brier | Meta only | Shown |",
+        "|---|---|---|---|---|---|---|---|---|---|",
+    ]
+    for name, r in sorted(scored.items(), key=lambda kv: -kv[1]["roc_auc"]):
+        ci = r["roc_auc_ci"]
+        lines.append(
+            f"| {name.replace('_', ' ')} | {r['confusion_matrix']['tp'] + r['confusion_matrix']['fn']:,} |"
+            f" {r['roc_auc']:.3f} | {ci[0]:.3f}-{ci[1]:.3f} | {r['pr_auc']:.3f} | {r['sensitivity']:.2f} |"
+            f" {r['specificity']:.2f} | {r['brier']:.3f} | {r['metadata_only_roc_auc']:.3f} |"
+            f" {'yes' if r['published'] else 'no'} |")
+    skipped = {k: v for k, v in rows.items() if "skipped" in v}
+    lines += [
+        "",
+        f"**Publication bar.** A finding is shown in the product only with ROC-AUC >= {bar['roc_auc']},"
+        f" a 95% interval starting at or above {bar['roc_auc_ci_lower']} ({bar['bootstraps']} bootstrap"
+        f" resamples of the test films) and at least {bar['test_positives']} positive test films."
+        f" Shown: {', '.join(m['published_findings']) or 'none'}.",
+    ]
+    if skipped:
+        lines.append(f"Not modelled at all (too few positives in this slice): {', '.join(skipped)}.")
+    lines += ["", "## Accuracy by subgroup (published findings)", "",
+              "| Finding | Group | n | Positives | ROC-AUC |", "|---|---|---|---|---|"]
+    for name in m["published_findings"]:
+        for g in rows[name]["subgroups"]:
+            lines.append(f"| {name.replace('_', ' ')} | {g['group']} {g['value']} | {g['n']:,} |"
+                         f" {g['positives']:,} | {g['roc_auc']:.3f} |")
+    lines += ["", "## Calibration (published findings)", "",
+              "Predicted probability against observed rate, in deciles of predicted risk.", ""]
+    for name in m["published_findings"]:
+        bins = rows[name]["calibration_bins"]
+        lines += [f"**{name.replace('_', ' ')}** ({rows[name]['calibration']})", "",
+                  "| Predicted | Observed | n |", "|---|---|---|"]
+        lines += [f"| {b['mean_predicted']:.3f} | {b['observed_rate']:.3f} | {b['n']:,} |" for b in bins]
+        lines.append("")
+    lines += ["## Limitations", ""] + [f"- {x}" for x in m["limitations"]]
+    REPORTS.mkdir(exist_ok=True)
+    out = REPORTS / f"chest_xray_triage_v{m['version']}.md"
+    out.write_text("\n".join(lines) + "\n")
+    return out

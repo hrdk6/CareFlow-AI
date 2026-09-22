@@ -1,0 +1,2568 @@
+{
+  "task": "classification",
+  "algorithm": "resnet50_frozen+logistic_regression",
+  "target": "thoracic findings on a frontal chest radiograph (NIH ChestX-ray14 label set)",
+  "dataset": {
+    "name": "NIH ChestX-ray14",
+    "citation": "Wang et al., CVPR 2017 (NIH Clinical Center)",
+    "labels": "NLP-mined from radiology reports (~90% accurate by the authors' estimate)",
+    "sha256": "68b1afff7c579002fbbcdc95355a17fc78169ebec1b87731f37aafcc8da8aedc",
+    "shards": 31,
+    "rows_used": 37339,
+    "patients": 16170,
+    "split": {
+      "train": 26122,
+      "val": 3668,
+      "test": 7549,
+      "grouped_by": "patient"
+    }
+  },
+  "features": {
+    "set": "cxr_backbone_v1",
+    "backbone": "Qdrant/resnet50-onnx",
+    "description": "ResNet-50 (ImageNet-1k), frozen; 224x224 grayscale replicated to 3 channels",
+    "input_size": 224,
+    "dimension": 2048,
+    "fine_tuned": false
+  },
+  "publication_bar": {
+    "roc_auc": 0.7,
+    "roc_auc_ci_lower": 0.65,
+    "test_positives": 30,
+    "bootstraps": 500
+  },
+  "operating_point": {
+    "rule": "two cut-offs per finding, set on validation at 90% sensitivity (rule-out) and 60% sensitivity (attention)",
+    "thresholds": {
+      "any_finding": {
+        "rule_out": 0.2912,
+        "attention": 0.5487
+      },
+      "Atelectasis": {
+        "rule_out": 0.0541,
+        "attention": 0.1364
+      },
+      "Cardiomegaly": {
+        "rule_out": 0.0128,
+        "attention": 0.0221
+      },
+      "Effusion": {
+        "rule_out": 0.0625,
+        "attention": 0.2222
+      },
+      "Infiltration": {
+        "rule_out": 0.0964,
+        "attention": 0.1724
+      },
+      "Mass": {
+        "rule_out": 0.0222,
+        "attention": 0.0561
+      },
+      "Nodule": {
+        "rule_out": 0.0462,
+        "attention": 0.0569
+      },
+      "Pneumonia": {
+        "rule_out": 0.0082,
+        "attention": 0.0095
+      },
+      "Pneumothorax": {
+        "rule_out": 0.0227,
+        "attention": 0.0741
+      },
+      "Consolidation": {
+        "rule_out": 0.0228,
+        "attention": 0.0451
+      },
+      "Edema": {
+        "rule_out": 0.0122,
+        "attention": 0.0288
+      },
+      "Emphysema": {
+        "rule_out": 0.0132,
+        "attention": 0.0263
+      },
+      "Fibrosis": {
+        "rule_out": 0.0078,
+        "attention": 0.0126
+      },
+      "Pleural_Thickening": {
+        "rule_out": 0.015,
+        "attention": 0.0246
+      }
+    }
+  },
+  "published_findings": [
+    "any_finding",
+    "Atelectasis",
+    "Cardiomegaly",
+    "Effusion",
+    "Pneumothorax",
+    "Consolidation",
+    "Edema",
+    "Emphysema"
+  ],
+  "metrics": {
+    "test": {
+      "any_finding": {
+        "n": 7549,
+        "prevalence": 0.4606,
+        "threshold": 0.2912,
+        "roc_auc": 0.7081,
+        "pr_auc": 0.6442,
+        "brier": 0.2165,
+        "precision": 0.5201,
+        "recall": 0.9097,
+        "f1": 0.6618,
+        "confusion_matrix": {
+          "tn": 1153,
+          "fp": 2919,
+          "fn": 314,
+          "tp": 3163
+        },
+        "roc_auc_ci": [
+          0.6965,
+          0.7191
+        ],
+        "sensitivity": 0.9097,
+        "specificity": 0.2832,
+        "operating_points": [
+          {
+            "name": "rule_out",
+            "target_sensitivity": 0.9,
+            "threshold": 0.2912,
+            "sensitivity": 0.9097,
+            "specificity": 0.2832,
+            "share_flagged": 0.8057
+          },
+          {
+            "name": "attention",
+            "target_sensitivity": 0.6,
+            "threshold": 0.5487,
+            "sensitivity": 0.6126,
+            "specificity": 0.6979,
+            "share_flagged": 0.4451
+          }
+        ],
+        "metadata_only_roc_auc": 0.5898,
+        "calibration": "isotonic",
+        "calibration_bins": [
+          {
+            "mean_predicted": 0.1409,
+            "observed_rate": 0.1823,
+            "n": 702
+          },
+          {
+            "mean_predicted": 0.2381,
+            "observed_rate": 0.2431,
+            "n": 765
+          },
+          {
+            "mean_predicted": 0.3041,
+            "observed_rate": 0.3243,
+            "n": 1517
+          },
+          {
+            "mean_predicted": 0.4132,
+            "observed_rate": 0.4277,
+            "n": 643
+          },
+          {
+            "mean_predicted": 0.4531,
+            "observed_rate": 0.4733,
+            "n": 562
+          },
+          {
+            "mean_predicted": 0.5487,
+            "observed_rate": 0.5472,
+            "n": 1027
+          },
+          {
+            "mean_predicted": 0.6008,
+            "observed_rate": 0.5946,
+            "n": 624
+          },
+          {
+            "mean_predicted": 0.7002,
+            "observed_rate": 0.6585,
+            "n": 937
+          },
+          {
+            "mean_predicted": 0.7748,
+            "observed_rate": 0.7513,
+            "n": 772
+          }
+        ],
+        "regularisation_C": 0.0003,
+        "candidates": [
+          {
+            "C": 0.0003,
+            "val_roc_auc": 0.7289,
+            "fit_seconds": 0.2
+          },
+          {
+            "C": 0.001,
+            "val_roc_auc": 0.7182,
+            "fit_seconds": 0.3
+          },
+          {
+            "C": 0.003,
+            "val_roc_auc": 0.7089,
+            "fit_seconds": 0.4
+          },
+          {
+            "C": 0.01,
+            "val_roc_auc": 0.7035,
+            "fit_seconds": 0.4
+          }
+        ],
+        "published": true,
+        "subgroups": [
+          {
+            "group": "sex",
+            "value": "F",
+            "n": 3187,
+            "positives": 1432,
+            "roc_auc": 0.6984
+          },
+          {
+            "group": "sex",
+            "value": "M",
+            "n": 4362,
+            "positives": 2045,
+            "roc_auc": 0.7148
+          },
+          {
+            "group": "view",
+            "value": "PA",
+            "n": 4430,
+            "positives": 1824,
+            "roc_auc": 0.6915
+          },
+          {
+            "group": "view",
+            "value": "AP",
+            "n": 3119,
+            "positives": 1653,
+            "roc_auc": 0.7024
+          },
+          {
+            "group": "age",
+            "value": "under 40",
+            "n": 2439,
+            "positives": 1000,
+            "roc_auc": 0.7284
+          },
+          {
+            "group": "age",
+            "value": "40-59",
+            "n": 3227,
+            "positives": 1474,
+            "roc_auc": 0.701
+          },
+          {
+            "group": "age",
+            "value": "60-74",
+            "n": 1665,
+            "positives": 880,
+            "roc_auc": 0.6711
+          },
+          {
+            "group": "age",
+            "value": "75 and over",
+            "n": 218,
+            "positives": 123,
+            "roc_auc": 0.6846
+          }
+        ]
+      },
+      "Atelectasis": {
+        "n": 7549,
+        "prevalence": 0.1025,
+        "threshold": 0.0541,
+        "roc_auc": 0.708,
+        "pr_auc": 0.1959,
+        "brier": 0.0875,
+        "precision": 0.135,
+        "recall": 0.9212,
+        "f1": 0.2354,
+        "confusion_matrix": {
+          "tn": 2205,
+          "fp": 4570,
+          "fn": 61,
+          "tp": 713
+        },
+        "roc_auc_ci": [
+          0.691,
+          0.7235
+        ],
+        "sensitivity": 0.9212,
+        "specificity": 0.3255,
+        "operating_points": [
+          {
+            "name": "rule_out",
+            "target_sensitivity": 0.9,
+            "threshold": 0.0541,
+            "sensitivity": 0.9212,
+            "specificity": 0.3255,
+            "share_flagged": 0.6998
+          },
+          {
+            "name": "attention",
+            "target_sensitivity": 0.6,
+            "threshold": 0.1364,
+            "sensitivity": 0.6047,
+            "specificity": 0.6853,
+            "share_flagged": 0.3444
+          }
+        ],
+        "metadata_only_roc_auc": 0.6108,
+        "calibration": "isotonic",
+        "calibration_bins": [
+          {
+            "mean_predicted": 0.0188,
+            "observed_rate": 0.016,
+            "n": 626
+          },
+          {
+            "mean_predicted": 0.0388,
+            "observed_rate": 0.0245,
+            "n": 611
+          },
+          {
+            "mean_predicted": 0.044,
+            "observed_rate": 0.0336,
+            "n": 981
+          },
+          {
+            "mean_predicted": 0.0596,
+            "observed_rate": 0.0507,
+            "n": 513
+          },
+          {
+            "mean_predicted": 0.0817,
+            "observed_rate": 0.0892,
+            "n": 426
+          },
+          {
+            "mean_predicted": 0.1022,
+            "observed_rate": 0.1046,
+            "n": 1884
+          },
+          {
+            "mean_predicted": 0.1448,
+            "observed_rate": 0.1252,
+            "n": 783
+          },
+          {
+            "mean_predicted": 0.1604,
+            "observed_rate": 0.1789,
+            "n": 861
+          },
+          {
+            "mean_predicted": 0.2604,
+            "observed_rate": 0.235,
+            "n": 864
+          }
+        ],
+        "regularisation_C": 0.0003,
+        "candidates": [
+          {
+            "C": 0.0003,
+            "val_roc_auc": 0.693,
+            "fit_seconds": 0.3
+          },
+          {
+            "C": 0.001,
+            "val_roc_auc": 0.6774,
+            "fit_seconds": 0.3
+          },
+          {
+            "C": 0.003,
+            "val_roc_auc": 0.6645,
+            "fit_seconds": 0.5
+          },
+          {
+            "C": 0.01,
+            "val_roc_auc": 0.6562,
+            "fit_seconds": 0.5
+          }
+        ],
+        "published": true,
+        "subgroups": [
+          {
+            "group": "sex",
+            "value": "F",
+            "n": 3187,
+            "positives": 275,
+            "roc_auc": 0.7018
+          },
+          {
+            "group": "sex",
+            "value": "M",
+            "n": 4362,
+            "positives": 499,
+            "roc_auc": 0.708
+          },
+          {
+            "group": "view",
+            "value": "PA",
+            "n": 4430,
+            "positives": 376,
+            "roc_auc": 0.7341
+          },
+          {
+            "group": "view",
+            "value": "AP",
+            "n": 3119,
+            "positives": 398,
+            "roc_auc": 0.66
+          },
+          {
+            "group": "age",
+            "value": "under 40",
+            "n": 2439,
+            "positives": 167,
+            "roc_auc": 0.7055
+          },
+          {
+            "group": "age",
+            "value": "40-59",
+            "n": 3227,
+            "positives": 360,
+            "roc_auc": 0.7021
+          },
+          {
+            "group": "age",
+            "value": "60-74",
+            "n": 1665,
+            "positives": 214,
+            "roc_auc": 0.6789
+          },
+          {
+            "group": "age",
+            "value": "75 and over",
+            "n": 218,
+            "positives": 33,
+            "roc_auc": 0.7288
+          }
+        ]
+      },
+      "Cardiomegaly": {
+        "n": 7549,
+        "prevalence": 0.0241,
+        "threshold": 0.0128,
+        "roc_auc": 0.7262,
+        "pr_auc": 0.0942,
+        "brier": 0.0231,
+        "precision": 0.0278,
+        "recall": 0.9451,
+        "f1": 0.054,
+        "confusion_matrix": {
+          "tn": 1350,
+          "fp": 6017,
+          "fn": 10,
+          "tp": 172
+        },
+        "roc_auc_ci": [
+          0.6848,
+          0.7609
+        ],
+        "sensitivity": 0.9451,
+        "specificity": 0.1832,
+        "operating_points": [
+          {
+            "name": "rule_out",
+            "target_sensitivity": 0.9,
+            "threshold": 0.0128,
+            "sensitivity": 0.9451,
+            "specificity": 0.1832,
+            "share_flagged": 0.8198
+          },
+          {
+            "name": "attention",
+            "target_sensitivity": 0.6,
+            "threshold": 0.0221,
+            "sensitivity": 0.6703,
+            "specificity": 0.6672,
+            "share_flagged": 0.341
+          }
+        ],
+        "metadata_only_roc_auc": 0.5624,
+        "calibration": "platt",
+        "calibration_bins": [
+          {
+            "mean_predicted": 0.0115,
+            "observed_rate": 0.0066,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.0125,
+            "observed_rate": 0.0093,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.0135,
+            "observed_rate": 0.0079,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.0149,
+            "observed_rate": 0.0132,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.0165,
+            "observed_rate": 0.0106,
+            "n": 754
+          },
+          {
+            "mean_predicted": 0.0188,
+            "observed_rate": 0.0225,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.0218,
+            "observed_rate": 0.0159,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.0263,
+            "observed_rate": 0.0331,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.0338,
+            "observed_rate": 0.0397,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.0516,
+            "observed_rate": 0.0821,
+            "n": 755
+          }
+        ],
+        "regularisation_C": 0.0003,
+        "candidates": [
+          {
+            "C": 0.0003,
+            "val_roc_auc": 0.6886,
+            "fit_seconds": 0.3
+          },
+          {
+            "C": 0.001,
+            "val_roc_auc": 0.6733,
+            "fit_seconds": 0.3
+          },
+          {
+            "C": 0.003,
+            "val_roc_auc": 0.6587,
+            "fit_seconds": 0.4
+          },
+          {
+            "C": 0.01,
+            "val_roc_auc": 0.6456,
+            "fit_seconds": 0.4
+          }
+        ],
+        "published": true,
+        "subgroups": [
+          {
+            "group": "sex",
+            "value": "F",
+            "n": 3187,
+            "positives": 96,
+            "roc_auc": 0.721
+          },
+          {
+            "group": "sex",
+            "value": "M",
+            "n": 4362,
+            "positives": 86,
+            "roc_auc": 0.7239
+          },
+          {
+            "group": "view",
+            "value": "PA",
+            "n": 4430,
+            "positives": 97,
+            "roc_auc": 0.7694
+          },
+          {
+            "group": "view",
+            "value": "AP",
+            "n": 3119,
+            "positives": 85,
+            "roc_auc": 0.6608
+          },
+          {
+            "group": "age",
+            "value": "under 40",
+            "n": 2439,
+            "positives": 79,
+            "roc_auc": 0.7294
+          },
+          {
+            "group": "age",
+            "value": "40-59",
+            "n": 3227,
+            "positives": 63,
+            "roc_auc": 0.7571
+          },
+          {
+            "group": "age",
+            "value": "60-74",
+            "n": 1665,
+            "positives": 35,
+            "roc_auc": 0.6908
+          },
+          {
+            "group": "age",
+            "value": "75 and over",
+            "n": 218,
+            "positives": 5,
+            "roc_auc": 0.5728
+          }
+        ]
+      },
+      "Effusion": {
+        "n": 7549,
+        "prevalence": 0.109,
+        "threshold": 0.0625,
+        "roc_auc": 0.7787,
+        "pr_auc": 0.2871,
+        "brier": 0.0877,
+        "precision": 0.178,
+        "recall": 0.87,
+        "f1": 0.2955,
+        "confusion_matrix": {
+          "tn": 3419,
+          "fp": 3307,
+          "fn": 107,
+          "tp": 716
+        },
+        "roc_auc_ci": [
+          0.7632,
+          0.7938
+        ],
+        "sensitivity": 0.87,
+        "specificity": 0.5083,
+        "operating_points": [
+          {
+            "name": "rule_out",
+            "target_sensitivity": 0.9,
+            "threshold": 0.0625,
+            "sensitivity": 0.87,
+            "specificity": 0.5083,
+            "share_flagged": 0.5329
+          },
+          {
+            "name": "attention",
+            "target_sensitivity": 0.6,
+            "threshold": 0.2222,
+            "sensitivity": 0.5407,
+            "specificity": 0.836,
+            "share_flagged": 0.2051
+          }
+        ],
+        "metadata_only_roc_auc": 0.6069,
+        "calibration": "isotonic",
+        "calibration_bins": [
+          {
+            "mean_predicted": 0.0055,
+            "observed_rate": 0.0094,
+            "n": 742
+          },
+          {
+            "mean_predicted": 0.0129,
+            "observed_rate": 0.0316,
+            "n": 285
+          },
+          {
+            "mean_predicted": 0.0129,
+            "observed_rate": 0.0243,
+            "n": 987
+          },
+          {
+            "mean_predicted": 0.027,
+            "observed_rate": 0.0367,
+            "n": 626
+          },
+          {
+            "mean_predicted": 0.0456,
+            "observed_rate": 0.0497,
+            "n": 886
+          },
+          {
+            "mean_predicted": 0.0677,
+            "observed_rate": 0.0636,
+            "n": 990
+          },
+          {
+            "mean_predicted": 0.0992,
+            "observed_rate": 0.134,
+            "n": 373
+          },
+          {
+            "mean_predicted": 0.1617,
+            "observed_rate": 0.1429,
+            "n": 1134
+          },
+          {
+            "mean_predicted": 0.2373,
+            "observed_rate": 0.2271,
+            "n": 687
+          },
+          {
+            "mean_predicted": 0.4141,
+            "observed_rate": 0.3397,
+            "n": 839
+          }
+        ],
+        "regularisation_C": 0.0003,
+        "candidates": [
+          {
+            "C": 0.0003,
+            "val_roc_auc": 0.8187,
+            "fit_seconds": 0.3
+          },
+          {
+            "C": 0.001,
+            "val_roc_auc": 0.8093,
+            "fit_seconds": 0.3
+          },
+          {
+            "C": 0.003,
+            "val_roc_auc": 0.7965,
+            "fit_seconds": 0.4
+          },
+          {
+            "C": 0.01,
+            "val_roc_auc": 0.7866,
+            "fit_seconds": 0.5
+          }
+        ],
+        "published": true,
+        "subgroups": [
+          {
+            "group": "sex",
+            "value": "F",
+            "n": 3187,
+            "positives": 352,
+            "roc_auc": 0.7628
+          },
+          {
+            "group": "sex",
+            "value": "M",
+            "n": 4362,
+            "positives": 471,
+            "roc_auc": 0.7901
+          },
+          {
+            "group": "view",
+            "value": "PA",
+            "n": 4430,
+            "positives": 391,
+            "roc_auc": 0.8016
+          },
+          {
+            "group": "view",
+            "value": "AP",
+            "n": 3119,
+            "positives": 432,
+            "roc_auc": 0.7344
+          },
+          {
+            "group": "age",
+            "value": "under 40",
+            "n": 2439,
+            "positives": 197,
+            "roc_auc": 0.7603
+          },
+          {
+            "group": "age",
+            "value": "40-59",
+            "n": 3227,
+            "positives": 342,
+            "roc_auc": 0.7876
+          },
+          {
+            "group": "age",
+            "value": "60-74",
+            "n": 1665,
+            "positives": 245,
+            "roc_auc": 0.7808
+          },
+          {
+            "group": "age",
+            "value": "75 and over",
+            "n": 218,
+            "positives": 39,
+            "roc_auc": 0.6482
+          }
+        ]
+      },
+      "Infiltration": {
+        "n": 7549,
+        "prevalence": 0.1851,
+        "threshold": 0.0964,
+        "roc_auc": 0.6439,
+        "pr_auc": 0.2834,
+        "brier": 0.1446,
+        "precision": 0.1991,
+        "recall": 0.9399,
+        "f1": 0.3286,
+        "confusion_matrix": {
+          "tn": 871,
+          "fp": 5281,
+          "fn": 84,
+          "tp": 1313
+        },
+        "roc_auc_ci": [
+          0.6271,
+          0.6604
+        ],
+        "sensitivity": 0.9399,
+        "specificity": 0.1416,
+        "operating_points": [
+          {
+            "name": "rule_out",
+            "target_sensitivity": 0.9,
+            "threshold": 0.0964,
+            "sensitivity": 0.9399,
+            "specificity": 0.1416,
+            "share_flagged": 0.8735
+          },
+          {
+            "name": "attention",
+            "target_sensitivity": 0.6,
+            "threshold": 0.1724,
+            "sensitivity": 0.5927,
+            "specificity": 0.6209,
+            "share_flagged": 0.4186
+          }
+        ],
+        "metadata_only_roc_auc": 0.5889,
+        "calibration": "isotonic",
+        "calibration_bins": [
+          {
+            "mean_predicted": 0.0354,
+            "observed_rate": 0.0615,
+            "n": 390
+          },
+          {
+            "mean_predicted": 0.0815,
+            "observed_rate": 0.1062,
+            "n": 565
+          },
+          {
+            "mean_predicted": 0.1031,
+            "observed_rate": 0.131,
+            "n": 1962
+          },
+          {
+            "mean_predicted": 0.1363,
+            "observed_rate": 0.163,
+            "n": 546
+          },
+          {
+            "mean_predicted": 0.1434,
+            "observed_rate": 0.1501,
+            "n": 926
+          },
+          {
+            "mean_predicted": 0.182,
+            "observed_rate": 0.2092,
+            "n": 521
+          },
+          {
+            "mean_predicted": 0.1949,
+            "observed_rate": 0.1863,
+            "n": 907
+          },
+          {
+            "mean_predicted": 0.2725,
+            "observed_rate": 0.2724,
+            "n": 925
+          },
+          {
+            "mean_predicted": 0.3317,
+            "observed_rate": 0.3693,
+            "n": 807
+          }
+        ],
+        "regularisation_C": 0.0003,
+        "candidates": [
+          {
+            "C": 0.0003,
+            "val_roc_auc": 0.6624,
+            "fit_seconds": 0.2
+          },
+          {
+            "C": 0.001,
+            "val_roc_auc": 0.6429,
+            "fit_seconds": 0.3
+          },
+          {
+            "C": 0.003,
+            "val_roc_auc": 0.6287,
+            "fit_seconds": 0.4
+          },
+          {
+            "C": 0.01,
+            "val_roc_auc": 0.6217,
+            "fit_seconds": 0.5
+          }
+        ],
+        "published": false,
+        "subgroups": [
+          {
+            "group": "sex",
+            "value": "F",
+            "n": 3187,
+            "positives": 533,
+            "roc_auc": 0.6385
+          },
+          {
+            "group": "sex",
+            "value": "M",
+            "n": 4362,
+            "positives": 864,
+            "roc_auc": 0.6458
+          },
+          {
+            "group": "view",
+            "value": "PA",
+            "n": 4430,
+            "positives": 626,
+            "roc_auc": 0.5653
+          },
+          {
+            "group": "view",
+            "value": "AP",
+            "n": 3119,
+            "positives": 771,
+            "roc_auc": 0.6547
+          },
+          {
+            "group": "age",
+            "value": "under 40",
+            "n": 2439,
+            "positives": 479,
+            "roc_auc": 0.6523
+          },
+          {
+            "group": "age",
+            "value": "40-59",
+            "n": 3227,
+            "positives": 559,
+            "roc_auc": 0.6394
+          },
+          {
+            "group": "age",
+            "value": "60-74",
+            "n": 1665,
+            "positives": 316,
+            "roc_auc": 0.6362
+          },
+          {
+            "group": "age",
+            "value": "75 and over",
+            "n": 218,
+            "positives": 43,
+            "roc_auc": 0.6473
+          }
+        ]
+      },
+      "Mass": {
+        "n": 7549,
+        "prevalence": 0.0534,
+        "threshold": 0.0222,
+        "roc_auc": 0.6344,
+        "pr_auc": 0.1025,
+        "brier": 0.0497,
+        "precision": 0.0626,
+        "recall": 0.8139,
+        "f1": 0.1162,
+        "confusion_matrix": {
+          "tn": 2233,
+          "fp": 4913,
+          "fn": 75,
+          "tp": 328
+        },
+        "roc_auc_ci": [
+          0.6062,
+          0.6613
+        ],
+        "sensitivity": 0.8139,
+        "specificity": 0.3125,
+        "operating_points": [
+          {
+            "name": "rule_out",
+            "target_sensitivity": 0.9,
+            "threshold": 0.0222,
+            "sensitivity": 0.8139,
+            "specificity": 0.3125,
+            "share_flagged": 0.6943
+          },
+          {
+            "name": "attention",
+            "target_sensitivity": 0.6,
+            "threshold": 0.0561,
+            "sensitivity": 0.5558,
+            "specificity": 0.6308,
+            "share_flagged": 0.3791
+          }
+        ],
+        "metadata_only_roc_auc": 0.5679,
+        "calibration": "isotonic",
+        "calibration_bins": [
+          {
+            "mean_predicted": 0.0077,
+            "observed_rate": 0.0334,
+            "n": 329
+          },
+          {
+            "mean_predicted": 0.0186,
+            "observed_rate": 0.0313,
+            "n": 1914
+          },
+          {
+            "mean_predicted": 0.031,
+            "observed_rate": 0.0391,
+            "n": 742
+          },
+          {
+            "mean_predicted": 0.0549,
+            "observed_rate": 0.0445,
+            "n": 719
+          },
+          {
+            "mean_predicted": 0.0558,
+            "observed_rate": 0.0418,
+            "n": 431
+          },
+          {
+            "mean_predicted": 0.0579,
+            "observed_rate": 0.0485,
+            "n": 887
+          },
+          {
+            "mean_predicted": 0.0701,
+            "observed_rate": 0.0608,
+            "n": 1578
+          },
+          {
+            "mean_predicted": 0.1126,
+            "observed_rate": 0.1201,
+            "n": 949
+          }
+        ],
+        "regularisation_C": 0.0003,
+        "candidates": [
+          {
+            "C": 0.0003,
+            "val_roc_auc": 0.6561,
+            "fit_seconds": 0.3
+          },
+          {
+            "C": 0.001,
+            "val_roc_auc": 0.643,
+            "fit_seconds": 0.3
+          },
+          {
+            "C": 0.003,
+            "val_roc_auc": 0.6342,
+            "fit_seconds": 0.4
+          },
+          {
+            "C": 0.01,
+            "val_roc_auc": 0.6268,
+            "fit_seconds": 0.5
+          }
+        ],
+        "published": false,
+        "subgroups": [
+          {
+            "group": "sex",
+            "value": "F",
+            "n": 3187,
+            "positives": 148,
+            "roc_auc": 0.5894
+          },
+          {
+            "group": "sex",
+            "value": "M",
+            "n": 4362,
+            "positives": 255,
+            "roc_auc": 0.659
+          },
+          {
+            "group": "view",
+            "value": "PA",
+            "n": 4430,
+            "positives": 246,
+            "roc_auc": 0.6498
+          },
+          {
+            "group": "view",
+            "value": "AP",
+            "n": 3119,
+            "positives": 157,
+            "roc_auc": 0.6095
+          },
+          {
+            "group": "age",
+            "value": "under 40",
+            "n": 2439,
+            "positives": 99,
+            "roc_auc": 0.6383
+          },
+          {
+            "group": "age",
+            "value": "40-59",
+            "n": 3227,
+            "positives": 171,
+            "roc_auc": 0.6154
+          },
+          {
+            "group": "age",
+            "value": "60-74",
+            "n": 1665,
+            "positives": 111,
+            "roc_auc": 0.613
+          },
+          {
+            "group": "age",
+            "value": "75 and over",
+            "n": 218,
+            "positives": 22,
+            "roc_auc": 0.7181
+          }
+        ]
+      },
+      "Nodule": {
+        "n": 7549,
+        "prevalence": 0.0559,
+        "threshold": 0.0462,
+        "roc_auc": 0.587,
+        "pr_auc": 0.0828,
+        "brier": 0.0525,
+        "precision": 0.0585,
+        "recall": 0.8863,
+        "f1": 0.1097,
+        "confusion_matrix": {
+          "tn": 1105,
+          "fp": 6022,
+          "fn": 48,
+          "tp": 374
+        },
+        "roc_auc_ci": [
+          0.5609,
+          0.6134
+        ],
+        "sensitivity": 0.8863,
+        "specificity": 0.155,
+        "operating_points": [
+          {
+            "name": "rule_out",
+            "target_sensitivity": 0.9,
+            "threshold": 0.0462,
+            "sensitivity": 0.8863,
+            "specificity": 0.155,
+            "share_flagged": 0.8473
+          },
+          {
+            "name": "attention",
+            "target_sensitivity": 0.6,
+            "threshold": 0.0569,
+            "sensitivity": 0.5853,
+            "specificity": 0.5245,
+            "share_flagged": 0.4817
+          }
+        ],
+        "metadata_only_roc_auc": 0.5613,
+        "calibration": "isotonic",
+        "calibration_bins": [
+          {
+            "mean_predicted": 0.0232,
+            "observed_rate": 0.0378,
+            "n": 715
+          },
+          {
+            "mean_predicted": 0.0387,
+            "observed_rate": 0.0479,
+            "n": 438
+          },
+          {
+            "mean_predicted": 0.0462,
+            "observed_rate": 0.0467,
+            "n": 2527
+          },
+          {
+            "mean_predicted": 0.0569,
+            "observed_rate": 0.0413,
+            "n": 847
+          },
+          {
+            "mean_predicted": 0.0616,
+            "observed_rate": 0.043,
+            "n": 442
+          },
+          {
+            "mean_predicted": 0.0749,
+            "observed_rate": 0.0509,
+            "n": 589
+          },
+          {
+            "mean_predicted": 0.0845,
+            "observed_rate": 0.0759,
+            "n": 1226
+          },
+          {
+            "mean_predicted": 0.1288,
+            "observed_rate": 0.1033,
+            "n": 765
+          }
+        ],
+        "regularisation_C": 0.0003,
+        "candidates": [
+          {
+            "C": 0.0003,
+            "val_roc_auc": 0.6217,
+            "fit_seconds": 0.3
+          },
+          {
+            "C": 0.001,
+            "val_roc_auc": 0.6067,
+            "fit_seconds": 0.3
+          },
+          {
+            "C": 0.003,
+            "val_roc_auc": 0.5966,
+            "fit_seconds": 0.4
+          },
+          {
+            "C": 0.01,
+            "val_roc_auc": 0.5889,
+            "fit_seconds": 0.5
+          }
+        ],
+        "published": false,
+        "subgroups": [
+          {
+            "group": "sex",
+            "value": "F",
+            "n": 3187,
+            "positives": 191,
+            "roc_auc": 0.5666
+          },
+          {
+            "group": "sex",
+            "value": "M",
+            "n": 4362,
+            "positives": 231,
+            "roc_auc": 0.6098
+          },
+          {
+            "group": "view",
+            "value": "PA",
+            "n": 4430,
+            "positives": 266,
+            "roc_auc": 0.5736
+          },
+          {
+            "group": "view",
+            "value": "AP",
+            "n": 3119,
+            "positives": 156,
+            "roc_auc": 0.5972
+          },
+          {
+            "group": "age",
+            "value": "under 40",
+            "n": 2439,
+            "positives": 87,
+            "roc_auc": 0.5943
+          },
+          {
+            "group": "age",
+            "value": "40-59",
+            "n": 3227,
+            "positives": 217,
+            "roc_auc": 0.5705
+          },
+          {
+            "group": "age",
+            "value": "60-74",
+            "n": 1665,
+            "positives": 103,
+            "roc_auc": 0.5842
+          },
+          {
+            "group": "age",
+            "value": "75 and over",
+            "n": 218,
+            "positives": 15,
+            "roc_auc": 0.5897
+          }
+        ]
+      },
+      "Pneumonia": {
+        "n": 7549,
+        "prevalence": 0.0151,
+        "threshold": 0.0082,
+        "roc_auc": 0.6252,
+        "pr_auc": 0.0257,
+        "brier": 0.0149,
+        "precision": 0.0167,
+        "recall": 0.9561,
+        "f1": 0.0327,
+        "confusion_matrix": {
+          "tn": 1000,
+          "fp": 6435,
+          "fn": 5,
+          "tp": 109
+        },
+        "roc_auc_ci": [
+          0.5741,
+          0.6778
+        ],
+        "sensitivity": 0.9561,
+        "specificity": 0.1345,
+        "operating_points": [
+          {
+            "name": "rule_out",
+            "target_sensitivity": 0.9,
+            "threshold": 0.0082,
+            "sensitivity": 0.9561,
+            "specificity": 0.1345,
+            "share_flagged": 0.8669
+          },
+          {
+            "name": "attention",
+            "target_sensitivity": 0.6,
+            "threshold": 0.0095,
+            "sensitivity": 0.7193,
+            "specificity": 0.4538,
+            "share_flagged": 0.5488
+          }
+        ],
+        "metadata_only_roc_auc": 0.5923,
+        "calibration": "platt",
+        "calibration_bins": [
+          {
+            "mean_predicted": 0.0079,
+            "observed_rate": 0.0066,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.0082,
+            "observed_rate": 0.0053,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.0086,
+            "observed_rate": 0.0132,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.009,
+            "observed_rate": 0.0119,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.0095,
+            "observed_rate": 0.0119,
+            "n": 754
+          },
+          {
+            "mean_predicted": 0.0101,
+            "observed_rate": 0.0159,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.011,
+            "observed_rate": 0.0119,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.0121,
+            "observed_rate": 0.0291,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.0141,
+            "observed_rate": 0.0132,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.0184,
+            "observed_rate": 0.0318,
+            "n": 755
+          }
+        ],
+        "regularisation_C": 0.0003,
+        "candidates": [
+          {
+            "C": 0.0003,
+            "val_roc_auc": 0.612,
+            "fit_seconds": 0.3
+          },
+          {
+            "C": 0.001,
+            "val_roc_auc": 0.5966,
+            "fit_seconds": 0.4
+          },
+          {
+            "C": 0.003,
+            "val_roc_auc": 0.5856,
+            "fit_seconds": 0.4
+          },
+          {
+            "C": 0.01,
+            "val_roc_auc": 0.5769,
+            "fit_seconds": 0.5
+          }
+        ],
+        "published": false,
+        "subgroups": [
+          {
+            "group": "sex",
+            "value": "F",
+            "n": 3187,
+            "positives": 40,
+            "roc_auc": 0.6002
+          },
+          {
+            "group": "sex",
+            "value": "M",
+            "n": 4362,
+            "positives": 74,
+            "roc_auc": 0.6375
+          },
+          {
+            "group": "view",
+            "value": "PA",
+            "n": 4430,
+            "positives": 47,
+            "roc_auc": 0.5644
+          },
+          {
+            "group": "view",
+            "value": "AP",
+            "n": 3119,
+            "positives": 67,
+            "roc_auc": 0.625
+          },
+          {
+            "group": "age",
+            "value": "under 40",
+            "n": 2439,
+            "positives": 43,
+            "roc_auc": 0.6373
+          },
+          {
+            "group": "age",
+            "value": "40-59",
+            "n": 3227,
+            "positives": 45,
+            "roc_auc": 0.597
+          },
+          {
+            "group": "age",
+            "value": "60-74",
+            "n": 1665,
+            "positives": 25,
+            "roc_auc": 0.6549
+          },
+          {
+            "group": "age",
+            "value": "75 and over",
+            "n": 218,
+            "positives": 1,
+            "roc_auc": 0.4977
+          }
+        ]
+      },
+      "Pneumothorax": {
+        "n": 7549,
+        "prevalence": 0.0448,
+        "threshold": 0.0227,
+        "roc_auc": 0.7626,
+        "pr_auc": 0.1479,
+        "brier": 0.0416,
+        "precision": 0.0614,
+        "recall": 0.926,
+        "f1": 0.1152,
+        "confusion_matrix": {
+          "tn": 2428,
+          "fp": 4783,
+          "fn": 25,
+          "tp": 313
+        },
+        "roc_auc_ci": [
+          0.7366,
+          0.7864
+        ],
+        "sensitivity": 0.926,
+        "specificity": 0.3367,
+        "operating_points": [
+          {
+            "name": "rule_out",
+            "target_sensitivity": 0.9,
+            "threshold": 0.0227,
+            "sensitivity": 0.926,
+            "specificity": 0.3367,
+            "share_flagged": 0.6751
+          },
+          {
+            "name": "attention",
+            "target_sensitivity": 0.6,
+            "threshold": 0.0741,
+            "sensitivity": 0.5917,
+            "specificity": 0.7948,
+            "share_flagged": 0.2225
+          }
+        ],
+        "metadata_only_roc_auc": 0.5653,
+        "calibration": "isotonic",
+        "calibration_bins": [
+          {
+            "mean_predicted": 0.0019,
+            "observed_rate": 0.0056,
+            "n": 180
+          },
+          {
+            "mean_predicted": 0.0074,
+            "observed_rate": 0.007,
+            "n": 863
+          },
+          {
+            "mean_predicted": 0.0146,
+            "observed_rate": 0.014,
+            "n": 1210
+          },
+          {
+            "mean_predicted": 0.0164,
+            "observed_rate": 0.005,
+            "n": 200
+          },
+          {
+            "mean_predicted": 0.025,
+            "observed_rate": 0.024,
+            "n": 1042
+          },
+          {
+            "mean_predicted": 0.0452,
+            "observed_rate": 0.03,
+            "n": 1000
+          },
+          {
+            "mean_predicted": 0.0522,
+            "observed_rate": 0.0314,
+            "n": 159
+          },
+          {
+            "mean_predicted": 0.0549,
+            "observed_rate": 0.0465,
+            "n": 1356
+          },
+          {
+            "mean_predicted": 0.092,
+            "observed_rate": 0.079,
+            "n": 772
+          },
+          {
+            "mean_predicted": 0.2333,
+            "observed_rate": 0.1682,
+            "n": 767
+          }
+        ],
+        "regularisation_C": 0.0003,
+        "candidates": [
+          {
+            "C": 0.0003,
+            "val_roc_auc": 0.773,
+            "fit_seconds": 0.3
+          },
+          {
+            "C": 0.001,
+            "val_roc_auc": 0.7462,
+            "fit_seconds": 0.4
+          },
+          {
+            "C": 0.003,
+            "val_roc_auc": 0.7206,
+            "fit_seconds": 0.4
+          },
+          {
+            "C": 0.01,
+            "val_roc_auc": 0.7003,
+            "fit_seconds": 0.5
+          }
+        ],
+        "published": true,
+        "subgroups": [
+          {
+            "group": "sex",
+            "value": "F",
+            "n": 3187,
+            "positives": 180,
+            "roc_auc": 0.7471
+          },
+          {
+            "group": "sex",
+            "value": "M",
+            "n": 4362,
+            "positives": 158,
+            "roc_auc": 0.7687
+          },
+          {
+            "group": "view",
+            "value": "PA",
+            "n": 4430,
+            "positives": 210,
+            "roc_auc": 0.7788
+          },
+          {
+            "group": "view",
+            "value": "AP",
+            "n": 3119,
+            "positives": 128,
+            "roc_auc": 0.7357
+          },
+          {
+            "group": "age",
+            "value": "under 40",
+            "n": 2439,
+            "positives": 120,
+            "roc_auc": 0.7972
+          },
+          {
+            "group": "age",
+            "value": "40-59",
+            "n": 3227,
+            "positives": 128,
+            "roc_auc": 0.7402
+          },
+          {
+            "group": "age",
+            "value": "60-74",
+            "n": 1665,
+            "positives": 83,
+            "roc_auc": 0.7502
+          },
+          {
+            "group": "age",
+            "value": "75 and over",
+            "n": 218,
+            "positives": 7,
+            "roc_auc": 0.7925
+          }
+        ]
+      },
+      "Consolidation": {
+        "n": 7549,
+        "prevalence": 0.0397,
+        "threshold": 0.0228,
+        "roc_auc": 0.7117,
+        "pr_auc": 0.0762,
+        "brier": 0.0374,
+        "precision": 0.0474,
+        "recall": 0.9467,
+        "f1": 0.0903,
+        "confusion_matrix": {
+          "tn": 1543,
+          "fp": 5706,
+          "fn": 16,
+          "tp": 284
+        },
+        "roc_auc_ci": [
+          0.6853,
+          0.7368
+        ],
+        "sensitivity": 0.9467,
+        "specificity": 0.2129,
+        "operating_points": [
+          {
+            "name": "rule_out",
+            "target_sensitivity": 0.9,
+            "threshold": 0.0228,
+            "sensitivity": 0.9467,
+            "specificity": 0.2129,
+            "share_flagged": 0.7935
+          },
+          {
+            "name": "attention",
+            "target_sensitivity": 0.6,
+            "threshold": 0.0451,
+            "sensitivity": 0.75,
+            "specificity": 0.5856,
+            "share_flagged": 0.4277
+          }
+        ],
+        "metadata_only_roc_auc": 0.6452,
+        "calibration": "isotonic",
+        "calibration_bins": [
+          {
+            "mean_predicted": 0.0067,
+            "observed_rate": 0.0041,
+            "n": 482
+          },
+          {
+            "mean_predicted": 0.015,
+            "observed_rate": 0.013,
+            "n": 999
+          },
+          {
+            "mean_predicted": 0.0228,
+            "observed_rate": 0.0128,
+            "n": 78
+          },
+          {
+            "mean_predicted": 0.0228,
+            "observed_rate": 0.0143,
+            "n": 1402
+          },
+          {
+            "mean_predicted": 0.0262,
+            "observed_rate": 0.0282,
+            "n": 746
+          },
+          {
+            "mean_predicted": 0.0347,
+            "observed_rate": 0.0294,
+            "n": 613
+          },
+          {
+            "mean_predicted": 0.0495,
+            "observed_rate": 0.0461,
+            "n": 1409
+          },
+          {
+            "mean_predicted": 0.0812,
+            "observed_rate": 0.0879,
+            "n": 1820
+          }
+        ],
+        "regularisation_C": 0.0003,
+        "candidates": [
+          {
+            "C": 0.0003,
+            "val_roc_auc": 0.6677,
+            "fit_seconds": 0.3
+          },
+          {
+            "C": 0.001,
+            "val_roc_auc": 0.636,
+            "fit_seconds": 0.4
+          },
+          {
+            "C": 0.003,
+            "val_roc_auc": 0.6126,
+            "fit_seconds": 0.4
+          },
+          {
+            "C": 0.01,
+            "val_roc_auc": 0.5997,
+            "fit_seconds": 0.5
+          }
+        ],
+        "published": true,
+        "subgroups": [
+          {
+            "group": "sex",
+            "value": "F",
+            "n": 3187,
+            "positives": 106,
+            "roc_auc": 0.7253
+          },
+          {
+            "group": "sex",
+            "value": "M",
+            "n": 4362,
+            "positives": 194,
+            "roc_auc": 0.7028
+          },
+          {
+            "group": "view",
+            "value": "PA",
+            "n": 4430,
+            "positives": 93,
+            "roc_auc": 0.6989
+          },
+          {
+            "group": "view",
+            "value": "AP",
+            "n": 3119,
+            "positives": 207,
+            "roc_auc": 0.625
+          },
+          {
+            "group": "age",
+            "value": "under 40",
+            "n": 2439,
+            "positives": 92,
+            "roc_auc": 0.7386
+          },
+          {
+            "group": "age",
+            "value": "40-59",
+            "n": 3227,
+            "positives": 131,
+            "roc_auc": 0.7181
+          },
+          {
+            "group": "age",
+            "value": "60-74",
+            "n": 1665,
+            "positives": 69,
+            "roc_auc": 0.6624
+          },
+          {
+            "group": "age",
+            "value": "75 and over",
+            "n": 218,
+            "positives": 8,
+            "roc_auc": 0.7226
+          }
+        ]
+      },
+      "Edema": {
+        "n": 7549,
+        "prevalence": 0.0192,
+        "threshold": 0.0122,
+        "roc_auc": 0.7998,
+        "pr_auc": 0.0798,
+        "brier": 0.0182,
+        "precision": 0.0384,
+        "recall": 0.8276,
+        "f1": 0.0733,
+        "confusion_matrix": {
+          "tn": 4396,
+          "fp": 3008,
+          "fn": 25,
+          "tp": 120
+        },
+        "roc_auc_ci": [
+          0.766,
+          0.8335
+        ],
+        "sensitivity": 0.8276,
+        "specificity": 0.5937,
+        "operating_points": [
+          {
+            "name": "rule_out",
+            "target_sensitivity": 0.9,
+            "threshold": 0.0122,
+            "sensitivity": 0.8276,
+            "specificity": 0.5937,
+            "share_flagged": 0.4144
+          },
+          {
+            "name": "attention",
+            "target_sensitivity": 0.6,
+            "threshold": 0.0288,
+            "sensitivity": 0.6276,
+            "specificity": 0.8193,
+            "share_flagged": 0.1893
+          }
+        ],
+        "metadata_only_roc_auc": 0.7474,
+        "calibration": "platt",
+        "calibration_bins": [
+          {
+            "mean_predicted": 0.007,
+            "observed_rate": 0.0013,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.0074,
+            "observed_rate": 0.0013,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.0079,
+            "observed_rate": 0.0079,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.0086,
+            "observed_rate": 0.0053,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.0096,
+            "observed_rate": 0.0066,
+            "n": 754
+          },
+          {
+            "mean_predicted": 0.0113,
+            "observed_rate": 0.0106,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.0146,
+            "observed_rate": 0.0119,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.0214,
+            "observed_rate": 0.0265,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.0373,
+            "observed_rate": 0.0411,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.0822,
+            "observed_rate": 0.0795,
+            "n": 755
+          }
+        ],
+        "regularisation_C": 0.0003,
+        "candidates": [
+          {
+            "C": 0.0003,
+            "val_roc_auc": 0.8188,
+            "fit_seconds": 0.3
+          },
+          {
+            "C": 0.001,
+            "val_roc_auc": 0.7837,
+            "fit_seconds": 0.3
+          },
+          {
+            "C": 0.003,
+            "val_roc_auc": 0.7569,
+            "fit_seconds": 0.4
+          },
+          {
+            "C": 0.01,
+            "val_roc_auc": 0.7333,
+            "fit_seconds": 0.4
+          }
+        ],
+        "published": true,
+        "subgroups": [
+          {
+            "group": "sex",
+            "value": "F",
+            "n": 3187,
+            "positives": 68,
+            "roc_auc": 0.8026
+          },
+          {
+            "group": "sex",
+            "value": "M",
+            "n": 4362,
+            "positives": 77,
+            "roc_auc": 0.7988
+          },
+          {
+            "group": "view",
+            "value": "PA",
+            "n": 4430,
+            "positives": 19,
+            "roc_auc": 0.6176
+          },
+          {
+            "group": "view",
+            "value": "AP",
+            "n": 3119,
+            "positives": 126,
+            "roc_auc": 0.6996
+          },
+          {
+            "group": "age",
+            "value": "under 40",
+            "n": 2439,
+            "positives": 47,
+            "roc_auc": 0.8519
+          },
+          {
+            "group": "age",
+            "value": "40-59",
+            "n": 3227,
+            "positives": 59,
+            "roc_auc": 0.7918
+          },
+          {
+            "group": "age",
+            "value": "60-74",
+            "n": 1665,
+            "positives": 38,
+            "roc_auc": 0.7459
+          },
+          {
+            "group": "age",
+            "value": "75 and over",
+            "n": 218,
+            "positives": 1,
+            "roc_auc": 0.7097
+          }
+        ]
+      },
+      "Emphysema": {
+        "n": 7549,
+        "prevalence": 0.0215,
+        "threshold": 0.0132,
+        "roc_auc": 0.7919,
+        "pr_auc": 0.0998,
+        "brier": 0.0203,
+        "precision": 0.0314,
+        "recall": 0.9012,
+        "f1": 0.0606,
+        "confusion_matrix": {
+          "tn": 2876,
+          "fp": 4511,
+          "fn": 16,
+          "tp": 146
+        },
+        "roc_auc_ci": [
+          0.7551,
+          0.8269
+        ],
+        "sensitivity": 0.9012,
+        "specificity": 0.3893,
+        "operating_points": [
+          {
+            "name": "rule_out",
+            "target_sensitivity": 0.9,
+            "threshold": 0.0132,
+            "sensitivity": 0.9012,
+            "specificity": 0.3893,
+            "share_flagged": 0.6169
+          },
+          {
+            "name": "attention",
+            "target_sensitivity": 0.6,
+            "threshold": 0.0263,
+            "sensitivity": 0.7469,
+            "specificity": 0.7448,
+            "share_flagged": 0.2657
+          }
+        ],
+        "metadata_only_roc_auc": 0.5496,
+        "calibration": "platt",
+        "calibration_bins": [
+          {
+            "mean_predicted": 0.01,
+            "observed_rate": 0.0026,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.0107,
+            "observed_rate": 0.0013,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.0117,
+            "observed_rate": 0.0066,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.0128,
+            "observed_rate": 0.0119,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.0145,
+            "observed_rate": 0.0106,
+            "n": 754
+          },
+          {
+            "mean_predicted": 0.017,
+            "observed_rate": 0.0053,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.021,
+            "observed_rate": 0.0119,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.0281,
+            "observed_rate": 0.0265,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.0436,
+            "observed_rate": 0.049,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.0913,
+            "observed_rate": 0.0887,
+            "n": 755
+          }
+        ],
+        "regularisation_C": 0.0003,
+        "candidates": [
+          {
+            "C": 0.0003,
+            "val_roc_auc": 0.7599,
+            "fit_seconds": 0.3
+          },
+          {
+            "C": 0.001,
+            "val_roc_auc": 0.7242,
+            "fit_seconds": 0.3
+          },
+          {
+            "C": 0.003,
+            "val_roc_auc": 0.6941,
+            "fit_seconds": 0.4
+          },
+          {
+            "C": 0.01,
+            "val_roc_auc": 0.6676,
+            "fit_seconds": 0.4
+          }
+        ],
+        "published": true,
+        "subgroups": [
+          {
+            "group": "sex",
+            "value": "F",
+            "n": 3187,
+            "positives": 58,
+            "roc_auc": 0.7537
+          },
+          {
+            "group": "sex",
+            "value": "M",
+            "n": 4362,
+            "positives": 104,
+            "roc_auc": 0.8148
+          },
+          {
+            "group": "view",
+            "value": "PA",
+            "n": 4430,
+            "positives": 95,
+            "roc_auc": 0.7929
+          },
+          {
+            "group": "view",
+            "value": "AP",
+            "n": 3119,
+            "positives": 67,
+            "roc_auc": 0.7915
+          },
+          {
+            "group": "age",
+            "value": "under 40",
+            "n": 2439,
+            "positives": 55,
+            "roc_auc": 0.826
+          },
+          {
+            "group": "age",
+            "value": "40-59",
+            "n": 3227,
+            "positives": 47,
+            "roc_auc": 0.8187
+          },
+          {
+            "group": "age",
+            "value": "60-74",
+            "n": 1665,
+            "positives": 53,
+            "roc_auc": 0.7399
+          },
+          {
+            "group": "age",
+            "value": "75 and over",
+            "n": 218,
+            "positives": 7,
+            "roc_auc": 0.6032
+          }
+        ]
+      },
+      "Fibrosis": {
+        "n": 7549,
+        "prevalence": 0.0193,
+        "threshold": 0.0078,
+        "roc_auc": 0.6785,
+        "pr_auc": 0.0618,
+        "brier": 0.0189,
+        "precision": 0.0223,
+        "recall": 0.9178,
+        "f1": 0.0435,
+        "confusion_matrix": {
+          "tn": 1526,
+          "fp": 5877,
+          "fn": 12,
+          "tp": 134
+        },
+        "roc_auc_ci": [
+          0.634,
+          0.7207
+        ],
+        "sensitivity": 0.9178,
+        "specificity": 0.2061,
+        "operating_points": [
+          {
+            "name": "rule_out",
+            "target_sensitivity": 0.9,
+            "threshold": 0.0078,
+            "sensitivity": 0.9178,
+            "specificity": 0.2061,
+            "share_flagged": 0.7963
+          },
+          {
+            "name": "attention",
+            "target_sensitivity": 0.6,
+            "threshold": 0.0126,
+            "sensitivity": 0.5479,
+            "specificity": 0.719,
+            "share_flagged": 0.2861
+          }
+        ],
+        "metadata_only_roc_auc": 0.6413,
+        "calibration": "platt",
+        "calibration_bins": [
+          {
+            "mean_predicted": 0.0072,
+            "observed_rate": 0.004,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.0076,
+            "observed_rate": 0.0119,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.008,
+            "observed_rate": 0.0146,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.0086,
+            "observed_rate": 0.0132,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.0093,
+            "observed_rate": 0.0106,
+            "n": 754
+          },
+          {
+            "mean_predicted": 0.0102,
+            "observed_rate": 0.0119,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.0115,
+            "observed_rate": 0.0185,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.0134,
+            "observed_rate": 0.0238,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.0167,
+            "observed_rate": 0.0278,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.0254,
+            "observed_rate": 0.057,
+            "n": 755
+          }
+        ],
+        "regularisation_C": 0.0003,
+        "candidates": [
+          {
+            "C": 0.0003,
+            "val_roc_auc": 0.6846,
+            "fit_seconds": 0.3
+          },
+          {
+            "C": 0.001,
+            "val_roc_auc": 0.6617,
+            "fit_seconds": 0.3
+          },
+          {
+            "C": 0.003,
+            "val_roc_auc": 0.6441,
+            "fit_seconds": 0.4
+          },
+          {
+            "C": 0.01,
+            "val_roc_auc": 0.6307,
+            "fit_seconds": 0.4
+          }
+        ],
+        "published": false,
+        "subgroups": [
+          {
+            "group": "sex",
+            "value": "F",
+            "n": 3187,
+            "positives": 68,
+            "roc_auc": 0.6873
+          },
+          {
+            "group": "sex",
+            "value": "M",
+            "n": 4362,
+            "positives": 78,
+            "roc_auc": 0.6721
+          },
+          {
+            "group": "view",
+            "value": "PA",
+            "n": 4430,
+            "positives": 107,
+            "roc_auc": 0.6439
+          },
+          {
+            "group": "view",
+            "value": "AP",
+            "n": 3119,
+            "positives": 39,
+            "roc_auc": 0.6818
+          },
+          {
+            "group": "age",
+            "value": "under 40",
+            "n": 2439,
+            "positives": 22,
+            "roc_auc": 0.5481
+          },
+          {
+            "group": "age",
+            "value": "40-59",
+            "n": 3227,
+            "positives": 70,
+            "roc_auc": 0.7038
+          },
+          {
+            "group": "age",
+            "value": "60-74",
+            "n": 1665,
+            "positives": 46,
+            "roc_auc": 0.6442
+          },
+          {
+            "group": "age",
+            "value": "75 and over",
+            "n": 218,
+            "positives": 8,
+            "roc_auc": 0.7899
+          }
+        ]
+      },
+      "Pleural_Thickening": {
+        "n": 7549,
+        "prevalence": 0.0311,
+        "threshold": 0.015,
+        "roc_auc": 0.6746,
+        "pr_auc": 0.0667,
+        "brier": 0.0298,
+        "precision": 0.0369,
+        "recall": 0.8894,
+        "f1": 0.0709,
+        "confusion_matrix": {
+          "tn": 1865,
+          "fp": 5449,
+          "fn": 26,
+          "tp": 209
+        },
+        "roc_auc_ci": [
+          0.6387,
+          0.709
+        ],
+        "sensitivity": 0.8894,
+        "specificity": 0.255,
+        "operating_points": [
+          {
+            "name": "rule_out",
+            "target_sensitivity": 0.9,
+            "threshold": 0.015,
+            "sensitivity": 0.8894,
+            "specificity": 0.255,
+            "share_flagged": 0.7495
+          },
+          {
+            "name": "attention",
+            "target_sensitivity": 0.6,
+            "threshold": 0.0246,
+            "sensitivity": 0.6,
+            "specificity": 0.6648,
+            "share_flagged": 0.3435
+          }
+        ],
+        "metadata_only_roc_auc": 0.5841,
+        "calibration": "platt",
+        "calibration_bins": [
+          {
+            "mean_predicted": 0.0119,
+            "observed_rate": 0.0132,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.0135,
+            "observed_rate": 0.0172,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.0151,
+            "observed_rate": 0.0132,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.0168,
+            "observed_rate": 0.0106,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.0188,
+            "observed_rate": 0.0305,
+            "n": 754
+          },
+          {
+            "mean_predicted": 0.0212,
+            "observed_rate": 0.0265,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.0244,
+            "observed_rate": 0.0278,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.0293,
+            "observed_rate": 0.0358,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.0367,
+            "observed_rate": 0.0517,
+            "n": 755
+          },
+          {
+            "mean_predicted": 0.053,
+            "observed_rate": 0.0848,
+            "n": 755
+          }
+        ],
+        "regularisation_C": 0.0003,
+        "candidates": [
+          {
+            "C": 0.0003,
+            "val_roc_auc": 0.6681,
+            "fit_seconds": 0.3
+          },
+          {
+            "C": 0.001,
+            "val_roc_auc": 0.648,
+            "fit_seconds": 0.3
+          },
+          {
+            "C": 0.003,
+            "val_roc_auc": 0.6376,
+            "fit_seconds": 0.4
+          },
+          {
+            "C": 0.01,
+            "val_roc_auc": 0.6308,
+            "fit_seconds": 0.5
+          }
+        ],
+        "published": false,
+        "subgroups": [
+          {
+            "group": "sex",
+            "value": "F",
+            "n": 3187,
+            "positives": 93,
+            "roc_auc": 0.632
+          },
+          {
+            "group": "sex",
+            "value": "M",
+            "n": 4362,
+            "positives": 142,
+            "roc_auc": 0.7041
+          },
+          {
+            "group": "view",
+            "value": "PA",
+            "n": 4430,
+            "positives": 160,
+            "roc_auc": 0.6839
+          },
+          {
+            "group": "view",
+            "value": "AP",
+            "n": 3119,
+            "positives": 75,
+            "roc_auc": 0.6328
+          },
+          {
+            "group": "age",
+            "value": "under 40",
+            "n": 2439,
+            "positives": 57,
+            "roc_auc": 0.6607
+          },
+          {
+            "group": "age",
+            "value": "40-59",
+            "n": 3227,
+            "positives": 104,
+            "roc_auc": 0.6729
+          },
+          {
+            "group": "age",
+            "value": "60-74",
+            "n": 1665,
+            "positives": 65,
+            "roc_auc": 0.6626
+          },
+          {
+            "group": "age",
+            "value": "75 and over",
+            "n": 218,
+            "positives": 9,
+            "roc_auc": 0.6566
+          }
+        ]
+      },
+      "Hernia": {
+        "skipped": "too few positive films to fit or evaluate",
+        "positives": {
+          "train": 61,
+          "val": 1,
+          "test": 27
+        }
+      }
+    }
+  },
+  "limitations": [
+    "Decision support for reading order and for a second look. It is not a diagnosis, it does not replace a radiologist's report, and no finding it reports may be acted on before a clinician has read the film.",
+    "Trained on NIH ChestX-ray14, whose labels were mined from radiology reports with NLP and are about 90% accurate. The model can be no better than the labels it learned from, and its metrics are measured against those same noisy labels.",
+    "One institution, one country, frontal films of adults only. Accuracy on films from other equipment, other populations or children is unknown and is likely to be worse.",
+    "The backbone is an ImageNet model that has never been fine-tuned on radiographs. A fine-tuned DenseNet-121 of the CheXNet family reaches roughly 0.05 more ROC-AUC on the same findings.",
+    "Portable AP films come from sicker patients, so a model can score them higher for reasons that are about the camera and not the chest. The model card reports accuracy separately for AP and PA views.",
+    "Findings below the publication bar are not shown at all, so the absence of a finding in this tool means nothing about whether it is present on the film."
+  ],
+  "model_name": "chest_xray_triage",
+  "version": "1.0.0",
+  "trained_at": "2026-09-22T08:39:47+00:00",
+  "environment": {
+    "python": "3.12.12",
+    "sklearn": "1.9.1",
+    "xgboost": "3.4.1",
+    "numpy": "2.5.3"
+  },
+  "intended_use": "Reading-order support and a second look on adult frontal chest radiographs. Not a diagnosis, not a report, and not validated for clinical use."
+}

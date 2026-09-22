@@ -1,4 +1,5 @@
 {
   "readmission_30d": "1.0.0",
-  "length_of_stay": "1.0.0"
+  "length_of_stay": "1.0.0",
+  "chest_xray_triage": "1.0.0"
 }

@@ -188,14 +188,17 @@ class MedicalRecord(TimestampMixin, Base):
     admission_id: Mapped[int | None] = mapped_column(ForeignKey("admissions.id", ondelete="SET NULL"))
     visit_date: Mapped[date] = mapped_column(Date)
     record_type: Mapped[str] = mapped_column(
-        str_enum("consultation", "progress_note", "discharge_summary", "emergency", "follow_up",
-                 name="record_type")
+        str_enum("consultation", "progress_note", "discharge_summary", "radiology_report", "emergency",
+                 "follow_up", name="record_type")
     )
     chief_complaint: Mapped[str] = mapped_column(String(255))
     symptoms: Mapped[str | None] = mapped_column(Text)
     diagnosis_summary: Mapped[str | None] = mapped_column(Text)
     notes: Mapped[str | None] = mapped_column(Text)
     treatment_plan: Mapped[str | None] = mapped_column(Text)
+    # Discharge co-pilot provenance: drafting model, signer, share of the prose edited, and the source behind
+    # every [R#]/[S#] marker kept in the text. NULL for records written by hand.
+    ai_provenance: Mapped[dict | None] = mapped_column(JSON, nullable=True)
 
     doctor: Mapped[Doctor | None] = relationship(lazy="joined")
 

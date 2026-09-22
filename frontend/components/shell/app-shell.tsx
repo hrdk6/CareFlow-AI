@@ -1,8 +1,8 @@
 "use client";
 
 import {
-  Activity, BarChart3, Bot, CalendarDays, ClipboardList, FileText, FlaskConical, Info, LayoutDashboard, LogOut,
-  Menu, Pill, Settings, Shield, Stethoscope, Users, X,
+  Activity, BarChart3, BedDouble, Bot, CalendarDays, ClipboardList, FileText, FlaskConical, Info, LayoutDashboard, LogOut,
+  Menu, Pill, ScanLine, Settings, Shield, Stethoscope, Users, X,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -24,6 +24,8 @@ const NAV: { section: string; items: NavItem[] }[] = [
   {
     section: "Care", items: [
       { href: "/patients", label: "Patients", icon: Users },
+      { href: "/ward", label: "Inpatients", icon: BedDouble, perms: [PERMS.clinical] },
+      { href: "/imaging", label: "Radiology", icon: ScanLine, perms: [PERMS.clinical] },
       { href: "/appointments", label: "Appointments", icon: CalendarDays, perms: ["appointments:read"] },
       { href: "/doctors", label: "Doctors", icon: Stethoscope, perms: ["doctors:read"] },
     ],

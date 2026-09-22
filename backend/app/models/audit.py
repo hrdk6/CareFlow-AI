@@ -47,3 +47,5 @@ class AIQueryTrace(Base):
     model_versions: Mapped[list] = mapped_column(JSON, default=list)
     prompt_tokens: Mapped[int | None] = mapped_column(Integer)
     completion_tokens: Mapped[int | None] = mapped_column(Integer)
+    # {"applied": true, "destination": "groq", "replaced": {"mrn": 1, "patient_name": 1}, "total": 2}
+    privacy: Mapped[dict | None] = mapped_column(JSON, nullable=True)

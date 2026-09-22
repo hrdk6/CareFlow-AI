@@ -2,7 +2,7 @@
 
 import {
   AlertTriangle, ArrowRight, ArrowUp, BookOpen, Bot, CalendarDays, ChevronDown, ClipboardCheck, Clock, Cpu, Database, FileSearch, Gauge,
-  History, Info, Pill, Users, Wrench,
+  History, Info, Pill, ShieldCheck, Users, Wrench,
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -15,6 +15,7 @@ import { cn, pct, titleCase } from "@/lib/format";
 import type { AIResponse, Citation } from "@/lib/types";
 
 import { Answer } from "./answer";
+import { destinationLabel, PrivacyPanel } from "./privacy";
 import { SourceDrawer } from "./source-drawer";
 
 interface Turn { id: number; query: string; response?: AIResponse; error?: unknown; startedAt: number }
@@ -168,7 +169,7 @@ function Pending({ startedAt }: { startedAt: number }) {
 }
 
 function ResponseCard({ r, onCite }: { r: AIResponse; onCite: (c: Citation) => void }) {
-  const [tab, setTab] = useState<"sources" | "records" | "model" | "trace" | null>(null);
+  const [tab, setTab] = useState<"sources" | "records" | "model" | "privacy" | "trace" | null>(null);
   const labels: Record<string, string> = Object.fromEntries([
     ...r.citations.map((c) => [c.id, `${c.document_title} — ${c.section_path}`]),
     ...r.record_refs.map((x) => [x.id, `${titleCase(x.source_type)}: ${x.label}${x.date ? ` (${x.date})` : ""}`]),
@@ -182,6 +183,7 @@ function ResponseCard({ r, onCite }: { r: AIResponse; onCite: (c: Citation) => v
     { id: "sources" as const, label: "Document sources", count: r.citations.length, icon: FileSearch },
     { id: "records" as const, label: "Database records", count: r.record_refs.length, icon: Database },
     { id: "model" as const, label: "Model output", count: r.predictions.length + (r.similarity ? 1 : 0), icon: Cpu },
+    ...(r.privacy ? [{ id: "privacy" as const, label: "Privacy", count: r.privacy.total, icon: ShieldCheck }] : []),
     { id: "trace" as const, label: "Details", count: r.tool_calls.length, icon: Wrench },
   ];
   const origins = [...new Set(r.route.map((x) => ORIGIN_LABEL[x]).filter(Boolean))];
@@ -191,6 +193,13 @@ function ResponseCard({ r, onCite }: { r: AIResponse; onCite: (c: Citation) => v
         <span className="mr-1 text-xs font-medium text-ai">Assistant</span>
         <span className="text-xs text-muted">answered from</span>
         {origins.map((o) => <Badge key={o}>{o}</Badge>)}
+        {r.privacy?.applied && (
+          <button type="button" onClick={() => setTab(tab === "privacy" ? null : "privacy")}
+            title={`Patient identifiers were replaced before the question went to ${destinationLabel(r.privacy.destination)}`}
+            className="ml-1 flex items-center gap-1 rounded-full px-1.5 text-xs font-medium text-ok transition-colors duration-150 hover:bg-ok-tint">
+            <ShieldCheck className="h-3.5 w-3.5" aria-hidden /> Identifiers hidden
+          </button>
+        )}
         <span className="ml-auto flex items-center gap-1 text-xs text-muted">
           <Clock className="h-3 w-3" aria-hidden /> {(r.stage_ms.total / 1000).toFixed(1)} s
         </span>
@@ -206,7 +215,7 @@ function ResponseCard({ r, onCite }: { r: AIResponse; onCite: (c: Citation) => v
       </div>
       <div className="flex flex-wrap gap-1 border-t border-line px-2.5 py-2">
         {tabs.map((t) => (
-          <button key={t.id} type="button" onClick={() => setTab(tab === t.id ? null : t.id)} disabled={t.count === 0 && t.id !== "trace"}
+          <button key={t.id} type="button" onClick={() => setTab(tab === t.id ? null : t.id)} disabled={t.count === 0 && t.id !== "trace" && t.id !== "privacy"}
             aria-expanded={tab === t.id}
             className={cn("flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors duration-150 disabled:opacity-40",
               tab === t.id ? "bg-raised text-ink" : "text-muted hover:bg-sunken hover:text-ink")}>
@@ -219,7 +228,8 @@ function ResponseCard({ r, onCite }: { r: AIResponse; onCite: (c: Citation) => v
       {tab && <div key={tab} className="animate-fade-in border-t border-line bg-sunken/50 px-4 py-3 text-xs">{
         tab === "sources" ? <SourcesList r={r} onCite={onCite} /> :
           tab === "records" ? <RecordsList r={r} /> :
-            tab === "model" ? <ModelOutput r={r} /> : <Trace r={r} />
+            tab === "model" ? <ModelOutput r={r} /> :
+              tab === "privacy" && r.privacy ? <PrivacyPanel privacy={r.privacy} /> : <Trace r={r} />
       }</div>}
       <div className="space-y-0.5 rounded-b-xl border-t border-line px-4 py-2.5 text-[11px] leading-snug text-faint">
         {r.limitations.map((l) => <p key={l}>{l}</p>)}

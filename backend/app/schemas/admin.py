@@ -80,3 +80,4 @@ class AITraceOut(ORMModel):
     model_versions: list
     prompt_tokens: int | None
     completion_tokens: int | None
+    privacy: dict | None = None

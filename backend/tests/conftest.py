@@ -19,6 +19,10 @@ os.environ.update({
     # backend/.env is also read by Settings, so pin every behaviour-affecting option explicitly.
     "CAREFLOW_LLM_TOOL_CALLING": "auto",
     "CAREFLOW_INJECTION_POLICY": "quarantine",
+    "CAREFLOW_LLM_PSEUDONYMIZE": "auto",
+    "CAREFLOW_STREAM_MAX_SECONDS": "3",  # the ward stream ends quickly instead of holding the test open
+    "CAREFLOW_IMAGING_TRIAGE": "false",  # keeps the suite offline; the `models` tests score films directly
+    "CAREFLOW_PRIVACY_NER": "false",     # likewise: the name-finding pass is exercised by a `models` test
     "CAREFLOW_LLM_CONTEXT_BUDGET_CHARS": "12000",
     "CAREFLOW_STORAGE_DIR": tempfile.mkdtemp(prefix="careflow-test-"),
     "CAREFLOW_LOG_LEVEL": "WARNING",

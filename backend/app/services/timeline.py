@@ -41,10 +41,11 @@ def build_timeline(db: Session, patient_id: int, *, since: date | None = None,
                 source_type="admission", source_id=a.id))
 
     for r in db.scalars(select(MedicalRecord).where(MedicalRecord.patient_id == patient_id)):
-        category = "emergency" if r.record_type == "emergency" else "visit"
+        category = {"emergency": "emergency", "radiology_report": "imaging"}.get(r.record_type, "visit")
         title = {"discharge_summary": "Discharge summary", "follow_up": "Follow-up visit",
                  "consultation": "Consultation", "progress_note": "Progress note",
-                 "emergency": "Emergency assessment"}[r.record_type]
+                 "emergency": "Emergency assessment", "radiology_report": "Radiology report"}.get(
+                     r.record_type, r.record_type.replace("_", " ").capitalize())
         events.append(TimelineEvent(
             id=f"record:{r.id}", at=_at(r.visit_date), category=category,
             title=f"{title}: {r.chief_complaint}", detail=r.treatment_plan or r.diagnosis_summary,

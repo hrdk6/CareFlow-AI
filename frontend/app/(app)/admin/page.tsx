@@ -186,7 +186,7 @@ function Traces() {
   const [offset, setOffset] = useState(0);
   const { data, error, loading, reload } = useApi<Page<AITrace>>(`/admin/ai-traces${qs({ limit: 30, offset })}`);
   return (
-    <Card bodyClassName="p-0" title="AI query traces" subtitle="Per-request routing, latency by stage, retrieved/cited source ids, tools and tokens (query text is never stored, only its hash)">
+    <Card bodyClassName="p-0" title="AI query traces" subtitle="Per-request routing, latency by stage, retrieved/cited source ids, tools, tokens and how many patient identifiers were hidden from the model (query text is never stored, only its hash)">
       <DataTable dense rows={data?.items} loading={loading} error={error} onRetry={reload}
         columns={[
           { key: "at", header: "Time", render: (t) => <span className="whitespace-nowrap text-xs">{fmtDateTime(t.created_at)}</span> },
@@ -198,6 +198,9 @@ function Traces() {
           { key: "stages", header: "Stages (ms)", render: (t) => <span className="font-mono text-[10px] text-muted">{Object.entries(t.stage_ms).map(([k, v]) => `${k}:${Math.round(v)}`).join(" ")}</span> },
           { key: "src", header: "Sources", render: (t) => <span className="text-xs">{t.cited_source_ids.length}/{t.retrieved_chunk_ids.length}</span> },
           { key: "tok", header: "Tokens", render: (t) => <span className="text-xs tabular-nums">{t.prompt_tokens ?? "—"}/{t.completion_tokens ?? "—"}</span> },
+          { key: "privacy", header: "Identifiers hidden", render: (t) => !t.privacy ? <span className="text-xs text-faint">no model</span>
+            : t.privacy.applied ? <span className="text-xs tabular-nums text-ok" title={Object.entries(t.privacy.replaced).map(([k, v]) => `${k}: ${v}`).join(", ")}>{t.privacy.total}</span>
+              : <span className="text-xs text-muted">local model</span> },
         ]} />
       {data && <Pagination total={data.total} limit={30} offset={offset} onChange={setOffset} />}
     </Card>

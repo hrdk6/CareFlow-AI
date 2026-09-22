@@ -74,6 +74,7 @@ class HospitalGenerator:
     def __init__(self, db: Session, *, seed: int = 7, n_patients: int = 240, anchor: date | None = None,
                  demo_password: str):
         self.db = db
+        self.seed = seed
         self.rng = random.Random(seed)
         self.n_patients = n_patients
         self.anchor = anchor or date.today()
@@ -101,7 +102,12 @@ class HospitalGenerator:
                 self._random_patient(mrn)
         self._nurse_assignments()
         self.db.flush()
-        return {"patients": self.n_patients, "doctors": len(self.doctors), "users": len(self.users)}
+        from app.seed.vitals import seed_vitals  # its own random stream: the hospital above is unchanged
+
+        observations = seed_vitals(self.db, seed=self.seed,
+                                   now=at(self.anchor, 12) if self.anchor != date.today() else None)
+        return {"patients": self.n_patients, "doctors": len(self.doctors), "users": len(self.users),
+                "observations": observations}
 
     def _roles(self) -> None:
         self.roles = {}

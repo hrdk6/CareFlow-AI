@@ -23,6 +23,7 @@ RUN uv sync --frozen --no-dev
 # Versioned model artifacts, evaluation reports and the synthetic knowledge base.
 COPY ml/__init__.py /app/ml/__init__.py
 COPY ml/artifacts /app/ml/artifacts
+COPY ml/data/demo_studies /app/ml/data/demo_studies
 COPY ml/evaluation/reports /app/ml/evaluation/reports
 COPY rag/corpus /app/rag/corpus
 COPY rag/evaluation/results /app/rag/evaluation/results
@@ -37,6 +38,9 @@ ENV PATH="/app/backend/.venv/bin:$PATH"
 RUN python -c "from fastembed import TextEmbedding; from fastembed.rerank.cross_encoder import TextCrossEncoder; \
 TextEmbedding('BAAI/bge-small-en-v1.5', cache_dir='/app/backend/.models'); \
 TextCrossEncoder('Xenova/ms-marco-MiniLM-L-6-v2', cache_dir='/app/backend/.models')"
+
+# ... and the image backbone the chest radiograph triage heads sit on, for the same reason.
+RUN python -c "from app.imaging.backbone import prepared_path; print(prepared_path())"
 
 # Hosts such as Render and Railway assign the port through $PORT; 8000 otherwise.
 EXPOSE 8000
